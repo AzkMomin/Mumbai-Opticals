@@ -47,6 +47,8 @@
         ]
     };
     FIELDS.goggles = FIELDS.frames;
+    // Misc-row boxes whose product column has a different name
+    const FIELD_SOURCE = { brand: 'company', color: 'model_color', size: 'model_size' };
 
     function escapeHtml(text) {
         if (text === null || text === undefined) return '';
@@ -138,10 +140,10 @@
         const product = allProducts.find(p => String(p.product_id) === select.value);
         row.querySelector('.mrp').value = parseFloat(option.getAttribute('data-price') || 0).toFixed(2);
         if (product) {
-            // Pre-fill the detail boxes from the product, staff can still change them
+            // Fill the detail boxes from the chosen product; staff can still change them
             row.querySelectorAll('.product-field').forEach(input => {
-                const value = product[input.dataset.field];
-                if (value && !input.value) input.value = value;
+                const value = product[FIELD_SOURCE[input.dataset.field] || input.dataset.field];
+                input.value = value === null || value === undefined ? '' : value;
             });
         }
         updateAllTotals();

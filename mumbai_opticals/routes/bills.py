@@ -84,8 +84,10 @@ def bills():
 
 def _bill_products():
     products = db.query_all("""
-        SELECT p.product_id, p.product_name, p.product_image, p.model_name, p.model_code,
-               p.selling_price,
+        SELECT p.product_id, p.product_name, p.product_image, p.selling_price,
+               p.model_name, p.model_code, p.model_color, p.model_size, p.frame_type, p.material,
+               p.lens_type, p.lens_for, p.which_side, p.company,
+               p.watch_type, p.watch_mechanism, p.strap_material, p.dial_color,
                pt.type_name, pc.category_name, s.quantity
         FROM products p
         JOIN product_types pt ON p.product_type_id = pt.type_id
