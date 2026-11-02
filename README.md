@@ -21,9 +21,11 @@ mumbai_opticals/          The application
   security.py             CSRF protection for forms and fetch()
   schema.py               Adds new nullable columns the app needs (runs once per process)
   helpers.py              Uploads, pagination, stock movements, payment status
+  images.py               Product photos: background removal and auto backdrop (Pillow only)
   routes/
     main.py               Dashboard (home page is served by shop.py)
-    shop.py               Public shop: product catalogue, product pages, WhatsApp order links
+    shop.py               Public shop: catalogue, product pages, reviews, questions, WhatsApp order links
+    reviews.py            Staff: hide/delete reviews, answer customer questions
     auth.py               Login / logout
     users.py              Staff logins
     customers.py          Customers
@@ -63,6 +65,13 @@ static/
   summary is only a preview.
 - **Static files** are linked with `{{ asset('css/...') }}`. This adds a version number,
   so browsers fetch the new file after each deploy.
+
+## Product photos
+
+Each product can have up to 10 photos per upload (table `product_images`; `products.product_image`
+always holds the main photo). On upload the background is removed when it is plain enough to separate
+safely, and the product is placed on a soft backdrop chosen from its colour. The original is kept in
+`originals/`, and staff can switch any photo back to the original on the Edit Product page.
 
 ## Deploying
 

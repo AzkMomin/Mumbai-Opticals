@@ -37,6 +37,23 @@
                         <span class="badge bg-secondary" style="font-size: 0.65rem;">{{ product.category_name }}</span>
                         <span class="badge bg-info" style="font-size: 0.65rem;">{{ product.type_name }}</span>
                     </div>
+                    <div class="mt-2" style="font-size: 0.75rem;">
+                        {% if rating and rating.count %}
+                        <span class="text-warning">{% for i in range(5) %}<i class="{% if rating.average >= i + 0.75 %}fas fa-star{% elif rating.average >= i + 0.25 %}fas fa-star-half-stroke{% else %}far fa-star{% endif %}"></i>{% endfor %}</span>
+                        {{ rating.average }} ({{ rating.count }} review{{ 's' if rating.count != 1 }})
+                        {% else %}<span class="text-muted">No reviews yet</span>{% endif %}
+                    </div>
+                    {% if photos|length > 1 %}
+                    <div class="d-flex flex-wrap gap-1 justify-content-center mt-2">
+                        {% for photo in photos[1:] %}
+                        <img src="{{ url_for('static', filename=photo.path) }}" alt="" style="width: 44px; height: 33px; object-fit: cover; border-radius: 4px; border: 1px solid #dde4ea;">
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="mt-2 d-flex gap-1 justify-content-center">
+                        <a href="{{ url_for('shop.product', product_id=product.product_id) }}" target="_blank" class="btn btn-outline-primary btn-sm" style="font-size: 0.65rem;"><i class="fas fa-store me-1"></i>View in shop</a>
+                        <a href="{{ url_for('reviews.manage', product_id=product.product_id) }}" class="btn btn-outline-secondary btn-sm" style="font-size: 0.65rem;"><i class="fas fa-star me-1"></i>Reviews</a>
+                    </div>
                 </div>
             </div>
 

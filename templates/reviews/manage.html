@@ -1,0 +1,91 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Reviews & Questions - Mumbai Opticals{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('css/pages/reviews/manage.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <div class="header">
+            <h2 class="page-title"><i class="fas fa-star me-2"></i>Reviews &amp; Questions{% if product %}: {{ product.product_name }}{% endif %}</h2>
+            <div>
+                {% if product %}<a href="{{ url_for('reviews.manage') }}" class="btn btn-secondary btn-sm">All products</a>{% endif %}
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <div class="stat"><span>{{ summary.reviews or 0 }}</span>reviews</div>
+            <div class="stat"><span>{{ summary.average or '–' }}</span>average rating</div>
+            <div class="stat"><span>{{ pending_questions or 0 }}</span>questions waiting</div>
+            <div class="stat"><span>{{ summary.hidden or 0 }}</span>hidden reviews</div>
+        </div>
+
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item"><a class="nav-link {% if tab == 'questions' %}active{% endif %}" href="?tab=questions{% if product %}&product_id={{ product.product_id }}{% endif %}">Questions ({{ questions|length }})</a></li>
+            <li class="nav-item"><a class="nav-link {% if tab == 'reviews' %}active{% endif %}" href="?tab=reviews{% if product %}&product_id={{ product.product_id }}{% endif %}">Reviews ({{ reviews|length }})</a></li>
+        </ul>
+
+        {% if tab == 'questions' %}
+        <div class="list">
+            {% for q in questions %}
+            <div class="item{% if q.status == 'hidden' %} is-hidden{% endif %}">
+                <div class="item__head">
+                    <div>
+                        <a href="{{ url_for('shop.product', product_id=q.product_id) }}#questions" target="_blank" class="item__product">{{ q.product_name }}</a>
+                        <div class="item__meta">{{ q.name }} · {{ q.created }}
+                            {% if q.status == 'pending' %}<span class="badge bg-warning text-dark">Waiting for answer</span>
+                            {% elif q.status == 'hidden' %}<span class="badge bg-secondary">Hidden</span>
+                            {% else %}<span class="badge bg-success">Published</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="item__actions">
+                        <a href="{{ url_for('reviews.toggle_question', question_id=q.question_id) }}" data-method="post" class="btn btn-outline-secondary btn-sm">{% if q.status == 'hidden' %}Show{% else %}Hide{% endif %}</a>
+                        <a href="{{ url_for('reviews.delete_question', question_id=q.question_id) }}" data-method="post" data-confirm="Delete this question?" class="btn btn-outline-danger btn-sm">Delete</a>
+                    </div>
+                </div>
+                <p class="item__text"><strong>Q:</strong> {{ q.question }}</p>
+                <form method="post" action="{{ url_for('reviews.answer_question', question_id=q.question_id) }}" class="answer-form">
+                    <textarea name="answer" rows="2" class="form-control form-control-sm" placeholder="Write the answer customers will see…" required>{{ q.answer or '' }}</textarea>
+                    <button class="btn btn-primary btn-sm">{% if q.answer %}Update answer{% else %}Publish answer{% endif %}</button>
+                </form>
+            </div>
+            {% else %}
+            <p class="empty">No questions yet. Questions customers ask on product pages appear here for you to answer.</p>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="list">
+            {% for r in reviews %}
+            <div class="item{% if r.status == 'hidden' %} is-hidden{% endif %}">
+                <div class="item__head">
+                    <div>
+                        <a href="{{ url_for('shop.product', product_id=r.product_id) }}#reviews" target="_blank" class="item__product">{{ r.product_name }}</a>
+                        <div class="item__meta">
+                            <span class="stars">{% for i in range(5) %}<i class="{% if i < r.rating %}fas{% else %}far{% endif %} fa-star"></i>{% endfor %}</span>
+                            {{ r.name }}{% if r.phone %} ({{ r.phone }}){% endif %} · {{ r.created }}
+                            {% if r.verified %}<span class="badge bg-success">Verified purchase</span>{% endif %}
+                            {% if r.status == 'hidden' %}<span class="badge bg-secondary">Hidden</span>{% endif %}
+                            · {{ r.helpful }} found helpful
+                        </div>
+                    </div>
+                    <div class="item__actions">
+                        <a href="{{ url_for('reviews.toggle_review', review_id=r.review_id) }}" data-method="post" class="btn btn-outline-secondary btn-sm">{% if r.status == 'hidden' %}Show{% else %}Hide{% endif %}</a>
+                        <a href="{{ url_for('reviews.delete_review', review_id=r.review_id) }}" data-method="post" data-confirm="Delete this review?" class="btn btn-outline-danger btn-sm">Delete</a>
+                    </div>
+                </div>
+                {% if r.title %}<p class="item__title">{{ r.title }}</p>{% endif %}
+                {% if r.body %}<p class="item__text">{{ r.body }}</p>{% endif %}
+            </div>
+            {% else %}
+            <p class="empty">No reviews yet. Reviews customers write on product pages appear here.</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ asset('js/layout.js') }}"></script>
+{% endblock %}

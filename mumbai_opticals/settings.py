@@ -9,7 +9,7 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 PRODUCT_UPLOAD_DIR = os.path.join(STATIC_DIR, 'uploads', 'products')
 PRESCRIPTION_UPLOAD_DIR = os.path.join(STATIC_DIR, 'uploads', 'prescriptions')
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-MAX_UPLOAD_BYTES = 16 * 1024 * 1024
+MAX_UPLOAD_BYTES = 40 * 1024 * 1024  # several phone photos per upload
 
 PER_PAGE = 10
 

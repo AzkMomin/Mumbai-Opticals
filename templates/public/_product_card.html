@@ -1,18 +1,18 @@
+{% from 'public/_macros.html' import rating_line, gallery %}
 <article class="product-tile{% if not p.in_stock %} is-out{% endif %}"
          data-category="{{ p.category_id }}" data-type="{{ p.type_id }}" data-price="{{ p.selling_price or 0 }}"
+         data-rating="{{ p.rating }}"
          data-search="{{ (p.product_name ~ ' ' ~ p.type_name ~ ' ' ~ p.summary ~ ' ' ~ (p.model_code or ''))|lower }}">
-    <a class="product-tile__media{% if p.image_url %} has-image{% endif %}" href="{{ url_for('shop.product', product_id=p.product_id) }}" tabindex="-1" aria-hidden="true">
-        {% if p.image_url %}
-        <img src="{{ p.image_url }}" alt="" loading="lazy">
-        {% else %}
-        <span class="product-tile__placeholder"><i class="fas {{ p.icon }}"></i></span>
-        {% endif %}
+    <div class="product-tile__media{% if p.images %} has-image{% endif %}">
+        <a href="{{ url_for('shop.product', product_id=p.product_id) }}" class="product-tile__media-link" tabindex="-1" aria-hidden="true"></a>
+        {{ gallery(p.images, p.product_name, p.icon) }}
         {% if not p.in_stock %}<span class="product-tile__flag">Out of stock</span>
         {% elif p.quantity <= 3 %}<span class="product-tile__flag product-tile__flag--low">Only {{ p.quantity }} left</span>{% endif %}
-    </a>
+    </div>
     <div class="product-tile__body">
         <p class="product-tile__type">{{ p.type_name }}</p>
         <h3 class="product-tile__name"><a href="{{ url_for('shop.product', product_id=p.product_id) }}">{{ p.product_name }}</a></h3>
+        {{ rating_line(p) }}
         {% if p.summary %}<p class="product-tile__meta">{{ p.summary }}</p>{% endif %}
         <div class="product-tile__foot">
             <span class="product-tile__price">{{ p.price_text }}</span>

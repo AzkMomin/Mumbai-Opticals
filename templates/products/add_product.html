@@ -80,41 +80,44 @@
                             </span>
                         </h6>
 
-                        <!-- Product Image Upload -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <label class="form-label">Product Image</label>
-                                <div class="d-flex align-items-center">
-                                    <div class="image-preview me-2" onclick="document.getElementById('product_image').click()">
-                                        <img id="imagePreview" src="
-                                            {% if edit_mode and product and product.product_image %}
-                                                {{ url_for('static', filename=product.product_image) }}
-                                            {% elif form_data and form_data.product_image %}
-                                                {{ url_for('static', filename=form_data.product_image) }}
-                                            {% else %}
-                                                #
-                                            {% endif %}" 
-                                             alt="Preview" 
-                                             style="display: {% if (edit_mode and product and product.product_image) or (form_data and form_data.product_image) %}block{% else %}none{% endif %};">
-                                        <div id="uploadPlaceholder" style="display: {% if (edit_mode and product and product.product_image) or (form_data and form_data.product_image) %}none{% else %}block{% endif %};">
-                                            <i class="fas fa-camera fa-1x mb-1"></i>
-                                            <p class="mb-0" style="font-size: 0.7rem;">Upload</p>
-                                        </div>
-                                        <div class="overlay">
-                                            <i class="fas fa-upload me-1"></i>Change
-                                        </div>
+                        <!-- Product Photos -->
+                        <div class="photos-section mb-3" id="photos">
+                            <label class="form-label">Product Photos</label>
+                            {% if edit_mode and photos %}
+                            <div class="photo-grid mb-2">
+                                {% for photo in photos %}
+                                <div class="photo-card{% if loop.first %} is-main{% endif %}">
+                                    <img src="{{ url_for('static', filename=photo.path) }}" alt="Photo {{ loop.index }}">
+                                    <div class="photo-card__badges">
+                                        {% if loop.first %}<span class="badge bg-primary">Main</span>{% endif %}
+                                        {% if photo.processed_path and photo.path == photo.processed_path and photo.bg_removed %}<span class="badge bg-success">Background removed</span>
+                                        {% elif photo.processed_path and photo.path != photo.processed_path %}<span class="badge bg-secondary">Original</span>{% endif %}
                                     </div>
-                                    <input type="file" class="d-none" name="product_image" id="product_image" accept="image/*">
-                                    <div>
-                                        <small class="text-muted">Max 16MB</small>
-                                        {% if edit_mode and product and product.product_image %}
-                                        <small class="text-muted d-block mt-1">
-                                            <i class="fas fa-check-circle text-success me-1"></i>Current: {{ product.product_image.split('/')[-1][:20] }}
-                                        </small>
+                                    <div class="photo-card__actions">
+                                        {% if not loop.first %}
+                                        <a href="{{ url_for('products.main_photo', product_id=product.product_id, image_id=photo.image_id) }}" data-method="post" title="Make this the main photo"><i class="fas fa-star"></i></a>
                                         {% endif %}
+                                        {% if photo.processed_path and photo.original_path and photo.processed_path != photo.original_path %}
+                                        <a href="{{ url_for('products.toggle_photo', product_id=product.product_id, image_id=photo.image_id) }}" data-method="post"
+                                           title="{% if photo.path == photo.processed_path %}Use the original photo{% else %}Use the cleaned-up photo{% endif %}"><i class="fas fa-wand-magic-sparkles"></i></a>
+                                        {% endif %}
+                                        <a href="{{ url_for('products.delete_photo', product_id=product.product_id, image_id=photo.image_id) }}" data-method="post"
+                                           data-confirm="Remove this photo?" title="Remove photo" class="text-danger"><i class="fas fa-trash"></i></a>
                                     </div>
                                 </div>
+                                {% endfor %}
                             </div>
+                            {% endif %}
+                            <label class="photo-drop" for="product_images">
+                                <i class="fas fa-camera me-2"></i>
+                                <span id="photoDropText">{% if edit_mode and photos %}Add more photos{% else %}Choose photos{% endif %} (up to 10, JPG/PNG/WEBP, max 40 MB in total)</span>
+                            </label>
+                            <input type="file" class="d-none" name="product_images" id="product_images" accept="image/*" multiple>
+                            <div class="photo-grid mt-2" id="newPhotoPreview"></div>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-wand-magic-sparkles me-1"></i>Backgrounds are removed automatically and a matching backdrop is added.
+                                Works best on photos taken against a plain wall, table or sheet of paper. You can switch back to the original photo here.
+                            </small>
                         </div>
 
                         <!-- Product Name & Description -->
@@ -267,31 +270,26 @@
         });
         {% endif %}
 
-        document.getElementById('product_image')?.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('imagePreview');
-            const placeholder = document.getElementById('uploadPlaceholder');
-
-            if (file) {
-                if (file.size > 16 * 1024 * 1024) {
-                    alert('File size exceeds 16MB');
-                    this.value = '';
-                    return;
-                }
-                if (!file.type.match('image.*')) {
-                    alert('Please select an image file');
-                    this.value = '';
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    placeholder.style.display = 'none';
-                }
-                reader.readAsDataURL(file);
+        document.getElementById('product_images')?.addEventListener('change', function () {
+            const preview = document.getElementById('newPhotoPreview');
+            preview.innerHTML = '';
+            const files = Array.from(this.files).slice(0, 10);
+            const total = files.reduce((sum, f) => sum + f.size, 0);
+            if (total > 40 * 1024 * 1024) {
+                alert('These photos add up to more than 40 MB. Please choose fewer or smaller photos.');
+                this.value = '';
+                return;
             }
+            files.forEach(file => {
+                if (!file.type.match('image.*')) return;
+                const card = document.createElement('div');
+                card.className = 'photo-card is-new';
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                card.appendChild(img);
+                preview.appendChild(card);
+            });
+            document.getElementById('photoDropText').textContent = files.length + ' photo' + (files.length === 1 ? '' : 's') + ' selected. They will be cleaned up when you save.';
         });
 
         document.getElementById('productForm').addEventListener('submit', function(e) {

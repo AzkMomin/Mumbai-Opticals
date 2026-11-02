@@ -4,7 +4,8 @@ from markupsafe import escape
 
 from .. import db
 from ..auth import require_login
-from ..helpers import DELETE_METHODS, save_image
+from ..helpers import DELETE_METHODS
+from ..images import save_product_photo
 from ..settings import PRODUCT_DETAIL_COLUMNS, PRODUCT_TYPE_FIELDS
 
 bp = Blueprint('products', __name__)
@@ -95,11 +96,14 @@ def add_product():
         flash("Prices must be valid numbers and cannot be negative.", "error")
         return redirect(url_for('products.add_product'))
 
-    product_image = save_image(request.files.get('product_image'),
-                               f"uploads/products/{product_type['category_name']}")
-    if product_image is None:
-        flash("Product image must be a PNG, JPG or GIF.", "error")
+    photos = _uploaded_photos()
+    try:
+        saved = [save_product_photo(f, _photo_folder(product_type['category_name'])) for f in photos]
+    except ValueError as e:
+        flash(str(e), "error")
         return redirect(url_for('products.add_product'))
+    saved = [x for x in saved if x]
+    product_image = saved[0]['path'] if saved else ''
 
     columns = ['product_type_id', 'product_name', 'product_image', 'product_description',
                'selling_price', 'purchase_price'] + PRODUCT_DETAIL_COLUMNS
@@ -113,6 +117,7 @@ def add_product():
     db.execute("""
         INSERT INTO stock (product_id, quantity, reorder_level) VALUES (%s, 0, %s)
     """, (product_id, request.form.get('reorder_level') or 5))
+    _add_photo_rows(product_id, saved)
     db.commit()
 
     flash('Product added successfully! Stock can be added later from the "Add Stock" section.', 'success')
@@ -163,7 +168,12 @@ def view_product(product_id):
         return redirect(url_for('products.products'))
     transactions = db.query_all(
         "SELECT * FROM stock_transactions WHERE product_id = %s ORDER BY created_at DESC", (product_id,))
-    return render_template('products/view_product.html', product=product, transactions=transactions)
+    rating = db.query_one("""
+        SELECT ROUND(AVG(rating), 1) AS average, COUNT(*) AS count FROM product_reviews
+        WHERE product_id = %s AND status = 'published'
+    """, (product_id,))
+    return render_template('products/view_product.html', product=product, transactions=transactions,
+                           photos=product_photos(product_id), rating=rating)
 
 
 @bp.route('/products/edit/<int:product_id>', methods=['GET', 'POST'])
@@ -175,7 +185,8 @@ def edit_product(product_id):
 
     if request.method == 'GET':
         # The Add Product page has an edit mode
-        return render_template('products/add_product.html', edit_mode=True, product=product)
+        return render_template('products/add_product.html', edit_mode=True, product=product,
+                               photos=product_photos(product_id))
 
     back = redirect(url_for('products.edit_product', product_id=product_id))
     product_name = request.form.get('product_name', '').strip()
@@ -192,17 +203,17 @@ def edit_product(product_id):
     except ValueError:
         reorder_level = 5
 
-    product_image = save_image(request.files.get('product_image'),
-                               f"uploads/products/{product['category_name']}")
-    if product_image is None:
-        flash("Product image must be a PNG, JPG or GIF.", "error")
+    try:
+        saved = [save_product_photo(f, _photo_folder(product['category_name'])) for f in _uploaded_photos()]
+    except ValueError as e:
+        flash(str(e), "error")
         return back
-    product_image = product_image or product.get('product_image') or ''
+    _add_photo_rows(product_id, [x for x in saved if x])
 
     detail_columns = PRODUCT_DETAIL_COLUMNS
-    sets = ', '.join(f"{c} = %s" for c in ['product_name', 'product_image', 'product_description',
+    sets = ', '.join(f"{c} = %s" for c in ['product_name', 'product_description',
                                             'selling_price', 'purchase_price'] + detail_columns)
-    values = [product_name, product_image, request.form.get('product_description', ''), selling_price,
+    values = [product_name, request.form.get('product_description', ''), selling_price,
               purchase_price] + [request.form.get(c, product.get(c) or '') for c in detail_columns]
     db.execute(f"UPDATE products SET {sets} WHERE product_id = %s", values + [product_id])
 
@@ -224,3 +235,89 @@ def delete_product(product_id):
         db.commit()
         flash('Product deleted successfully!', 'success')
     return redirect(url_for('products.products'))
+
+
+# ---------------- product photos ----------------
+
+MAX_PHOTOS_PER_UPLOAD = 10
+
+
+def _photo_folder(category_name):
+    safe = ''.join(ch for ch in (category_name or 'Other') if ch.isalnum() or ch in ' -_').strip() or 'Other'
+    return f"uploads/products/{safe}"
+
+
+def _uploaded_photos():
+    files = request.files.getlist('product_images') + request.files.getlist('product_image')
+    return [f for f in files if f and f.filename][:MAX_PHOTOS_PER_UPLOAD]
+
+
+def product_photos(product_id):
+    return db.query_all("""
+        SELECT * FROM product_images WHERE product_id = %s ORDER BY sort_order, image_id
+    """, (product_id,))
+
+
+def _add_photo_rows(product_id, saved):
+    if not saved:
+        return
+    next_order = db.query_value(
+        "SELECT COALESCE(MAX(sort_order) + 1, 0) FROM product_images WHERE product_id = %s", (product_id,))
+    for offset, photo in enumerate(saved):
+        db.execute("""
+            INSERT INTO product_images (product_id, path, original_path, processed_path, bg_removed, sort_order)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (product_id, photo['path'], photo['original_path'], photo['path'], photo['bg_removed'],
+              next_order + offset))
+    _sync_main_photo(product_id)
+
+
+def _sync_main_photo(product_id):
+    """products.product_image always holds the first photo (used by bills and staff lists)."""
+    first = db.query_value("""
+        SELECT path FROM product_images WHERE product_id = %s ORDER BY sort_order, image_id LIMIT 1
+    """, (product_id,))
+    db.execute("UPDATE products SET product_image = %s WHERE product_id = %s", (first or '', product_id))
+
+
+def _photo_or_404(product_id, image_id):
+    photo = db.query_one("SELECT * FROM product_images WHERE image_id = %s AND product_id = %s",
+                         (image_id, product_id))
+    if not photo:
+        flash("Photo not found.", "error")
+    return photo
+
+
+@bp.route('/products/<int:product_id>/photos/<int:image_id>/delete', methods=['POST'])
+def delete_photo(product_id, image_id):
+    if _photo_or_404(product_id, image_id):
+        db.execute("DELETE FROM product_images WHERE image_id = %s", (image_id,))
+        _sync_main_photo(product_id)
+        db.commit()
+        flash("Photo removed.", "success")
+    return redirect(url_for('products.edit_product', product_id=product_id) + '#photos')
+
+
+@bp.route('/products/<int:product_id>/photos/<int:image_id>/main', methods=['POST'])
+def main_photo(product_id, image_id):
+    if _photo_or_404(product_id, image_id):
+        db.execute("UPDATE product_images SET sort_order = sort_order + 1 WHERE product_id = %s", (product_id,))
+        db.execute("UPDATE product_images SET sort_order = 0 WHERE image_id = %s", (image_id,))
+        _sync_main_photo(product_id)
+        db.commit()
+        flash("Main photo changed.", "success")
+    return redirect(url_for('products.edit_product', product_id=product_id) + '#photos')
+
+
+@bp.route('/products/<int:product_id>/photos/<int:image_id>/toggle', methods=['POST'])
+def toggle_photo(product_id, image_id):
+    """Switch between the cleaned-up photo and the original upload."""
+    photo = _photo_or_404(product_id, image_id)
+    if photo and photo['processed_path'] and photo['original_path']:
+        use_original = photo['path'] != photo['original_path']
+        db.execute("UPDATE product_images SET path = %s WHERE image_id = %s",
+                   (photo['original_path'] if use_original else photo['processed_path'], image_id))
+        _sync_main_photo(product_id)
+        db.commit()
+        flash("Showing the original photo." if use_original else "Showing the cleaned-up photo.", "success")
+    return redirect(url_for('products.edit_product', product_id=product_id) + '#photos')

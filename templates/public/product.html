@@ -1,11 +1,12 @@
 {% extends 'layout/base.html' %}
+{% from 'public/_macros.html' import stars %}
 
 {% block title %}{{ product.product_name }} · {{ company.name }}{% endblock %}
 
 {% block head %}
     <meta name="description" content="{{ product.product_name }} ({{ product.type_name }}) at {{ company.name }}, {{ product.price_text }}. Order on WhatsApp.">
     <meta property="og:title" content="{{ product.product_name }} · {{ product.price_text }}">
-    {% if product.image_url %}<meta property="og:image" content="{{ url_for('static', filename=product.product_image, _external=True) }}">{% endif %}
+    {% if product.image_url %}<meta property="og:image" content="{{ request.host_url.rstrip('/') ~ product.image_url }}">{% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
@@ -16,51 +17,242 @@
 {% block layout_css %}{% endblock %}
 {% block body_attrs %} class="shop"{% endblock %}
 
+{% macro product_row(title, items, row_id) -%}
+{% if items %}
+<section class="rec-row" aria-labelledby="{{ row_id }}">
+    <div class="rec-row__head">
+        <h2 id="{{ row_id }}">{{ title }}</h2>
+        <div class="rec-row__nav">
+            <button type="button" data-scroll="-1" aria-label="Scroll left"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+            <button type="button" data-scroll="1" aria-label="Scroll right"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+    </div>
+    <div class="rec-row__track">
+        {% for p in items %}{% include 'public/_product_card.html' %}{% endfor %}
+    </div>
+</section>
+{% endif %}
+{%- endmacro %}
+
 {% block content %}
     {% include 'public/_header.html' %}
 
     <main class="shop-wrap detail">
-        <a class="detail__back" href="{{ url_for('main.index') }}#shop"><i class="fas fa-arrow-left" aria-hidden="true"></i> All products</a>
+        <nav class="detail__crumbs" aria-label="Breadcrumb">
+            <a href="{{ url_for('main.index') }}#shop">Shop</a>
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            <span>{{ product.category_name }}</span>
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            <span>{{ product.type_name }}</span>
+        </nav>
+
         <div class="detail__grid">
-            <div class="detail__media">
-                {% if product.image_url %}
-                <img src="{{ product.image_url }}" alt="{{ product.product_name }}">
-                {% else %}
-                <span class="product-tile__placeholder product-tile__placeholder--large"><i class="fas {{ product.icon }}" aria-hidden="true"></i></span>
+            <!-- Photos -->
+            <div class="detail__gallery">
+                <div class="detail__media{% if product.images %} has-image{% endif %}">
+                    <div class="gallery gallery--large" data-gallery>
+                        {% if product.images %}
+                        <div class="gallery__track">
+                            {% for src in product.images %}
+                            <img src="{{ src }}" alt="{{ product.product_name }} (photo {{ loop.index }} of {{ product.images|length }})"
+                                 class="gallery__img{% if loop.first %} is-active{% endif %}" draggable="false">
+                            {% endfor %}
+                        </div>
+                        {% if product.images|length > 1 %}
+                        <button type="button" class="gallery__arrow gallery__arrow--prev" data-step="-1" aria-label="Previous photo"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+                        <button type="button" class="gallery__arrow gallery__arrow--next" data-step="1" aria-label="Next photo"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+                        <span class="gallery__count"><span data-current>1</span> / {{ product.images|length }}</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="product-tile__placeholder product-tile__placeholder--large"><i class="fas {{ product.icon }}" aria-hidden="true"></i></span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if product.images|length > 1 %}
+                <div class="thumbs" role="tablist" aria-label="Photos">
+                    {% for src in product.images %}
+                    <button type="button" class="thumbs__item{% if loop.first %} is-active{% endif %}" data-index="{{ loop.index0 }}" aria-label="Show photo {{ loop.index }}">
+                        <img src="{{ src }}" alt="">
+                    </button>
+                    {% endfor %}
+                </div>
                 {% endif %}
             </div>
+
+            <!-- Buying info -->
             <div class="detail__info">
-                <p class="product-tile__type">{{ product.category_name }} / {{ product.type_name }}</p>
                 <h1 class="detail__name">{{ product.product_name }}</h1>
-                <p class="detail__price">{{ product.price_text }}</p>
-                <p class="detail__stock {% if product.in_stock %}is-in{% else %}is-out{% endif %}">
-                    {% if product.in_stock %}<i class="fas fa-check" aria-hidden="true"></i> In stock{% if product.quantity <= 3 %} (only {{ product.quantity }} left){% endif %}
-                    {% else %}<i class="fas fa-clock" aria-hidden="true"></i> Out of stock right now{% endif %}
-                </p>
+                <a class="detail__rating" href="#reviews">
+                    {% if product.review_count %}
+                    {{ stars(product.rating) }} <strong>{{ product.rating }}</strong>
+                    <span>{{ product.review_count }} rating{{ 's' if product.review_count != 1 }}</span>
+                    {% else %}
+                    {{ stars(0) }} <span>Be the first to review</span>
+                    {% endif %}
+                    {% if questions %}<span class="detail__qa">· {{ questions|length }} answered question{{ 's' if questions|length != 1 }}</span>{% endif %}
+                </a>
+
+                <div class="detail__buy">
+                    <p class="detail__price">{{ product.price_text }}</p>
+                    <p class="detail__stock {% if product.in_stock %}is-in{% else %}is-out{% endif %}">
+                        {% if product.in_stock %}<i class="fas fa-check" aria-hidden="true"></i> In stock{% if product.quantity <= 3 %}, only {{ product.quantity }} left{% endif %}
+                        {% else %}<i class="fas fa-clock" aria-hidden="true"></i> Out of stock right now{% endif %}
+                    </p>
+                    <a class="btn-order btn-order--big{% if not product.in_stock %} btn-order--ask{% endif %}" href="{{ product.order_url }}" target="_blank" rel="noopener">
+                        <i class="fab fa-whatsapp" aria-hidden="true"></i>{% if product.in_stock %}Order on WhatsApp{% else %}Ask when it's back{% endif %}
+                    </a>
+                    <p class="detail__note">Opens WhatsApp with your order already written. Just press send and we'll confirm the price and pickup.</p>
+                    <ul class="detail__perks">
+                        <li><i class="fas fa-store" aria-hidden="true"></i> Pick up from the shop, or ask for delivery</li>
+                        <li><i class="fas fa-eye" aria-hidden="true"></i> Eye test and fitting in store</li>
+                    </ul>
+                </div>
+
                 {% if product.product_description %}<p class="detail__desc">{{ product.product_description }}</p>{% endif %}
                 {% if product.details %}
+                <h2 class="detail__subhead">Product details</h2>
                 <dl class="detail__specs">
+                    <div><dt>Category</dt><dd>{{ product.type_name }}</dd></div>
                     {% for label, value in product.details %}
                     <div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>
                     {% endfor %}
                 </dl>
                 {% endif %}
-                <a class="btn-order btn-order--big{% if not product.in_stock %} btn-order--ask{% endif %}" href="{{ product.order_url }}" target="_blank" rel="noopener">
-                    <i class="fab fa-whatsapp" aria-hidden="true"></i>{% if product.in_stock %}Order on WhatsApp{% else %}Ask when it's back{% endif %}
-                </a>
-                <p class="detail__note">Opens WhatsApp with your order already written. Just press send and we'll confirm.</p>
             </div>
         </div>
 
-        {% if related %}
-        <section class="related" aria-labelledby="relatedTitle">
-            <h2 id="relatedTitle">More {{ product.type_name|lower }}</h2>
-            <div class="grid">
-                {% for p in related %}{% include 'public/_product_card.html' %}{% endfor %}
+        {{ product_row('Frequently bought together', together, 'rowTogether') }}
+        {{ product_row('Similar ' ~ product.type_name|lower, similar, 'rowSimilar') }}
+
+        <!-- Reviews -->
+        <section class="reviews" id="reviews" aria-labelledby="reviewsTitle">
+            <div class="reviews__summary">
+                <h2 id="reviewsTitle">Customer reviews</h2>
+                {% if product.review_count %}
+                <p class="reviews__average">{{ stars(product.rating, 'stars--lg') }} <strong>{{ product.rating }} out of 5</strong></p>
+                <p class="reviews__total">{{ product.review_count }} customer rating{{ 's' if product.review_count != 1 }}</p>
+                {% else %}
+                <p class="reviews__total">No reviews yet.</p>
+                {% endif %}
+                <div class="histogram">
+                    {% for row in histogram %}
+                    <button type="button" class="histogram__row" data-filter-stars="{{ row.star }}" {% if not row.count %}disabled{% endif %}
+                            aria-label="Show {{ row.star }} star reviews ({{ row.count }})">
+                        <span>{{ row.star }} star</span>
+                        <span class="histogram__bar"><span style="width: {{ row.percent }}%"></span></span>
+                        <span>{{ row.percent }}%</span>
+                    </button>
+                    {% endfor %}
+                </div>
+                <div class="reviews__write">
+                    <h3>Review this product</h3>
+                    <p>Share what you think with other customers.</p>
+                    {% if already_reviewed %}
+                    <p class="reviews__thanks"><i class="fas fa-check" aria-hidden="true"></i> Thanks, you've reviewed this product.</p>
+                    {% else %}
+                    <button type="button" class="btn-ghost-shop w-100 justify-content-center" data-toggle-form="reviewForm">Write a review</button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="reviews__list">
+                {% if not already_reviewed %}
+                <form class="review-form" id="reviewForm" method="post" action="{{ url_for('shop.add_review', product_id=product.product_id) }}" hidden>
+                    <h3>Write a review</h3>
+                    <fieldset class="star-input">
+                        <legend>Your rating</legend>
+                        {% for n in range(5, 0, -1) %}
+                        <input type="radio" id="rate{{ n }}" name="rating" value="{{ n }}" required>
+                        <label for="rate{{ n }}" title="{{ n }} star{{ 's' if n > 1 }}"><i class="fas fa-star" aria-hidden="true"></i><span class="visually-hidden">{{ n }} stars</span></label>
+                        {% endfor %}
+                    </fieldset>
+                    <div class="review-form__row">
+                        <label>Your name<input type="text" name="name" maxlength="80" required autocomplete="name"></label>
+                        <label>Phone <small>(optional, not shown; adds "Verified purchase" if you bought it from us)</small>
+                            <input type="tel" name="phone" maxlength="15" autocomplete="tel"></label>
+                    </div>
+                    <label>Headline<input type="text" name="title" maxlength="150" placeholder="What's most important to know?"></label>
+                    <label>Your review<textarea name="body" rows="4" maxlength="3000" placeholder="How does it fit, look and feel?"></textarea></label>
+                    <label class="hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+                    <div class="review-form__actions">
+                        <button type="submit" class="btn-primary-shop">Submit review</button>
+                        <button type="button" class="btn-link-shop" data-toggle-form="reviewForm">Cancel</button>
+                    </div>
+                </form>
+                {% endif %}
+
+                {% if reviews %}
+                <div class="reviews__toolbar">
+                    <span id="reviewFilterNote" hidden></span>
+                    <label>Sort by
+                        <select onchange="location.href='?sort=' + this.value + '#reviews'">
+                            <option value="top" {% if sort == 'top' %}selected{% endif %}>Top reviews</option>
+                            <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Most recent</option>
+                        </select>
+                    </label>
+                </div>
+                {% for r in reviews %}
+                <article class="review{% if loop.index > 5 %} is-extra{% endif %}" id="review-{{ r.review_id }}" data-stars="{{ r.rating }}" {% if loop.index > 5 %}hidden{% endif %}>
+                    <div class="review__who"><span class="review__avatar" aria-hidden="true">{{ r.name[:1]|upper }}</span>{{ r.name }}</div>
+                    <div class="review__head">{{ stars(r.rating) }}{% if r.title %} <strong>{{ r.title }}</strong>{% endif %}</div>
+                    <p class="review__meta">Reviewed on {{ r.created }}{% if r.verified %} <span class="review__verified">Verified purchase</span>{% endif %}</p>
+                    {% if r.body %}<p class="review__body">{{ r.body }}</p>{% endif %}
+                    <div class="review__foot">
+                        {% if r.helpful %}<span>{{ r.helpful }} {{ 'person' if r.helpful == 1 else 'people' }} found this helpful</span>{% endif %}
+                        {% if r.review_id in helpful_votes %}
+                        <span class="review__voted"><i class="fas fa-check" aria-hidden="true"></i> Thanks for your feedback</span>
+                        {% else %}
+                        <form method="post" action="{{ url_for('shop.helpful', review_id=r.review_id, sort=sort) }}">
+                            <button type="submit" class="btn-helpful">Helpful</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+                {% if reviews|length > 5 %}
+                <button type="button" class="btn-ghost-shop" id="moreReviews">See all {{ reviews|length }} reviews</button>
+                {% endif %}
+                {% else %}
+                <p class="reviews__empty">No one has reviewed this yet. Bought it from us? Tell other customers what you think.</p>
+                {% endif %}
             </div>
         </section>
-        {% endif %}
+
+        <!-- Questions & answers -->
+        <section class="qa" id="questions" aria-labelledby="qaTitle">
+            <div class="qa__head">
+                <h2 id="qaTitle">Customer questions &amp; answers</h2>
+                <button type="button" class="btn-ghost-shop" data-toggle-form="questionForm">Ask a question</button>
+            </div>
+            <form class="review-form" id="questionForm" method="post" action="{{ url_for('shop.ask_question', product_id=product.product_id) }}" hidden>
+                <div class="review-form__row">
+                    <label>Your name<input type="text" name="name" maxlength="80" required autocomplete="name"></label>
+                </div>
+                <label>Your question<textarea name="question" rows="3" maxlength="1000" minlength="5" required placeholder="e.g. Does it come with a case? Can I fit my own power lenses?"></textarea></label>
+                <label class="hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+                <div class="review-form__actions">
+                    <button type="submit" class="btn-primary-shop">Post question</button>
+                    <span class="review-form__hint">We'll answer here. Need it quicker? <a href="{{ contact_url }}" target="_blank" rel="noopener">Ask on WhatsApp</a>.</span>
+                </div>
+            </form>
+            {% for q in questions %}
+            <div class="qa__item">
+                <p><span class="qa__label">Question:</span> {{ q.question }}</p>
+                <p><span class="qa__label">Answer:</span> {{ q.answer }}</p>
+                <p class="qa__meta">Asked by {{ q.name }} · answered by {{ company.name }}{% if q.answered %} on {{ q.answered }}{% endif %}</p>
+            </div>
+            {% else %}
+            <p class="reviews__empty">No questions yet. Ask anything about size, fit or lenses and we'll answer here.</p>
+            {% endfor %}
+        </section>
+
+        {{ product_row('Customers also liked', popular, 'rowPopular') }}
+        {{ product_row('Your recently viewed items', recent, 'rowRecent') }}
     </main>
 
     {% include 'public/_footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ asset('js/pages/public/shop.js') }}"></script>
 {% endblock %}

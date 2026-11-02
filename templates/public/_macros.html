@@ -1,0 +1,39 @@
+{% macro stars(value, size='') -%}
+<span class="stars {{ size }}" role="img" aria-label="{{ value }} out of 5 stars">
+    {%- for i in range(5) -%}
+    <i class="{% if value >= i + 0.75 %}fas fa-star{% elif value >= i + 0.25 %}fas fa-star-half-stroke{% else %}far fa-star{% endif %}" aria-hidden="true"></i>
+    {%- endfor -%}
+</span>
+{%- endmacro %}
+
+{% macro rating_line(p) -%}
+<a class="rating-line" href="{{ url_for('shop.product', product_id=p.product_id) }}#reviews">
+    {%- if p.review_count -%}
+    {{ stars(p.rating) }}<span class="rating-line__value">{{ p.rating }}</span><span class="rating-line__count">({{ p.review_count }})</span>
+    {%- else -%}
+    {{ stars(0) }}<span class="rating-line__count">No reviews yet</span>
+    {%- endif -%}
+</a>
+{%- endmacro %}
+
+{% macro gallery(images, alt, icon, extra_class='') -%}
+<div class="gallery {{ extra_class }}" data-gallery>
+    {% if images %}
+    <div class="gallery__track">
+        {% for src in images %}
+        <img src="{{ src }}" alt="{{ alt }}{% if images|length > 1 %} (photo {{ loop.index }} of {{ images|length }}){% endif %}"
+             class="gallery__img{% if loop.first %} is-active{% endif %}" loading="lazy" draggable="false">
+        {% endfor %}
+    </div>
+    {% if images|length > 1 %}
+    <button type="button" class="gallery__arrow gallery__arrow--prev" data-step="-1" aria-label="Previous photo"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+    <button type="button" class="gallery__arrow gallery__arrow--next" data-step="1" aria-label="Next photo"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+    <div class="gallery__dots" aria-hidden="true">
+        {% for src in images %}<span class="{% if loop.first %}is-active{% endif %}"></span>{% endfor %}
+    </div>
+    {% endif %}
+    {% else %}
+    <span class="product-tile__placeholder"><i class="fas {{ icon }}" aria-hidden="true"></i></span>
+    {% endif %}
+</div>
+{%- endmacro %}

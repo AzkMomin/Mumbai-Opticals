@@ -9,9 +9,7 @@
             <a class="shop-header__chat" href="{{ contact_url }}" target="_blank" rel="noopener">
                 <i class="fab fa-whatsapp" aria-hidden="true"></i><span>Chat with us</span>
             </a>
-            <a class="shop-header__staff" href="{{ url_for('auth.user_login') }}" title="Staff login">
-                <i class="fas fa-user" aria-hidden="true"></i><span class="visually-hidden">Staff login</span>
-            </a>
+            <a class="login-btn" href="{{ url_for('auth.user_login') }}"><i class="fas fa-user-circle" aria-hidden="true"></i>Login</a>
         </nav>
     </div>
 </header>
