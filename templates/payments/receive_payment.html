@@ -1,99 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receive Payment - Mumbai Opticals</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-        }
-        
-        .main-content {
-            margin-left: 280px;
-            padding: 2rem;
-        }
-        
-        .header {
-            background: white;
-            padding: 1rem 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .payment-container {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
-        
-        .bill-summary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-        }
-        
-        .payment-status {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-partially {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-        
-        .status-paid {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .amount-box {
-            background: #f8f9fc;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            margin: 1rem 0;
-        }
-        
-        .amount-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .amount-value {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #0b2f4e;
-        }
-        
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-            }
-        }
-    </style>
-</head>
-<body>
-    {% include 'layout/navbar.html' %}
-    
+{% extends 'layout/base.html' %}
+
+{% block title %}Receive Payment - Mumbai Opticals{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('css/pages/payments/receive_payment.css') }}">
+{% endblock %}
+
+{% block content %}
     <div class="main-content">
         <div class="header">
             <h2 class="page-title"><i class="fas fa-rupee-sign me-2"></i>Receive Payment</h2>
@@ -101,7 +14,7 @@
                 <i class="fas fa-arrow-left me-2"></i>Back to Bill
             </a>
         </div>
-        
+
         <div class="payment-container">
             <div class="bill-summary">
                 <div class="row">
@@ -123,7 +36,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-md-6">
                     <div class="amount-box">
@@ -138,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="row mt-3">
                 <div class="col-md-12">
                     <div class="amount-box bg-light">
@@ -147,7 +60,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <form method="POST" id="paymentForm">
                 <div class="row mt-4">
                     <div class="col-md-6 mb-3">
@@ -159,10 +72,10 @@
                         </div>
                         <small class="text-muted">Maximum: ₹{{ "%.2f"|format(bill.balance_due) }}</small>
                     </div>
-                    
+
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold">Payment Method <span class="text-danger">*</span></label>
-                        <select class="form-control" name="payment_method" required>
+                        <select class="form-control" name="payment_method" id="payment_method" required>
                             <option value="">Select Payment Method</option>
                             <option value="CASH">Cash</option>
                             <option value="CARD">Card</option>
@@ -171,20 +84,20 @@
                             <option value="BANK_TRANSFER">Bank Transfer</option>
                         </select>
                     </div>
-                    
+
                     <div class="col-md-6 mb-3" id="referenceField" style="display: none;">
                         <label class="form-label">Reference Number</label>
                         <input type="text" class="form-control" name="reference_number" 
                                placeholder="Cheque/Transaction/Reference Number">
                     </div>
-                    
+
                     <div class="col-md-12 mb-3">
                         <label class="form-label">Notes</label>
                         <textarea class="form-control" name="notes" rows="3" 
                                   placeholder="Additional notes about this payment..."></textarea>
                     </div>
                 </div>
-                
+
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
                     After payment, the bill status will be updated automatically.
@@ -192,7 +105,7 @@
                     You can make multiple partial payments.
                     {% endif %}
                 </div>
-                
+
                 <div class="text-end">
                     <button type="button" class="btn btn-secondary me-2" onclick="window.history.back()">
                         <i class="fas fa-times me-2"></i>Cancel
@@ -204,56 +117,57 @@
             </form>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ asset('js/layout.js') }}"></script>
     <script>
         document.getElementById('payment_method').addEventListener('change', function() {
             const referenceField = document.getElementById('referenceField');
             const method = this.value;
-            
+
             if (method === 'CHEQUE' || method === 'BANK_TRANSFER' || method === 'CARD') {
                 referenceField.style.display = 'block';
             } else {
                 referenceField.style.display = 'none';
             }
         });
-        
+
         document.getElementById('amount').addEventListener('input', function() {
             const amount = parseFloat(this.value);
             const maxAmount = {{ bill.balance_due }};
-            
+
             if (amount > maxAmount) {
                 this.value = maxAmount;
                 alert(`Amount cannot exceed balance due of ₹${maxAmount.toFixed(2)}`);
             }
         });
-        
+
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
             const amount = parseFloat(document.getElementById('amount').value);
             const maxAmount = {{ bill.balance_due }};
-            
+
             if (amount <= 0) {
                 e.preventDefault();
                 alert('Please enter a valid amount greater than 0');
                 return false;
             }
-            
+
             if (amount > maxAmount) {
                 e.preventDefault();
                 alert(`Amount cannot exceed balance due of ₹${maxAmount.toFixed(2)}`);
                 return false;
             }
-            
+
             const confirmMsg = `Are you sure you want to receive payment of ₹${amount.toFixed(2)}?`;
             if (!confirm(confirmMsg)) {
                 e.preventDefault();
                 return false;
             }
-            
+
             const submitBtn = this.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
         });
     </script>
-</body>
-</html>
+{% endblock %}

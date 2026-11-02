@@ -1,0 +1,50 @@
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 2rem;
+}
+
+.header {
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-container {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.info-box {
+    background: #f8f9fc;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.info-label {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #0b2f4e;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}

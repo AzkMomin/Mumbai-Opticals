@@ -1,0 +1,145 @@
+body {
+  background-color: #f8f9fc;
+  font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+.menu-item i {
+  width: 30px;
+  font-size: 1.2rem;
+}
+
+.submenu {
+  margin-left: 3rem;
+  display: none;
+}
+
+.submenu.show {
+  display: block;
+}
+
+.submenu-item {
+  padding: 0.5rem 1.5rem;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.submenu-item:hover {
+  color: white;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Main Content Styles */
+.main-content {
+  margin-left: 280px;
+  padding: 2rem;
+}
+
+.header {
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  color: #0b2f4e;
+  margin: 0;
+  font-weight: 600;
+}
+
+.date-filter {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.date-filter select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e1e9f0;
+  border-radius: 10px;
+  color: #0b2f4e;
+  font-weight: 500;
+  outline: none;
+}
+
+.stats-card {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  margin-bottom: 1.5rem;
+}
+
+.stats-card h3 {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.stats-card .value {
+  color: #0b2f4e;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.chart-container {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  margin-bottom: 1.5rem;
+}
+
+.brand-stock-table {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.brand-stock-table table {
+  width: 100%;
+}
+
+.brand-stock-table th {
+  color: #0b2f4e;
+  font-weight: 600;
+  padding: 1rem 0.5rem;
+  border-bottom: 2px solid #e1e9f0;
+}
+
+.brand-stock-table td {
+  padding: 0.8rem 0.5rem;
+  border-bottom: 1px solid #e1e9f0;
+}
+
+.badge-success {
+  background: #d4edda;
+  color: #155724;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.badge-warning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0;
+    display: none;
+  }
+  .main-content {
+    margin-left: 0;
+  }
+}

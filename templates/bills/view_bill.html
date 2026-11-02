@@ -1,218 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bill #{{ bill.bill_number }} - Mumbai Opticals</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-        }
-        
-        .main-content {
-            margin-left: 280px;
-            padding: 2rem;
-        }
-        
-        .header {
-            background: white;
-            padding: 1rem 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .bill-container {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        /* Invoice Header */
-        .invoice-header {
-            border-bottom: 2px solid #e1e9f0;
-            padding-bottom: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .company-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0b2f4e;
-            letter-spacing: 1px;
-        }
-        
-        .company-tagline {
-            font-size: 0.7rem;
-            color: #6c757d;
-            letter-spacing: 2px;
-        }
-        
-        .invoice-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #0b2f4e;
-            text-transform: uppercase;
-        }
-        
-        .invoice-number {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #0b2f4e;
-        }
-        
-        /* Customer Section */
-        .customer-section {
-            background: #f8f9fc;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .customer-label {
-            font-size: 0.7rem;
-            color: #6c757d;
-            text-transform: uppercase;
-        }
-        
-        .customer-value {
-            font-weight: 600;
-            color: #0b2f4e;
-        }
-        
-        /* Table Styles */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1.5rem;
-        }
-        
-        .items-table th {
-            background: #f8f9fc;
-            padding: 0.75rem;
-            border: 1px solid #e1e9f0;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #0b2f4e;
-            text-align: center;
-        }
-        
-        .items-table td {
-            padding: 0.75rem;
-            border: 1px solid #e1e9f0;
-            font-size: 0.75rem;
-            vertical-align: top;
-        }
-        
-        .section-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #0b2f4e;
-            background: #f8f9fc;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border-left: 3px solid #0b2f4e;
-        }
-        
-        /* Prescription Table */
-        .prescription-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-        }
-        
-        .prescription-table th,
-        .prescription-table td {
-            border: 1px solid #e1e9f0;
-            padding: 0.5rem;
-            font-size: 0.75rem;
-            text-align: center;
-        }
-        
-        .prescription-table th {
-            background: #f8f9fc;
-            font-weight: 600;
-        }
-        
-        /* Summary Section */
-        .summary-section {
-            background: #f8f9fc;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.25rem 0;
-            font-size: 0.8rem;
-        }
-        
-        .summary-total {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #0b2f4e;
-            border-top: 1px solid #e1e9f0;
-            margin-top: 0.5rem;
-            padding-top: 0.5rem;
-        }
-        
-        .payment-status {
-            font-size: 0.75rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 15px;
-            display: inline-block;
-        }
-        
-        .status-paid {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-partially_paid {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-        
-        @media print {
-            .sidebar, .header, .no-print {
-                display: none !important;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 0;
-            }
-            .bill-container {
-                box-shadow: none;
-                padding: 0.5rem;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-            }
-        }
-    </style>
-</head>
-<body>
-    {% include 'layout/navbar.html' %}
-    
+{% extends 'layout/base.html' %}
+
+{% block title %}Bill #{{ bill.bill_number }} - Mumbai Opticals{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('css/pages/bills/view_bill.css') }}">
+{% endblock %}
+
+{% block content %}
     <div class="main-content">
         <div class="header no-print">
             <h4 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Bill Details</h4>
@@ -225,24 +19,36 @@
                 <a href="{{ url_for('bills.print_bill', bill_id=bill.bill_id) }}" class="btn btn-info me-2 btn-sm" target="_blank">
                     <i class="fas fa-print me-2"></i>Print
                 </a>
+                {% if bill.customer_phone %}
+                <a href="{{ url_for('bills.send_bill_whatsapp', bill_id=bill.bill_id) }}" class="btn btn-success me-2 btn-sm" target="_blank" rel="noopener">
+                    <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                </a>
+                {% endif %}
+                {% if bill.status != 'CANCELLED' %}
+                <a href="{{ url_for('bills.edit_bill', bill_id=bill.bill_id) }}" class="btn btn-warning me-2 btn-sm">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+                <a href="{{ url_for('bills.cancel_bill', bill_id=bill.bill_id) }}" class="btn btn-outline-danger me-2 btn-sm"
+                   data-method="post" data-confirm="Cancel this bill? Its items will be put back into stock.">
+                    <i class="fas fa-ban me-2"></i>Cancel Bill
+                </a>
+                {% endif %}
                 <a href="{{ url_for('bills.bills') }}" class="btn btn-secondary btn-sm">
                     <i class="fas fa-arrow-left me-2"></i>Back
                 </a>
             </div>
         </div>
-        
+
         <div class="bill-container">
             <!-- Invoice Header -->
             <div class="invoice-header">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="company-name">DIGITOSY</div>
-                        <div class="company-tagline">OPTICAL DEMO</div>
+                        <div class="company-name">{{ company.name }}</div>
                         <div class="mt-2">
-                            <small class="text-muted">Auris galeria, new link road, opp landmark, malad West</small><br>
-                            <small class="text-muted">Mumbai, Maharashtra, 400064, India</small><br>
-                            <small class="text-muted">Mobile: 7506314312</small><br>
-                            <small class="text-muted">GST No: 27ABCDE12345ZP</small>
+                            <small class="text-muted">{{ company.address }}</small><br>
+                            <small class="text-muted">Phone: {{ company.phone }}</small><br>
+                            <small class="text-muted">GST No: {{ company.gst }}</small>
                         </div>
                     </div>
                     <div class="col-md-6 text-end">
@@ -253,7 +59,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Customer Details -->
             <div class="customer-section">
                 <div class="row">
@@ -267,14 +73,15 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Frames Section -->
-            {% set frames = items|selectattr('category_name', 'equalto', 'Specs')|selectattr('type_name', 'in', ['Goggles', 'Frames']) | list %}
+            {% set frames = items|selectattr('group', 'equalto', 'frames')|list %}
             {% if frames %}
             <div class="section-title">Frames</div>
             <table class="items-table">
                 <thead>
                     <tr>
+                        <th>Item</th>
                         <th>Frame Type</th>
                         <th>Material</th>
                         <th>Model Name</th>
@@ -290,6 +97,7 @@
                 <tbody>
                     {% for item in frames %}
                     <tr>
+                        <td>{{ item.product_name }}</td>
                         <td>{{ item.frame_type or '-' }}</td>
                         <td>{{ item.material or '-' }}</td>
                         <td>{{ item.model_name or '-' }}</td>
@@ -306,9 +114,9 @@
                 </tbody>
             </table>
             {% endif %}
-            
+
             <!-- Lenses Section -->
-            {% set lenses = items|selectattr('category_name', 'equalto', 'Specs')|selectattr('type_name', 'equalto', 'Lenses') | list %}
+            {% set lenses = items|selectattr('group', 'equalto', 'lenses')|list %}
             {% if lenses %}
             <div class="section-title">Lenses</div>
             <table class="items-table">
@@ -349,14 +157,15 @@
                 </tbody>
             </table>
             {% endif %}
-            
+
             <!-- Watches Section -->
-            {% set watches = items|selectattr('category_name', 'equalto', 'Watches') | list %}
+            {% set watches = items|selectattr('group', 'equalto', 'watches')|list %}
             {% if watches %}
             <div class="section-title">Watches</div>
             <table class="items-table">
                 <thead>
                     <tr>
+                        <th>Item</th>
                         <th>Watch Type</th>
                         <th>Mechanism</th>
                         <th>Strap Material</th>
@@ -372,6 +181,7 @@
                 <tbody>
                     {% for item in watches %}
                     <tr>
+                        <td>{{ item.product_name }}</td>
                         <td>{{ item.watch_type or '-' }}</td>
                         <td>{{ item.watch_mechanism or '-' }}</td>
                         <td>{{ item.strap_material or '-' }}</td>
@@ -388,9 +198,9 @@
                 </tbody>
             </table>
             {% endif %}
-            
+
             <!-- Misc Section -->
-            {% set misc = items|selectattr('category_name', 'equalto', 'Misc') | list %}
+            {% set misc = items|selectattr('group', 'equalto', 'misc')|list %}
             {% if misc %}
             <div class="section-title">Other Products</div>
             <table class="items-table">
@@ -423,7 +233,7 @@
                 </tbody>
             </table>
             {% endif %}
-            
+
             <!-- Prescription Section -->
             {% if prescription %}
             <div class="section-title">Prescription</div>
@@ -437,29 +247,24 @@
                         <th>ADD</th>
                         <th>Vision</th>
                         <th>Pupillary Distance</th>
-                    </thead>
+                    </tr>
+                </thead>
                 <tbody>
+                    {% for row in prescription.rows %}
                     <tr>
-                        <td>Right Eye</td>
-                        <td>{{ prescription.right_sph or '' }}</td>
-                        <td>{{ prescription.right_cyl or '' }}</td>
-                        <td>{{ prescription.right_axis or '' }}</td>
-                        <td>{{ prescription.right_add or '' }}</td>
-                        <td>{{ prescription.right_vision or '' }}</td>
-                        <td rowspan="2">{{ prescription.pupillary_distance or '' }}</td>
+                        <td>{{ row.eye }}</td>
+                        <td>{{ row.sph }}</td>
+                        <td>{{ row.cyl }}</td>
+                        <td>{{ row.axis }}</td>
+                        <td>{{ row.add }}</td>
+                        <td>{{ row.vision }}</td>
+                        <td>{{ row.pd }}</td>
                     </tr>
-                    <tr>
-                        <td>Left Eye</td>
-                        <td>{{ prescription.left_sph or '' }}</td>
-                        <td>{{ prescription.left_cyl or '' }}</td>
-                        <td>{{ prescription.left_axis or '' }}</td>
-                        <td>{{ prescription.left_add or '' }}</td>
-                        <td>{{ prescription.left_vision or '' }}</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
             {% endif %}
-            
+
             <!-- Summary Section -->
             <div class="summary-section">
                 <div class="row">
@@ -511,14 +316,14 @@
                     </div>
                 </div>
             </div>
-            
+
             {% if bill.notes %}
             <div class="mt-3">
                 <strong>Notes:</strong>
                 <p class="text-muted small">{{ bill.notes }}</p>
             </div>
             {% endif %}
-            
+
             <!-- Footer -->
             <div class="text-center mt-4 pt-3 border-top no-print">
                 <p class="text-muted small">Thank you for your business!</p>
@@ -526,13 +331,15 @@
             </div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ asset('js/layout.js') }}"></script>
     <script>
         function printBill() {
             window.print();
         }
-        
+
         function sendWhatsApp() {
             {% if bill.customer_phone %}
             const phone = "{{ bill.customer_phone }}".replace('+', '');
@@ -545,5 +352,4 @@
             {% endif %}
         }
     </script>
-</body>
-</html>
+{% endblock %}

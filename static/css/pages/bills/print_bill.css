@@ -1,0 +1,93 @@
+body {
+    font-family: 'Courier New', monospace;
+    background: white;
+    padding: 20px;
+}
+
+.bill-container {
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    border-bottom: 2px dashed #333;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.shop-name {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.bill-title {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.customer-info {
+    background: #f9f9f9;
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background: #f2f2f2;
+}
+
+.text-end {
+    text-align: right;
+}
+
+.summary {
+    margin-top: 20px;
+    border-top: 2px dashed #333;
+    padding-top: 10px;
+}
+
+.total {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    font-style: italic;
+}
+
+.barcode {
+    text-align: center;
+    margin: 20px 0;
+}
+
+@media print {
+    body {
+        padding: 0;
+    }
+    .bill-container {
+        border: none;
+    }
+}

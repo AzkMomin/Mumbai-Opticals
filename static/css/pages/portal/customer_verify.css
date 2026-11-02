@@ -1,0 +1,92 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+.verify-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    background: #0b2f4e;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.logo i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.title {
+    color: #0b2f4e;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.phone-input {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.phone-input i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.phone-input input {
+    padding-left: 45px;
+    height: 50px;
+    font-size: 1rem;
+}
+
+.verify-btn {
+    background: #0b2f4e;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 10px;
+    font-weight: 500;
+    width: 100%;
+    border: none;
+    transition: 0.2s;
+}
+
+.verify-btn:hover {
+    background: #1e4a6f;
+    transform: translateY(-2px);
+}
+
+.alert {
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 1rem;
+}

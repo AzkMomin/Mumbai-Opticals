@@ -1,0 +1,152 @@
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 2rem;
+}
+
+.header {
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title {
+    color: #0b2f4e;
+    font-weight: 600;
+    margin: 0;
+}
+
+.payment-container {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.payment-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.payment-amount {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin: 1rem 0;
+}
+
+.payment-number {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.info-card {
+    background: #f8f9fc;
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #28a745;
+}
+
+.info-label {
+    color: #6c757d;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #0b2f4e;
+    font-size: 1.1rem;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0b2f4e;
+    margin-bottom: 1rem;
+    border-left: 3px solid #0b2f4e;
+    padding-left: 0.75rem;
+}
+
+.payment-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.payment-cash {
+    background: #d4edda;
+    color: #155724;
+}
+
+.payment-card-method {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.payment-upi {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.payment-cheque {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.bill-link {
+    text-decoration: none;
+    color: #0b2f4e;
+    font-weight: 600;
+}
+
+.bill-link:hover {
+    color: #1e4a6f;
+    text-decoration: underline;
+}
+
+.action-btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    margin: 0 5px;
+}
+
+@media print {
+    .sidebar, .header, .no-print, .action-btn {
+        display: none !important;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 0;
+    }
+    .payment-container {
+        box-shadow: none;
+        padding: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}

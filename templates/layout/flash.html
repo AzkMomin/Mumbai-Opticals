@@ -1,0 +1,14 @@
+{# Messages from flash(), shown as small notices in the top-right corner #}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-stack" role="status" aria-live="polite">
+    {% for category, message in messages %}
+    {% set level = {'error': 'danger', 'message': 'info'}.get(category, category) %}
+    <div class="alert alert-{{ level }} alert-dismissible fade show shadow-sm" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}

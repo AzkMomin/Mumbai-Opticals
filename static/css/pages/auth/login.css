@@ -1,0 +1,262 @@
+body {
+  background-color: #f8f9fc;
+  font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 1.7rem;
+  color: #0b2f4e !important;
+}
+.brand-sub {
+  font-size: 0.9rem;
+  font-weight: 300;
+  margin-left: 8px;
+  color: #3b6a94;
+}
+.login-btn-header {
+  background-color: #0b2f4e;
+  color: white;
+  border-radius: 30px;
+  padding: 0.5rem 1.8rem;
+  font-weight: 500;
+  border: 1px solid #0b2f4e;
+  transition: 0.2s;
+}
+.login-btn-header:hover {
+  background-color: #1e4a6f;
+  border-color: #1e4a6f;
+  color: white;
+}
+
+/* Login card styles */
+.login-card {
+  border: none;
+  border-radius: 25px;
+  background: white;
+  box-shadow: 0 20px 40px -10px rgba(11,47,78,0.2);
+  padding: 2.5rem;
+  max-width: 450px;
+  margin: 2rem auto;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-header h2 {
+  color: #0b2f4e;
+  font-weight: 600;
+  font-size: 2rem;
+}
+
+.login-header p {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.form-label {
+  color: #0b2f4e;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.form-control {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e1e9f0;
+  transition: all 0.2s;
+}
+
+.form-control:focus {
+  border-color: #0b2f4e;
+  box-shadow: 0 0 0 0.2rem rgba(11,47,78,0.1);
+}
+
+.input-group-text {
+  background: white;
+  border: 1.5px solid #e1e9f0;
+  border-radius: 12px 0 0 12px;
+  color: #0b2f4e;
+}
+
+.login-btn {
+  background-color: #0b2f4e;
+  color: white;
+  border-radius: 12px;
+  padding: 0.8rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: none;
+  width: 100%;
+  transition: 0.2s;
+  margin-top: 1rem;
+}
+
+.login-btn:hover {
+  background-color: #1e4a6f;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(11,47,78,0.3);
+}
+
+.forgot-password {
+  color: #0b2f4e;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.forgot-password:hover {
+  color: #1e4a6f;
+  text-decoration: underline;
+}
+
+.divider {
+  text-align: center;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e1e9f0;
+  z-index: 1;
+}
+
+.divider span {
+  background: white;
+  padding: 0 1rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+  position: relative;
+  z-index: 2;
+}
+
+.social-login {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.social-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  border: 1.5px solid #e1e9f0;
+  background: white;
+  color: #0b2f4e;
+  font-size: 1.3rem;
+  transition: 0.2s;
+}
+
+.social-btn:hover {
+  background: #f0f5fa;
+  border-color: #0b2f4e;
+  transform: translateY(-2px);
+}
+
+.signup-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #6c757d;
+}
+
+.signup-link a {
+  color: #0b2f4e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  background-color: #0b2f4e;
+  color: #e7edf3;
+  padding: 1.5rem 0;
+  margin-top: auto;
+}
+
+.since-badge-footer {
+  background-color: #254b6d;
+  padding: 0.3rem 1rem;
+  border-radius: 60px;
+  font-size: 0.9rem;
+  color: #f2e9d0;
+}
+
+/* Back to home link */
+.back-home {
+  color: #0b2f4e;
+  text-decoration: none;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.back-home:hover {
+  color: #1e4a6f;
+  text-decoration: underline;
+}
+
+/* Modal styles */
+.modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  border-bottom: none;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+}
+
+.modal-body {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+}
+
+.modal-footer {
+  border-top: none;
+  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+}
+
+.error-icon {
+  width: 60px;
+  height: 60px;
+  background: #fee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
+
+.error-icon i {
+  font-size: 2rem;
+  color: #dc3545;
+}
+
+.btn-error-modal {
+  background-color: #0b2f4e;
+  color: white;
+  border-radius: 10px;
+  padding: 0.5rem 2rem;
+  font-weight: 500;
+  border: none;
+}
+
+.btn-error-modal:hover {
+  background-color: #1e4a6f;
+  color: white;
+}

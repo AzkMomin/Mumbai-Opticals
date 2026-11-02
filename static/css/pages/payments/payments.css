@@ -1,0 +1,165 @@
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 2rem;
+}
+
+.header {
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title {
+    color: #0b2f4e;
+    font-weight: 600;
+    margin: 0;
+}
+
+.filter-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.summary-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid #28a745;
+}
+
+.summary-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.summary-label {
+    color: #6c757d;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0b2f4e;
+}
+
+.payment-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.payment-card:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.payment-number {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0b2f4e;
+}
+
+.amount {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #28a745;
+}
+
+.payment-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.payment-cash {
+    background: #d4edda;
+    color: #155724;
+}
+
+.payment-card-method {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.payment-upi {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.payment-cheque {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.action-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 3px;
+    transition: 0.2s;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.view-btn {
+    background: #e7f3ff;
+    color: #0b2f4e;
+}
+
+.edit-btn {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.delete-btn {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.modal-header {
+    border-radius: 15px 15px 0 0;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}

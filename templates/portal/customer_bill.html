@@ -1,236 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bill #{{ bill.bill_number }} - {{ company.name }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% extends 'layout/base.html' %}
+
+{% block title %}Bill #{{ bill.bill_number }} - {{ company.name }}{% endblock %}
+
+{% block head %}
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <style>
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            padding: 2rem;
-        }
-        
-        .bill-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .bill-header {
-            background: linear-gradient(135deg, #0b2f4e 0%, #1e4a6f 100%);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .company-logo {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-        }
-        
-        .company-logo i {
-            font-size: 2.5rem;
-            color: #0b2f4e;
-        }
-        
-        .company-name {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .company-details {
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
-        
-        .bill-info {
-            background: #f8f9fc;
-            padding: 1.5rem;
-            border-bottom: 1px solid #e1e9f0;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-        
-        .info-label {
-            color: #6c757d;
-            font-weight: 500;
-        }
-        
-        .info-value {
-            font-weight: 600;
-            color: #0b2f4e;
-        }
-        
-        .bill-number {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #0b2f4e;
-        }
-        
-        .status-badge {
-            padding: 0.3rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .status-paid {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .customer-section {
-            background: white;
-            padding: 1.5rem;
-            border-bottom: 1px solid #e1e9f0;
-        }
-        
-        .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #0b2f4e;
-            margin-bottom: 1rem;
-            border-left: 3px solid #0b2f4e;
-            padding-left: 0.75rem;
-        }
-        
-        .items-table {
-            width: 100%;
-            padding: 1.5rem;
-        }
-        
-        .items-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .items-table th {
-            background: #f8f9fc;
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 2px solid #e1e9f0;
-            color: #0b2f4e;
-        }
-        
-        .items-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid #e1e9f0;
-        }
-        
-        .summary-section {
-            background: #f8f9fc;
-            padding: 1.5rem;
-            border-top: 2px solid #e1e9f0;
-        }
-        
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-        }
-        
-        .summary-total {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #0b2f4e;
-            border-top: 2px solid #e1e9f0;
-            margin-top: 0.5rem;
-            padding-top: 0.75rem;
-        }
-        
-        .barcode-section {
-            text-align: center;
-            padding: 1.5rem;
-            background: white;
-            border-top: 1px solid #e1e9f0;
-        }
-        
-        .barcode {
-            display: inline-block;
-            padding: 0.5rem;
-            background: white;
-        }
-        
-        .footer {
-            background: #f8f9fc;
-            text-align: center;
-            padding: 1rem;
-            font-size: 0.8rem;
-            color: #6c757d;
-            border-top: 1px solid #e1e9f0;
-        }
-        
-        .print-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: #0b2f4e;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 500;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: 0.2s;
-            z-index: 1000;
-        }
-        
-        .print-btn:hover {
-            background: #1e4a6f;
-            transform: translateY(-2px);
-        }
-        
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            .print-btn {
-                display: none;
-            }
-            .bill-container {
-                box-shadow: none;
-                margin: 0;
-            }
-            .bill-header {
-                background: #0b2f4e;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            .items-table {
-                overflow-x: auto;
-            }
-            .items-table table {
-                min-width: 500px;
-            }
-        }
-    </style>
-</head>
-<body>
+    <link rel="stylesheet" href="{{ asset('css/pages/portal/customer_bill.css') }}">
+{% endblock %}
+
+{% block nav %}{% endblock %}
+{% block layout_css %}{% endblock %}
+
+{% block content %}
     <div class="bill-container">
         <!-- Header with Logo -->
         <div class="bill-header">
@@ -244,7 +24,7 @@
                 GST: {{ company.gst }}
             </div>
         </div>
-        
+
         <!-- Bill Info -->
         <div class="bill-info">
             <div class="info-row">
@@ -260,7 +40,7 @@
                 <span class="status-badge status-paid">{{ bill.status }}</span>
             </div>
         </div>
-        
+
         <!-- Customer Details -->
         <div class="customer-section">
             <div class="section-title">Customer Details</div>
@@ -289,7 +69,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Items Table -->
         <div class="items-table">
             <div class="section-title">Items Purchased</div>
@@ -309,7 +89,7 @@
                     {% for item in items %}
                     <tr>
                         <td>{{ loop.index }}</td>
-                        <td><strong>{{ item.product_name }}</strong></td>
+                        <td><strong>{{ item.product_name }}</strong>{% if item.details_text %}<br><small class="text-muted">{{ item.details_text }}</small>{% endif %}</td>
                         <td>{{ item.model_code or '-' }}</td>
                         <td>{{ item.quantity }}</td>
                         <td>₹{{ "%.2f"|format(item.price_per_unit) }}</td>
@@ -320,7 +100,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Summary -->
         <div class="summary-section">
             <div class="summary-row">
@@ -354,7 +134,7 @@
             </div>
             {% endif %}
         </div>
-        
+
         <!-- Barcode -->
         <div class="barcode-section">
             <div class="barcode">
@@ -362,19 +142,20 @@
             </div>
             <div class="mt-2 small text-muted">{{ bill.bill_number }}</div>
         </div>
-        
+
         <!-- Footer -->
         <div class="footer">
             <p>Thank you for shopping with us!</p>
             <p>This is a computer generated invoice. No signature required.</p>
         </div>
     </div>
-    
+
     <button class="print-btn" onclick="window.print()">
         <i class="fas fa-print me-2"></i>Print Bill
     </button>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
     <script>
         // Generate barcode
         JsBarcode("#barcode", "{{ bill.bill_number }}", {
@@ -385,5 +166,4 @@
             margin: 10
         });
     </script>
-</body>
-</html>
+{% endblock %}

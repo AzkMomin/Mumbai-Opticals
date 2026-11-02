@@ -1,417 +1,125 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Mumbai Opticals</title>
-  <!-- Bootstrap 5 & Font Awesome -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    body {
-      background-color: #f8f9fc;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .navbar-brand {
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      font-size: 1.7rem;
-      color: #0b2f4e !important;
-    }
-    .brand-sub {
-      font-size: 0.9rem;
-      font-weight: 300;
-      margin-left: 8px;
-      color: #3b6a94;
-    }
-    .login-btn-header {
-      background-color: #0b2f4e;
-      color: white;
-      border-radius: 30px;
-      padding: 0.5rem 1.8rem;
-      font-weight: 500;
-      border: 1px solid #0b2f4e;
-      transition: 0.2s;
-    }
-    .login-btn-header:hover {
-      background-color: #1e4a6f;
-      border-color: #1e4a6f;
-      color: white;
-    }
+{% extends 'layout/base.html' %}
 
-    /* Login card styles */
-    .login-card {
-      border: none;
-      border-radius: 25px;
-      background: white;
-      box-shadow: 0 20px 40px -10px rgba(11,47,78,0.2);
-      padding: 2.5rem;
-      max-width: 450px;
-      margin: 2rem auto;
-    }
+{% block title %}Login - Mumbai Opticals{% endblock %}
 
-    .login-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('css/pages/auth/login.css') }}">
+{% endblock %}
 
-    .login-header h2 {
-      color: #0b2f4e;
-      font-weight: 600;
-      font-size: 2rem;
-    }
+{% block nav %}{% endblock %}
+{% block layout_css %}{% endblock %}
 
-    .login-header p {
-      color: #6c757d;
-      font-size: 0.95rem;
-    }
-
-    .form-label {
-      color: #0b2f4e;
-      font-weight: 500;
-      font-size: 0.95rem;
-    }
-
-    .form-control {
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      border: 1.5px solid #e1e9f0;
-      transition: all 0.2s;
-    }
-
-    .form-control:focus {
-      border-color: #0b2f4e;
-      box-shadow: 0 0 0 0.2rem rgba(11,47,78,0.1);
-    }
-
-    .input-group-text {
-      background: white;
-      border: 1.5px solid #e1e9f0;
-      border-radius: 12px 0 0 12px;
-      color: #0b2f4e;
-    }
-
-    .login-btn {
-      background-color: #0b2f4e;
-      color: white;
-      border-radius: 12px;
-      padding: 0.8rem;
-      font-weight: 600;
-      font-size: 1.1rem;
-      border: none;
-      width: 100%;
-      transition: 0.2s;
-      margin-top: 1rem;
-    }
-
-    .login-btn:hover {
-      background-color: #1e4a6f;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(11,47,78,0.3);
-    }
-
-    .forgot-password {
-      color: #0b2f4e;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .forgot-password:hover {
-      color: #1e4a6f;
-      text-decoration: underline;
-    }
-
-    .divider {
-      text-align: center;
-      margin: 1.5rem 0;
-      position: relative;
-    }
-
-    .divider::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: #e1e9f0;
-      z-index: 1;
-    }
-
-    .divider span {
-      background: white;
-      padding: 0 1rem;
-      color: #6c757d;
-      font-size: 0.9rem;
-      position: relative;
-      z-index: 2;
-    }
-
-    .social-login {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      margin-top: 1rem;
-    }
-
-    .social-btn {
-      width: 50px;
-      height: 50px;
-      border-radius: 12px;
-      border: 1.5px solid #e1e9f0;
-      background: white;
-      color: #0b2f4e;
-      font-size: 1.3rem;
-      transition: 0.2s;
-    }
-
-    .social-btn:hover {
-      background: #f0f5fa;
-      border-color: #0b2f4e;
-      transform: translateY(-2px);
-    }
-
-    .signup-link {
-      text-align: center;
-      margin-top: 1.5rem;
-      color: #6c757d;
-    }
-
-    .signup-link a {
-      color: #0b2f4e;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .signup-link a:hover {
-      text-decoration: underline;
-    }
-
-    .footer {
-      background-color: #0b2f4e;
-      color: #e7edf3;
-      padding: 1.5rem 0;
-      margin-top: auto;
-    }
-
-    .since-badge-footer {
-      background-color: #254b6d;
-      padding: 0.3rem 1rem;
-      border-radius: 60px;
-      font-size: 0.9rem;
-      color: #f2e9d0;
-    }
-
-    /* Back to home link */
-    .back-home {
-      color: #0b2f4e;
-      text-decoration: none;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-      display: inline-block;
-    }
-
-    .back-home:hover {
-      color: #1e4a6f;
-      text-decoration: underline;
-    }
-
-    /* Modal styles */
-    .modal-content {
-      border-radius: 20px;
-      border: none;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    }
-
-    .modal-header {
-      border-bottom: none;
-      padding: 1.5rem 1.5rem 0.5rem 1.5rem;
-    }
-
-    .modal-body {
-      padding: 1rem 1.5rem 1.5rem 1.5rem;
-    }
-
-    .modal-footer {
-      border-top: none;
-      padding: 0.5rem 1.5rem 1.5rem 1.5rem;
-    }
-
-    .error-icon {
-      width: 60px;
-      height: 60px;
-      background: #fee;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1rem auto;
-    }
-
-    .error-icon i {
-      font-size: 2rem;
-      color: #dc3545;
-    }
-
-    .btn-error-modal {
-      background-color: #0b2f4e;
-      color: white;
-      border-radius: 10px;
-      padding: 0.5rem 2rem;
-      font-weight: 500;
-      border: none;
-    }
-
-    .btn-error-modal:hover {
-      background-color: #1e4a6f;
-      color: white;
-    }
-  </style>
-</head>
-<body>
-
-<!-- ========== HEADER with Logo ========== -->
-<nav class="navbar navbar-expand-lg bg-white py-3 shadow-sm">
-  <div class="container">
-    <!-- App name: Mumbai Opticals (eyewear website) -->
-    <a class="navbar-brand" href="{{ url_for('main.index') }}">
-      <img src="{{ url_for('static', filename='Images/Logo/Logo.png') }}" style="height: 70px; width: 200px;" />
-    </a>
-  </div>
-</nav>
-
-<!-- ========== LOGIN FORM SECTION ========== -->
-<div class="container">
-  <!-- Back to home link -->
-  <div class="mt-4">
-    <a href="{{ url_for('main.index') }}" class="back-home">
-      <i class="fas fa-arrow-left me-2"></i>Back to Home
-    </a>
-  </div>
-
-  <!-- Login Card -->
-  <div class="login-card">
-    <div class="login-header">
-      <div class="mb-3">
-        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center mx-auto"
-             style="width: 80px; height: 80px; background: linear-gradient(145deg, #0b2f4e, #1e4a6f) !important;">
-          <i class="fas fa-user-lock fs-2"></i>
-        </div>
+{% block content %}
+    <!-- ========== HEADER with Logo ========== -->
+    <nav class="navbar navbar-expand-lg bg-white py-3 shadow-sm">
+      <div class="container">
+        <!-- App name: Mumbai Opticals (eyewear website) -->
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">
+          <img src="{{ url_for('static', filename='Images/Logo/Logo.png') }}" style="height: 70px; width: 200px;" />
+        </a>
       </div>
-      <h2>Welcome</h2>
-    </div>
+    </nav>
 
-    <form id="loginForm" method="POST" action="/login">
-      <!-- Email Field -->
-      <div class="mb-3">
-        <label for="email" class="form-label">Email Address</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-          <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
-        </div>
+    <!-- ========== LOGIN FORM SECTION ========== -->
+    <div class="container">
+      <!-- Back to home link -->
+      <div class="mt-4">
+        <a href="{{ url_for('main.index') }}" class="back-home">
+          <i class="fas fa-arrow-left me-2"></i>Back to Home
+        </a>
       </div>
 
-      <!-- Password Field -->
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-lock"></i></span>
-          <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
-        </div>
-      </div>
-
-      <!-- Hidden field to pass error messages from Flask -->
-      {% if error %}
-      <input type="hidden" id="errorMessage" value="{{ error }}">
-      {% endif %}
-
-      <!-- Login Button -->
-      <button type="submit" class="login-btn">
-        <i class="fas fa-sign-in-alt me-2"></i>Login
-      </button>
-
-    </form>
-  </div>
-</div>
-
-<!-- ========== ERROR MODAL ========== -->
-<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h5 class="modal-title w-100" id="errorModalLabel">
-          <div class="error-icon">
-            <i class="fas fa-exclamation-triangle"></i>
+      <!-- Login Card -->
+      <div class="login-card">
+        <div class="login-header">
+          <div class="mb-3">
+            <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                 style="width: 80px; height: 80px; background: linear-gradient(145deg, #0b2f4e, #1e4a6f) !important;">
+              <i class="fas fa-user-lock fs-2"></i>
+            </div>
           </div>
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <h4 class="mb-3" style="color: #0b2f4e;">Login Failed</h4>
-        <p class="text-muted mb-0" id="errorModalMessage">Invalid credentials. Please try again.</p>
-      </div>
-      <div class="modal-footer justify-content-center">
-        <button type="button" class="btn btn-error-modal" data-bs-dismiss="modal">Try Again</button>
+          <h2>Welcome</h2>
+        </div>
+
+        <form id="loginForm" method="POST" action="/login">
+          <!-- Email Field -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+          </div>
+
+          <!-- Hidden field to pass error messages from Flask -->
+          {% if error %}
+          <input type="hidden" id="errorMessage" value="{{ error }}">
+          {% endif %}
+
+          <!-- Login Button -->
+          <button type="submit" class="login-btn">
+            <i class="fas fa-sign-in-alt me-2"></i>Login
+          </button>
+
+        </form>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ========== FOOTER ========== -->
-<footer class="footer">
-  <div class="container">
-    <div class="row align-items-center">
-      <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-        <span class="since-badge-footer">
-          <i class="fas fa-certificate me-2"></i>Since 1985
-        </span>
-        <span class="ms-3">Mumbai Opticals</span>
-      </div>
-      <div class="col-md-6 text-center text-md-end">
-        <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
-        <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
-        <span class="ms-3 small">Need help? <a href="#" class="text-light">Contact us</a></span>
+    <!-- ========== ERROR MODAL ========== -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h5 class="modal-title w-100" id="errorModalLabel">
+              <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <h4 class="mb-3" style="color: #0b2f4e;">Login Failed</h4>
+            <p class="text-muted mb-0" id="errorModalMessage">Invalid credentials. Please try again.</p>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-error-modal" data-bs-dismiss="modal">Try Again</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</footer>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+            <span class="since-badge-footer">
+              <i class="fas fa-certificate me-2"></i>Since 1985
+            </span>
+            <span class="ms-3">Mumbai Opticals</span>
+          </div>
+          <div class="col-md-6 text-center text-md-end">
+            <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
+            <span class="ms-3 small">Need help? <a href="#" class="text-light">Contact us</a></span>
+          </div>
+        </div>
+      </div>
+    </footer>
 
-<!-- JavaScript to show error modal -->
-<script>
-  // Check if there's an error message from Flask
-  document.addEventListener('DOMContentLoaded', function() {
-    const errorInput = document.getElementById('errorMessage');
-    if (errorInput) {
-      const errorMessage = errorInput.value;
-      document.getElementById('errorModalMessage').textContent = errorMessage;
+    <!-- Bootstrap JS -->
+{% endblock %}
 
-      // Show the modal
-      const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-      errorModal.show();
-    }
-  });
-
-  // Optional: Form validation before submit
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    if (!email || !password) {
-      e.preventDefault();
-      document.getElementById('errorModalMessage').textContent = 'Please fill in both email and password fields.';
-      const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-      errorModal.show();
-    }
-  });
-</script>
-
-</body>
-</html>
+{% block scripts %}
+    <script src="{{ asset('js/pages/auth/login.js') }}"></script>
+{% endblock %}

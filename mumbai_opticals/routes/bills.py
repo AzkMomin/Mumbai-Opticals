@@ -1,4 +1,5 @@
 """Bills: list, generate, view, edit, print, cancel, delete, WhatsApp link, product search."""
+import json
 import uuid
 from datetime import datetime
 from urllib.parse import quote
@@ -108,6 +109,7 @@ def _parse_bill_items(form):
     quantities = form.getlist('quantities[]')
     prices = form.getlist('prices[]')
     discounts = form.getlist('discounts[]')
+    details = form.getlist('details[]')
     for i, product_id in enumerate(product_ids):
         try:
             item = {
@@ -120,12 +122,63 @@ def _parse_bill_items(form):
             return None
         if item['quantity'] <= 0 or item['price'] < 0 or item['discount'] < 0:
             return None
+        item['details'] = _clean_details(details[i] if i < len(details) else '')
         gross = item['price'] * item['quantity']
         item['discount'] = min(item['discount'], gross)
         item['total'] = round(gross - item['discount'], 2)
         item['discount_percent'] = round(item['discount'] / gross * 100, 2) if gross else 0
         items.append(item)
     return items
+
+
+DETAIL_FIELDS = {
+    'frame_type', 'material', 'model_name', 'model_code', 'model_color', 'model_size',
+    'lens_for', 'lens_type', 'which_side', 'company', 'add_on', 'index_value', 'dia',
+    'watch_type', 'watch_mechanism', 'strap_material', 'dial_color', 'brand', 'color', 'size',
+}
+DETAIL_LABELS = {
+    'frame_type': 'Frame', 'material': 'Material', 'model_name': 'Model', 'model_code': 'Code',
+    'model_color': 'Color', 'model_size': 'Size', 'lens_for': 'For', 'lens_type': 'Type', 'which_side': 'Side',
+    'company': 'Company', 'add_on': 'Add-on', 'index_value': 'Index', 'dia': 'DIA', 'watch_type': 'Type',
+    'watch_mechanism': 'Mechanism', 'strap_material': 'Strap', 'dial_color': 'Dial', 'brand': 'Brand',
+    'color': 'Color', 'size': 'Size',
+}
+PRESCRIPTION_FIELDS = ('eye', 'sph', 'cyl', 'axis', 'add', 'vision', 'pd')
+
+
+def _clean_details(raw):
+    """Keep only known text fields from a row's details (JSON)."""
+    try:
+        data = json.loads(raw) if raw else {}
+    except ValueError:
+        return None
+    if not isinstance(data, dict):
+        return None
+    clean = {k: str(v)[:100] for k, v in data.items() if k in DETAIL_FIELDS and str(v).strip()}
+    return json.dumps(clean) if clean else None
+
+
+def _clean_prescription_rows(raw):
+    try:
+        rows = json.loads(raw) if raw else []
+    except ValueError:
+        return []
+    if not isinstance(rows, list):
+        return []
+    clean = []
+    for row in rows[:6]:
+        if isinstance(row, dict):
+            r = {k: str(row.get(k) or '').strip()[:20] for k in PRESCRIPTION_FIELDS}
+            if any(r[k] for k in PRESCRIPTION_FIELDS if k != 'eye'):
+                clean.append(r)
+    return clean
+
+
+def _number_or_none(value):
+    try:
+        return float(value) if value not in (None, '') else None
+    except ValueError:
+        return None
 
 
 @bp.route('/bills/generate', methods=['GET', 'POST'])
@@ -179,21 +232,37 @@ def generate_bill():
     total = round(after_discount + tax_amount, 2)
     discount_total = round(item_discount + extra_discount, 2)
 
+    prescription_rows = _clean_prescription_rows(request.form.get('prescription_rows'))
+
     bill_number = f"BILL-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
     bill_id = db.execute("""
         INSERT INTO bills (bill_number, customer_id, bill_date, subtotal, discount, tax, total_amount,
-                           payment_method, notes, status, payment_status, total_paid, balance_due)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'ACTIVE', 'PENDING', 0, %s)
+                           payment_method, notes, status, payment_status, total_paid, balance_due,
+                           prescription_details)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'ACTIVE', 'PENDING', 0, %s, %s)
     """, (bill_number, customer_id, datetime.now().date(), subtotal, discount_total, tax_amount, total,
-          request.form.get('payment_method', 'CASH'), request.form.get('notes', ''), total))
+          request.form.get('payment_method', 'CASH'), request.form.get('notes', ''), total,
+          json.dumps(prescription_rows) if prescription_rows else None))
+
+    # Prescription rows typed in on the bill are also saved to the customer's prescriptions
+    loaded = request.form.get('prescription_id', type=int)
+    if prescription_rows and not loaded:
+        for row in prescription_rows:
+            db.execute("""
+                INSERT INTO prescriptions (customer_id, prescription_date, eye, splt, cvl, axis, add_value,
+                                           vision, pupillary_distance, photo_path)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, '')
+            """, (customer_id, datetime.now().date(), row['eye'], _number_or_none(row['sph']),
+                  _number_or_none(row['cyl']), _number_or_none(row['axis']), _number_or_none(row['add']),
+                  row['vision'], _number_or_none(row['pd'])))
 
     for item in items:
         db.execute("""
             INSERT INTO bill_items (bill_id, product_id, quantity, price_per_unit,
-                                    discount_percent, discount_amount, total_price)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                                    discount_percent, discount_amount, total_price, details)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (bill_id, item['product_id'], item['quantity'], item['price'], item['discount_percent'],
-              item['discount'], item['total']))
+              item['discount'], item['total'], item['details']))
         change_stock(item['product_id'], 'SALE', item['quantity'], bill_id, 'BILL',
                      f"Sold {item['quantity']} units in bill {bill_number}")
     db.commit()
@@ -211,8 +280,12 @@ def _get_bill(bill_id):
 
 
 def bill_items(bill_id):
+    """Items of a bill, with the details typed on the bill taking priority over the product's own."""
     items = db.query_all("""
-        SELECT bi.*, p.product_name, p.product_image, p.model_code, pt.type_name, pc.category_name
+        SELECT bi.*, p.product_name, p.product_image, p.model_code, p.model_name, p.model_color, p.model_size,
+               p.frame_type, p.material, p.lens_for, p.lens_type, p.which_side, p.company,
+               p.watch_type, p.watch_mechanism, p.strap_material, p.dial_color, p.brand, p.color, p.size,
+               pt.type_name, pc.category_name
         FROM bill_items bi
         JOIN products p ON bi.product_id = p.product_id
         JOIN product_types pt ON p.product_type_id = pt.type_id
@@ -220,7 +293,45 @@ def bill_items(bill_id):
         WHERE bi.bill_id = %s
         ORDER BY bi.item_id
     """, (bill_id,))
-    return [db.floatify(i, *ITEM_MONEY_FIELDS) for i in items]
+    for item in items:
+        db.floatify(item, *ITEM_MONEY_FIELDS)
+        try:
+            details = json.loads(item.get('details') or '{}')
+        except ValueError:
+            details = {}
+        if isinstance(details, dict):
+            item.update({k: v for k, v in details.items() if v})
+            item['details_text'] = ' · '.join(f"{DETAIL_LABELS.get(k, k)}: {v}" for k, v in details.items() if v)
+        item['group'] = _item_group(item['type_name'])
+    return items
+
+
+def _item_group(type_name):
+    if type_name in ('Frames', 'Goggles'):
+        return 'frames'
+    if type_name == 'Lenses':
+        return 'lenses'
+    if type_name in ('Wrist Watches', 'Hand Watches'):
+        return 'watches'
+    return 'misc'
+
+
+def bill_prescription(bill):
+    """Prescription rows saved with the bill, shaped as {right: {...}, left: {...}} for the templates."""
+    try:
+        rows = json.loads(bill.get('prescription_details') or '[]')
+    except ValueError:
+        rows = []
+    if not rows:
+        return None
+    result = {'rows': rows}
+    for row in rows:
+        for side in ('right', 'left'):
+            if row.get('eye', '').lower() in (side, 'both'):
+                for key in ('sph', 'cyl', 'axis', 'add', 'vision'):
+                    result[f'{side}_{key}'] = row.get(key, '')
+        result['pupillary_distance'] = result.get('pupillary_distance') or row.get('pd', '')
+    return result
 
 
 @bp.route('/bills/view/<int:bill_id>')
@@ -237,7 +348,7 @@ def view_bill(bill_id):
     for p in payments:
         db.floatify(p, 'amount')
     return render_template('bills/view_bill.html', bill=_bill_money(bill), items=bill_items(bill_id),
-                           payments=payments)
+                           payments=payments, prescription=bill_prescription(bill))
 
 
 @bp.route('/bills/print/<int:bill_id>')
@@ -247,7 +358,7 @@ def print_bill(bill_id):
         flash('Bill not found', 'error')
         return redirect(url_for('bills.bills'))
     return render_template('bills/print_bill.html', bill=_bill_money(bill), items=bill_items(bill_id),
-                           company=COMPANY)
+                           company=COMPANY, prescription=bill_prescription(bill))
 
 
 @bp.route('/bills/edit/<int:bill_id>', methods=['GET', 'POST'])
@@ -258,13 +369,9 @@ def edit_bill(bill_id):
         return redirect(url_for('bills.bills'))
 
     if request.method == 'POST':
-        status = request.form.get('status', bill['status'])
-        if status == 'CANCELLED' and bill['status'] != 'CANCELLED':
-            flash('Use the Cancel button to cancel a bill, so its stock is put back.', 'error')
-            return redirect(url_for('bills.edit_bill', bill_id=bill_id))
-        if bill['status'] == 'CANCELLED' and status != 'CANCELLED':
-            flash('A cancelled bill cannot be re-activated.', 'error')
-            return redirect(url_for('bills.edit_bill', bill_id=bill_id))
+        if bill['status'] == 'CANCELLED':
+            flash('A cancelled bill cannot be edited.', 'error')
+            return redirect(url_for('bills.view_bill', bill_id=bill_id))
         try:
             discount = max(float(request.form.get('discount') or 0), 0)
             tax = max(float(request.form.get('tax') or 0), 0)

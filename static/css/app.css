@@ -1,0 +1,13 @@
+/* Shared styles for every page */
+.flash-stack {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2000;
+    width: min(380px, calc(100vw - 2rem));
+}
+.flash-stack .alert {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    white-space: pre-line;
+}

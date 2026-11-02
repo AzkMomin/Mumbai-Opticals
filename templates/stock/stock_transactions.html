@@ -1,262 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Transactions - Mumbai Opticals</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-        }
-        
-        .main-content {
-            margin-left: 280px;
-            padding: 2rem;
-        }
-        
-        .header {
-            background: white;
-            padding: 1rem 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .page-title {
-            color: #0b2f4e;
-            font-weight: 600;
-            margin: 0;
-        }
-        
-        .back-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: 0.2s;
-            white-space: nowrap;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .back-btn:hover {
-            background: #5a6268;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(108,117,125,0.2);
-            color: white;
-        }
-        
-        .transactions-container {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .transaction-row {
-            background: white;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            transition: 0.2s;
-            border: 1px solid #e1e9f0;
-            position: relative;
-        }
-        
-        .transaction-row:hover {
-            background: #f8f9fc;
-            border-color: #0b2f4e;
-        }
-        
-        .transaction-badge {
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            display: inline-block;
-        }
-        
-        .badge-purchase {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .badge-sale {
-            background: #cce5ff;
-            color: #004085;
-        }
-        
-        .badge-return {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-        
-        .badge-adjustment {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .product-name {
-            font-weight: 600;
-            color: #0b2f4e;
-        }
-        
-        .quantity-change {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        
-        .quantity-increase {
-            color: #28a745;
-        }
-        
-        .quantity-decrease {
-            color: #dc3545;
-        }
-        
-        .stock-movement {
-            background: #f8f9fc;
-            padding: 0.5rem;
-            border-radius: 8px;
-        }
-        
-        .reference-link {
-            color: #0b2f4e;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .reference-link:hover {
-            text-decoration: underline;
-        }
-        
-        .filter-section {
-            background: white;
-            border-radius: 15px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .filter-tabs {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-tab {
-            padding: 0.4rem 1rem;
-            border-radius: 30px;
-            background: white;
-            border: 1px solid #e1e9f0;
-            color: #6c757d;
-            cursor: pointer;
-            transition: 0.2s;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.9rem;
-        }
-        
-        .filter-tab:hover {
-            background: #f0f5fa;
-        }
-        
-        .filter-tab.active {
-            background: #0b2f4e;
-            color: white;
-            border-color: #0b2f4e;
-        }
-        
-        /* Action Buttons */
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 3px;
-            transition: 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .edit-btn {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .delete-btn {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-        
-        .action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* Modal Styles */
-        .modal-content {
-            border-radius: 15px;
-            border: none;
-        }
-        
-        .modal-header {
-            background: #0b2f4e;
-            color: white;
-            border-radius: 15px 15px 0 0;
-            padding: 1rem 1.5rem;
-        }
-        
-        .modal-header .btn-close {
-            filter: brightness(0) invert(1);
-        }
-        
-        .modal-header.bg-danger {
-            background: #dc3545 !important;
-        }
-        
-        .modal-header.bg-warning {
-            background: #ffc107 !important;
-            color: #000;
-        }
-        
-        .modal-header.bg-warning .btn-close {
-            filter: none;
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: 3rem;
-            color: #6c757d;
-        }
-        
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-            }
-        }
-    </style>
-</head>
-<body>
-    {% include 'layout/navbar.html' %}
-    
+{% extends 'layout/base.html' %}
+
+{% block title %}Stock Transactions - Mumbai Opticals{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('css/pages/stock/stock_transactions.css') }}">
+{% endblock %}
+
+{% block flashes %}{% endblock %}
+
+{% block content %}
     <div class="main-content">
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -269,7 +21,7 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
+
         <div class="header">
             <h2 class="page-title"><i class="fas fa-history me-2"></i>Stock Transaction History</h2>
             <div>
@@ -281,7 +33,7 @@
                 </a>
             </div>
         </div>
-        
+
         <!-- Filter Tabs -->
         <div class="filter-section">
             <div class="filter-tabs">
@@ -302,7 +54,7 @@
                 </a>
             </div>
         </div>
-        
+
         <!-- Transactions List -->
         <div class="transactions-container">
             {% if transactions %}
@@ -329,7 +81,7 @@
                                 </small>
                             </div>
                         </div>
-                        
+
                         <!-- Product Info -->
                         <div class="col-md-3">
                             <div class="product-name">{{ transaction.product_name }}</div>
@@ -337,7 +89,7 @@
                             <br>
                             <small class="text-muted">ID: #{{ transaction.product_id }}</small>
                         </div>
-                        
+
                         <!-- Stock Movement -->
                         <div class="col-md-2">
                             <div class="stock-movement">
@@ -364,7 +116,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Reference -->
                         <div class="col-md-2">
                             {% if transaction.reference_type == 'BILL' %}
@@ -382,14 +134,14 @@
                             {% else %}
                                 <span class="text-muted">{{ transaction.reference_type }}</span>
                             {% endif %}
-                            
+
                             {% if transaction.notes %}
                             <div class="small text-muted mt-1">
                                 <i class="fas fa-comment me-1"></i> {{ transaction.notes|truncate(20) }}
                             </div>
                             {% endif %}
                         </div>
-                        
+
                         <!-- Actions -->
                         <div class="col-md-3 text-end">
                             {% if transaction.reference_type == 'MANUAL_STOCK' or transaction.reference_type == 'INITIAL_STOCK' %}
@@ -417,7 +169,7 @@
             {% endif %}
         </div>
     </div>
-    
+
     <!-- Edit Transaction Modal -->
     <div class="modal fade" id="editTransactionModal" tabindex="-1">
         <div class="modal-dialog">
@@ -429,7 +181,7 @@
                 <form method="POST" action="{{ url_for('stock.edit_stock_transaction') }}" id="editTransactionForm">
                     <div class="modal-body">
                         <input type="hidden" name="transaction_id" id="edit_transaction_id">
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Product</label>
                             <select class="form-control" name="product_id" id="edit_product_id" required>
@@ -439,7 +191,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Transaction Type</label>
                             <select class="form-control" name="transaction_type" id="edit_transaction_type" required>
@@ -449,23 +201,23 @@
                                 <option value="ADJUSTMENT">Adjustment</option>
                             </select>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Quantity</label>
                             <input type="number" class="form-control" name="quantity" id="edit_quantity" required min="1">
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Previous Quantity</label>
                             <input type="number" class="form-control" name="previous_quantity" id="edit_previous_quantity" readonly>
                             <small class="text-muted">This field is read-only</small>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Notes</label>
                             <textarea class="form-control" name="notes" id="edit_notes" rows="2"></textarea>
                         </div>
-                        
+
                         <div class="alert alert-info" id="new_stock_preview" style="display: none;">
                             New stock will be: <strong><span id="new_stock_value"></span></strong>
                         </div>
@@ -478,7 +230,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
@@ -493,18 +245,20 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete Transaction</a>
+                    <a href="#" id="confirmDeleteBtn" data-method="post" class="btn btn-danger">Delete Transaction</a>
                 </div>
             </div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ asset('js/layout.js') }}"></script>
     <script>
         // Initialize modals
         const editModal = new bootstrap.Modal(document.getElementById('editTransactionModal'));
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        
+
         // Edit transaction function
         function editTransaction(transactionId) {
             // Fetch transaction data via AJAX
@@ -515,7 +269,7 @@
                         alert('Error: ' + data.error);
                         return;
                     }
-                    
+
                     // Populate modal fields
                     document.getElementById('edit_transaction_id').value = data.transaction_id;
                     document.getElementById('edit_product_id').value = data.product_id;
@@ -523,10 +277,10 @@
                     document.getElementById('edit_quantity').value = data.quantity;
                     document.getElementById('edit_previous_quantity').value = data.previous_quantity;
                     document.getElementById('edit_notes').value = data.notes || '';
-                    
+
                     // Show preview
                     updateNewStockPreview();
-                    
+
                     editModal.show();
                 })
                 .catch(error => {
@@ -534,13 +288,13 @@
                     alert('Failed to load transaction data');
                 });
         }
-        
+
         // Update new stock preview
         function updateNewStockPreview() {
             const type = document.getElementById('edit_transaction_type').value;
             const quantity = parseInt(document.getElementById('edit_quantity').value) || 0;
             const previous = parseInt(document.getElementById('edit_previous_quantity').value) || 0;
-            
+
             let newStock = previous;
             if (type === 'PURCHASE' || type === 'RETURN') {
                 newStock = previous + quantity;
@@ -549,20 +303,19 @@
             } else if (type === 'ADJUSTMENT') {
                 newStock = quantity;
             }
-            
+
             document.getElementById('new_stock_value').textContent = newStock;
             document.getElementById('new_stock_preview').style.display = 'block';
         }
-        
+
         // Add event listeners for preview updates
         document.getElementById('edit_transaction_type')?.addEventListener('change', updateNewStockPreview);
         document.getElementById('edit_quantity')?.addEventListener('input', updateNewStockPreview);
-        
+
         // Confirm delete
         function confirmDelete(transactionId) {
             document.getElementById('confirmDeleteBtn').href = "{{ url_for('stock.delete_stock_transaction', transaction_id=0) }}".replace('0', transactionId);
             deleteModal.show();
         }
     </script>
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,141 @@
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 1.5rem;
+}
+
+.header {
+    background: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #f8f9fc;
+}
+
+.product-image-placeholder {
+    width: 120px;
+    height: 120px;
+    background: #e1e9f0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 2rem;
+}
+
+.info-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.info-title {
+    color: #0b2f4e;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid #e1e9f0;
+    padding-bottom: 0.5rem;
+}
+
+.info-label {
+    color: #6c757d;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #0b2f4e;
+    font-size: 0.9rem;
+}
+
+.stock-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.transaction-table {
+    background: white;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.transaction-table table {
+    width: 100%;
+    font-size: 0.75rem;
+}
+
+.transaction-table th {
+    background: #f8f9fc;
+    padding: 0.5rem;
+    font-weight: 600;
+    color: #0b2f4e;
+    border-bottom: 1px solid #e1e9f0;
+    font-size: 0.7rem;
+}
+
+.transaction-table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #e1e9f0;
+    vertical-align: middle;
+    font-size: 0.75rem;
+}
+
+.badge-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+    border-radius: 12px;
+}
+
+.spec-item {
+    background: #f8f9fc;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.spec-label {
+    color: #6c757d;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+}
+
+.spec-value {
+    font-weight: 600;
+    color: #0b2f4e;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* Scrollable table */
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}

@@ -1,0 +1,355 @@
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 1.2rem;
+}
+
+.header {
+    background: linear-gradient(135deg, #0b2f4e 0%, #1e4a6f 100%);
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    margin-bottom: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title {
+    color: white;
+    font-weight: 600;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.header .btn-secondary {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+}
+
+.header .btn-secondary:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.bill-container {
+    background: white;
+    border-radius: 10px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.customer-section {
+    background: #f8f9fc;
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin-bottom: 1.2rem;
+    border: 1px solid #e1e9f0;
+}
+
+.selected-customer {
+    background: #d4edda;
+    border-left: 3px solid #28a745;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e1e9f0;
+    border-radius: 6px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.search-dropdown-item {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid #e1e9f0;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.search-dropdown-item:hover {
+    background: #f0f5fa;
+}
+
+/* Product Type Selector - No Background */
+.product-type-selector {
+    background: white;
+    border: 1px solid #e1e9f0;
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin-bottom: 1.2rem;
+}
+
+.product-type-selector .form-label {
+    color: #0b2f4e;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.product-type-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.product-type-btn {
+    background: white;
+    border: 1px solid #e1e9f0;
+    padding: 0.4rem 1rem;
+    border-radius: 25px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #6c757d;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.product-type-btn:hover {
+    background: #f0f5fa;
+    border-color: #0b2f4e;
+}
+
+.product-type-btn.active {
+    background: #0b2f4e;
+    color: white;
+    border-color: #0b2f4e;
+}
+
+/* Product Section */
+.product-section {
+    background: #f8f9fc;
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e1e9f0;
+}
+
+.section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0b2f4e;
+    margin-bottom: 0.8rem;
+    border-left: 3px solid #0b2f4e;
+    padding-left: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.remove-section-btn {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 15px;
+}
+
+/* Product Table */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.8rem;
+    font-size: 0.7rem;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.product-table th,
+.product-table td {
+    border: 1px solid #e1e9f0;
+    padding: 0.3rem;
+    vertical-align: middle;
+}
+
+.product-table th {
+    background: #e9ecef;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.65rem;
+}
+
+.product-select {
+    width: 100%;
+    padding: 0.2rem;
+    font-size: 0.7rem;
+    border: 1px solid #e1e9f0;
+    border-radius: 4px;
+}
+
+.quantity-input, .discount-input {
+    width: 65px;
+    text-align: center;
+    padding: 0.2rem;
+    border-radius: 4px;
+    border: 1px solid #e1e9f0;
+    font-size: 0.7rem;
+}
+
+.row-total {
+    font-weight: 600;
+    background: #f8f9fc;
+}
+
+.add-row-btn {
+    margin-top: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+    border-radius: 15px;
+}
+
+.remove-row {
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+
+.remove-row:hover {
+    color: #c82333;
+}
+
+/* Prescription Section */
+.prescription-section {
+    background: #f8f9fc;
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e1e9f0;
+}
+
+.prescription-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.prescription-table th,
+.prescription-table td {
+    border: 1px solid #e1e9f0;
+    padding: 0.3rem;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.prescription-table th {
+    background: #e9ecef;
+    font-size: 0.65rem;
+}
+
+/* Summary Section */
+.summary-card {
+    background: linear-gradient(135deg, #0b2f4e 0%, #1e4a6f 100%);
+    border-radius: 8px;
+    padding: 1rem;
+    position: sticky;
+    top: 20px;
+    color: white;
+}
+
+.summary-card h6 {
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.75rem;
+}
+
+.summary-total {
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-top: 2px solid rgba(255,255,255,0.2);
+    margin-top: 0.3rem;
+    padding-top: 0.3rem;
+}
+
+.final-discount {
+    width: 80px;
+    text-align: right;
+    background: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.2rem 0.3rem;
+    font-size: 0.7rem;
+}
+
+.summary-card select,
+.summary-card textarea {
+    background: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    padding: 0.25rem;
+}
+
+.generate-btn {
+    background: #28a745;
+    border: none;
+    padding: 0.4rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: 0.2s;
+    font-size: 0.8rem;
+}
+
+.generate-btn:hover {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+.form-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.form-control {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+}
+
+.btn-sm {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+}
+
+.alert {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+    margin-bottom: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}

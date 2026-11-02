@@ -13,7 +13,15 @@ MAX_UPLOAD_BYTES = 16 * 1024 * 1024
 
 PER_PAGE = 10
 
-# Shown on printed bills and the customer bill page
+# Third-party libraries loaded from CDNs (one place to upgrade them)
+CDN = {
+    'bootstrap_css': 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    'bootstrap_js': 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
+    'fontawesome_css': 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
+}
+
+# Shop details shown on bills, printed bills, prescriptions and the customer bill page.
+# CHECK THESE: the address, phone and GST number must be the shop's real details.
 COMPANY = {
     'name': 'Mumbai Opticals',
     'address': '123, Linking Road, Bandra West, Mumbai - 400050',

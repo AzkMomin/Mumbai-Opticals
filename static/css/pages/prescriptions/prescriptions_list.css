@@ -1,0 +1,224 @@
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 2rem;
+}
+
+.header {
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title {
+    color: #0b2f4e;
+    font-weight: 600;
+    margin: 0;
+}
+
+.add-btn {
+    background: #0b2f4e;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.add-btn:hover {
+    background: #1e4a6f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(11,47,78,0.2);
+}
+
+.filter-section {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.prescription-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: 0.3s;
+    border-left: 4px solid #0b2f4e;
+}
+
+.prescription-card:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.customer-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0b2f4e;
+}
+
+.prescription-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f8f9fc;
+    border: 1px solid #e1e9f0;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.prescription-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.image-placeholder {
+    width: 60px;
+    height: 60px;
+    background: #e1e9f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.image-placeholder:hover {
+    background: #d1d9e6;
+}
+
+.measurement-badge {
+    background: #f0f5fa;
+    color: #0b2f4e;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.action-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 3px;
+    transition: 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.view-btn {
+    background: #e7f3ff;
+    color: #0b2f4e;
+}
+
+.edit-btn {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.print-btn {
+    background: #d4edda;
+    color: #155724;
+}
+
+.delete-btn {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Modal Styles */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.modal-header {
+    background: #0b2f4e;
+    color: white;
+    border-radius: 15px 15px 0 0;
+    padding: 1rem 1.5rem;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.measurement-detail {
+    background: #f8f9fc;
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+
+.measurement-label {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.measurement-value {
+    font-weight: 600;
+    color: #0b2f4e;
+    font-size: 1.1rem;
+}
+
+/* Date column shorter */
+.date-col {
+    min-width: 100px;
+    max-width: 120px;
+}
+
+/* Measurements column */
+.measurements-col {
+    min-width: 250px;
+}
+
+/* Debug border for images */
+.debug-image {
+    border: 2px solid red;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}

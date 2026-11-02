@@ -1,118 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Print Prescription - Mumbai Opticals</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Courier New', monospace;
-            background: white;
-            padding: 20px;
-        }
-        
-        .prescription-container {
-            max-width: 800px;
-            margin: 0 auto;
-            border: 2px solid #333;
-            padding: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .shop-name {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .prescription-title {
-            font-size: 18px;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .patient-info {
-            background: #f2f2f2;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .measurements-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        .measurements-table th,
-        .measurements-table td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: center;
-        }
-        
-        .measurements-table th {
-            background: #e6e6e6;
-        }
-        
-        .prescription-image {
-            max-width: 100%;
-            max-height: 300px;
-            border: 1px solid #333;
-            margin-top: 20px;
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-style: italic;
-            border-top: 1px solid #333;
-            padding-top: 10px;
-        }
-        
-        .doctor-signature {
-            margin-top: 50px;
-            display: flex;
-            justify-content: flex-end;
-        }
-        
-        @media print {
-            body {
-                padding: 0;
-            }
-            .prescription-container {
-                border: none;
-            }
-        }
-    </style>
-</head>
-<body>
+{% extends 'layout/base.html' %}
+
+{% block title %}Print Prescription - Mumbai Opticals{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('css/pages/prescriptions/print_prescription.css') }}">
+{% endblock %}
+
+{% block nav %}{% endblock %}
+{% block layout_css %}{% endblock %}
+
+{% block flashes %}{% endblock %}
+
+{% block content %}
     <div class="prescription-container">
         <div class="header">
-            <div class="shop-name">Mumbai Opticals</div>
-            <div>123, Linking Road, Bandra West</div>
-            <div>Mumbai - 400050</div>
-            <div>Tel: +91 98765 43210</div>
+            <div class="shop-name">{{ company.name }}</div>
+            <div>{{ company.address }}</div>
+            <div>Tel: {{ company.phone }}</div>
             <div class="prescription-title">OPHTHALMIC PRESCRIPTION</div>
         </div>
-        
+
         <div class="info-row">
             <div><strong>Prescription ID:</strong> #{{ prescription.prescription_id }}</div>
             <div><strong>Date:</strong> {{ prescription.prescription_date.strftime('%d/%m/%Y') }}</div>
         </div>
-        
+
         <div class="patient-info">
             <h5>Patient Details</h5>
             <div class="info-row">
@@ -123,7 +35,7 @@
                 <div><strong>Email:</strong> {{ prescription.customer_email or 'N/A' }}</div>
             </div>
         </div>
-        
+
         <h5>Prescription Details</h5>
         <table class="measurements-table">
             <thead>
@@ -145,12 +57,12 @@
                 </tr>
             </tbody>
         </table>
-        
+
         <div class="info-row" style="margin-top: 20px;">
             <div><strong>Vision:</strong> {{ prescription.vision or 'N/A' }}</div>
             <div><strong>Pupillary Distance:</strong> {{ prescription.pupillary_distance or 'N/A' }} mm</div>
         </div>
-        
+
         {% if prescription.photo_path %}
         <div class="text-center">
             <h5>Prescription Image</h5>
@@ -158,24 +70,21 @@
                  class="prescription-image" alt="Prescription Image">
         </div>
         {% endif %}
-        
+
         <div class="doctor-signature">
             <div>
                 <p>_________________________</p>
                 <p>Doctor's Signature</p>
             </div>
         </div>
-        
+
         <div class="footer">
             <p>This is a computer generated prescription - Valid with doctor's signature</p>
             <p>** Please carry this prescription when collecting your glasses **</p>
         </div>
     </div>
-    
-    <script>
-        window.onload = function() {
-            window.print();
-        }
-    </script>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ asset('js/pages/prescriptions/print_prescription.js') }}"></script>
+{% endblock %}

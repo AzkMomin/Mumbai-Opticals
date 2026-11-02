@@ -3,12 +3,14 @@ import os
 import secrets
 from datetime import datetime
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
 
 from . import db
 from .helpers import error_page
-from .settings import BASE_DIR, MAX_UPLOAD_BYTES, load_local_config
+from .schema import ensure_schema
+from .security import check_csrf, csrf_token
+from .settings import BASE_DIR, CDN, COMPANY, MAX_UPLOAD_BYTES, STATIC_DIR, load_local_config
 
 # Endpoints that answer with JSON (used by page scripts)
 JSON_ENDPOINTS = {
@@ -53,13 +55,20 @@ def create_app():
         app.register_blueprint(blueprint)
 
     app.teardown_appcontext(db.close_db)
+    app.before_request(check_csrf)
+    app.before_request(ensure_schema)
 
     @app.after_request
     def security_headers(response):
-        # Don't let the browser show staff pages from cache after logout
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
+        if request.endpoint == 'static':
+            # Files are versioned with ?v=..., so browsers may keep them for a long time
+            if request.args.get('v'):
+                response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        else:
+            # Don't let the browser show staff pages from cache after logout
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'SAMEORIGIN'
         return response
@@ -77,8 +86,19 @@ def create_app():
             return jsonify(error='Server error'), 500
         return error_page(e)
 
+    asset_versions = {}
+
+    def asset(path):
+        """URL for a file in static/, with a version so browsers fetch it again after a deploy."""
+        if path not in asset_versions:
+            try:
+                asset_versions[path] = int(os.path.getmtime(os.path.join(STATIC_DIR, path)))
+            except OSError:
+                asset_versions[path] = 0
+        return url_for('static', filename=path, v=asset_versions[path])
+
     @app.context_processor
     def template_helpers():
-        return {'now': datetime.now}
+        return {'now': datetime.now, 'asset': asset, 'cdn': CDN, 'csrf_token': csrf_token, 'company': COMPANY}
 
     return app

@@ -1,0 +1,201 @@
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 2rem;
+}
+
+.header {
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bill-container {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Invoice Header */
+.invoice-header {
+    border-bottom: 2px solid #e1e9f0;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.company-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0b2f4e;
+    letter-spacing: 1px;
+}
+
+.company-tagline {
+    font-size: 0.7rem;
+    color: #6c757d;
+    letter-spacing: 2px;
+}
+
+.invoice-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0b2f4e;
+    text-transform: uppercase;
+}
+
+.invoice-number {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0b2f4e;
+}
+
+/* Customer Section */
+.customer-section {
+    background: #f8f9fc;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.customer-label {
+    font-size: 0.7rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.customer-value {
+    font-weight: 600;
+    color: #0b2f4e;
+}
+
+/* Table Styles */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+
+.items-table th {
+    background: #f8f9fc;
+    padding: 0.75rem;
+    border: 1px solid #e1e9f0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #0b2f4e;
+    text-align: center;
+}
+
+.items-table td {
+    padding: 0.75rem;
+    border: 1px solid #e1e9f0;
+    font-size: 0.75rem;
+    vertical-align: top;
+}
+
+.section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0b2f4e;
+    background: #f8f9fc;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-left: 3px solid #0b2f4e;
+}
+
+/* Prescription Table */
+.prescription-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.prescription-table th,
+.prescription-table td {
+    border: 1px solid #e1e9f0;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+.prescription-table th {
+    background: #f8f9fc;
+    font-weight: 600;
+}
+
+/* Summary Section */
+.summary-section {
+    background: #f8f9fc;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    font-size: 0.8rem;
+}
+
+.summary-total {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0b2f4e;
+    border-top: 1px solid #e1e9f0;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.payment-status {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 15px;
+    display: inline-block;
+}
+
+.status-paid {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-partially_paid {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+@media print {
+    .sidebar, .header, .no-print {
+        display: none !important;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 0;
+    }
+    .bill-container {
+        box-shadow: none;
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}

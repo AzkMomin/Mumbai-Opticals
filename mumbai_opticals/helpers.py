@@ -9,8 +9,8 @@ from werkzeug.utils import secure_filename
 from . import db
 from .settings import ALLOWED_IMAGE_EXTENSIONS, PER_PAGE, STATIC_DIR
 
-# Delete/cancel actions. GET is still accepted until every page sends these as forms.
-DELETE_METHODS = ['GET', 'POST']
+# Delete/cancel actions only run from a POST (a form with the CSRF token), never from a plain link
+DELETE_METHODS = ['POST']
 
 GENERIC_ERROR = "Something went wrong. Please try again, or contact the administrator if it keeps happening."
 
