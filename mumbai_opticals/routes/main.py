@@ -14,7 +14,8 @@ PREVIOUS_LABEL = {'today': 'yesterday', 'week': 'last week', 'month': 'last mont
 
 @bp.route('/')
 def index():
-    return render_template('public/index.html')
+    from .shop import shop_page
+    return shop_page()
 
 
 def _month_start(d, months_back=0):

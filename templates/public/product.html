@@ -1,0 +1,66 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}{{ product.product_name }} · {{ company.name }}{% endblock %}
+
+{% block head %}
+    <meta name="description" content="{{ product.product_name }} ({{ product.type_name }}) at {{ company.name }}, {{ product.price_text }}. Order on WhatsApp.">
+    <meta property="og:title" content="{{ product.product_name }} · {{ product.price_text }}">
+    {% if product.image_url %}<meta property="og:image" content="{{ url_for('static', filename=product.product_image, _external=True) }}">{% endif %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/pages/public/shop.css') }}">
+{% endblock %}
+
+{% block nav %}{% endblock %}
+{% block layout_css %}{% endblock %}
+{% block body_attrs %} class="shop"{% endblock %}
+
+{% block content %}
+    {% include 'public/_header.html' %}
+
+    <main class="shop-wrap detail">
+        <a class="detail__back" href="{{ url_for('main.index') }}#shop"><i class="fas fa-arrow-left" aria-hidden="true"></i> All products</a>
+        <div class="detail__grid">
+            <div class="detail__media">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.product_name }}">
+                {% else %}
+                <span class="product-tile__placeholder product-tile__placeholder--large"><i class="fas {{ product.icon }}" aria-hidden="true"></i></span>
+                {% endif %}
+            </div>
+            <div class="detail__info">
+                <p class="product-tile__type">{{ product.category_name }} / {{ product.type_name }}</p>
+                <h1 class="detail__name">{{ product.product_name }}</h1>
+                <p class="detail__price">{{ product.price_text }}</p>
+                <p class="detail__stock {% if product.in_stock %}is-in{% else %}is-out{% endif %}">
+                    {% if product.in_stock %}<i class="fas fa-check" aria-hidden="true"></i> In stock{% if product.quantity <= 3 %} (only {{ product.quantity }} left){% endif %}
+                    {% else %}<i class="fas fa-clock" aria-hidden="true"></i> Out of stock right now{% endif %}
+                </p>
+                {% if product.product_description %}<p class="detail__desc">{{ product.product_description }}</p>{% endif %}
+                {% if product.details %}
+                <dl class="detail__specs">
+                    {% for label, value in product.details %}
+                    <div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>
+                    {% endfor %}
+                </dl>
+                {% endif %}
+                <a class="btn-order btn-order--big{% if not product.in_stock %} btn-order--ask{% endif %}" href="{{ product.order_url }}" target="_blank" rel="noopener">
+                    <i class="fab fa-whatsapp" aria-hidden="true"></i>{% if product.in_stock %}Order on WhatsApp{% else %}Ask when it's back{% endif %}
+                </a>
+                <p class="detail__note">Opens WhatsApp with your order already written. Just press send and we'll confirm.</p>
+            </div>
+        </div>
+
+        {% if related %}
+        <section class="related" aria-labelledby="relatedTitle">
+            <h2 id="relatedTitle">More {{ product.type_name|lower }}</h2>
+            <div class="grid">
+                {% for p in related %}{% include 'public/_product_card.html' %}{% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    {% include 'public/_footer.html' %}
+{% endblock %}

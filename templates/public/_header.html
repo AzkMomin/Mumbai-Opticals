@@ -1,0 +1,17 @@
+<header class="shop-header">
+    <div class="shop-wrap shop-header__row">
+        <a class="shop-header__logo" href="{{ url_for('main.index') }}" aria-label="{{ company.name }} home">
+            <img src="{{ asset('Images/Logo/Logo.png') }}" alt="{{ company.name }}" width="168" height="58">
+        </a>
+        <nav class="shop-header__nav" aria-label="Main">
+            <a href="{{ url_for('main.index') }}#shop">Shop</a>
+            <a href="#visit">Visit us</a>
+            <a class="shop-header__chat" href="{{ contact_url }}" target="_blank" rel="noopener">
+                <i class="fab fa-whatsapp" aria-hidden="true"></i><span>Chat with us</span>
+            </a>
+            <a class="shop-header__staff" href="{{ url_for('auth.user_login') }}" title="Staff login">
+                <i class="fas fa-user" aria-hidden="true"></i><span class="visually-hidden">Staff login</span>
+            </a>
+        </nav>
+    </div>
+</header>

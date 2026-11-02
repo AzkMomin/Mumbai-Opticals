@@ -89,4 +89,6 @@ def load_local_config():
         'SECRET_KEY': get('SECRET_KEY'),
         'WEBHOOK_SECRET': get('WEBHOOK_SECRET'),
         'WSGI_FILE': get('WSGI_FILE'),
+        # WhatsApp number that receives orders from the shop page, with country code (e.g. '919876543210')
+        'ORDER_WHATSAPP': get('ORDER_WHATSAPP'),
     }

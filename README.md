@@ -10,7 +10,7 @@ Built with Flask and MySQL, hosted on PythonAnywhere.
 
 ```
 flask_app.py              Entry point (PythonAnywhere's WSGI file imports `app` from here)
-config.py                 Secrets: DB host/user/password, WEBHOOK_SECRET (not in git)
+config.py                 Secrets: DB host/user/password, WEBHOOK_SECRET, ORDER_WHATSAPP (not in git)
 requirements.txt
 
 mumbai_opticals/          The application
@@ -22,7 +22,8 @@ mumbai_opticals/          The application
   schema.py               Adds new nullable columns the app needs (runs once per process)
   helpers.py              Uploads, pagination, stock movements, payment status
   routes/
-    main.py               Home page, dashboard
+    main.py               Dashboard (home page is served by shop.py)
+    shop.py               Public shop: product catalogue, product pages, WhatsApp order links
     auth.py               Login / logout
     users.py              Staff logins
     customers.py          Customers

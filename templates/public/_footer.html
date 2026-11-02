@@ -1,0 +1,25 @@
+<footer class="shop-footer" id="visit">
+    <div class="shop-wrap shop-footer__grid">
+        <div>
+            <img src="{{ asset('Images/Logo/Logo.png') }}" alt="{{ company.name }}" width="150" height="52" class="shop-footer__logo">
+            <p class="shop-footer__lede">Spectacles, lenses, sunglasses and watches. Eye-tested, fitted and serviced in Mumbai.</p>
+        </div>
+        <div>
+            <h2 class="shop-footer__title">Visit the shop</h2>
+            <p>{{ company.address }}</p>
+            <a class="shop-footer__link" href="https://www.google.com/maps/search/?api=1&query={{ (company.name ~ ' ' ~ company.address)|urlencode }}" target="_blank" rel="noopener">
+                <i class="fas fa-location-dot" aria-hidden="true"></i> Open in Google Maps
+            </a>
+        </div>
+        <div>
+            <h2 class="shop-footer__title">Talk to us</h2>
+            <p><a class="shop-footer__link" href="tel:{{ company.phone|replace(' ', '') }}"><i class="fas fa-phone" aria-hidden="true"></i> {{ company.phone }}</a></p>
+            {% if company.email %}<p><a class="shop-footer__link" href="mailto:{{ company.email }}"><i class="fas fa-envelope" aria-hidden="true"></i> {{ company.email }}</a></p>{% endif %}
+            <p><a class="shop-footer__link" href="{{ contact_url }}" target="_blank" rel="noopener"><i class="fab fa-whatsapp" aria-hidden="true"></i> WhatsApp</a></p>
+        </div>
+    </div>
+    <div class="shop-wrap shop-footer__base">
+        <span>© {{ now().year }} {{ company.name }}</span>
+        <a href="{{ url_for('auth.user_login') }}">Staff login</a>
+    </div>
+</footer>

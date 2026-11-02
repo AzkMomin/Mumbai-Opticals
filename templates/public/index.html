@@ -1,171 +1,101 @@
 {% extends 'layout/base.html' %}
 
-{% block title %}Mumbai Opticals · since 1985{% endblock %}
+{% block title %}{{ company.name }} · Spectacles, lenses and watches in Mumbai{% endblock %}
 
 {% block head %}
-    <link rel="stylesheet" href="{{ asset('css/pages/public/index.css') }}">
+    <meta name="description" content="Browse frames, lenses, sunglasses and watches at {{ company.name }} and order on WhatsApp.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/pages/public/shop.css') }}">
 {% endblock %}
 
 {% block nav %}{% endblock %}
 {% block layout_css %}{% endblock %}
+{% block body_attrs %} class="shop"{% endblock %}
 
 {% block content %}
-    <!-- ========== HEADER (navbar) ========== -->
-    <nav class="navbar navbar-expand-lg bg-white py-3 shadow-sm">
-      <div class="container">
-        <!-- App name: Mumbai Opticals (eyewear website) -->
-        <a class="navbar-brand" href="{{ url_for('main.index') }}">
-          <img src="{{ url_for('static', filename='Images/Logo/Logo.png') }}" style="height: 70px; width: 200px;" />
-        </a>
-        <div class="d-flex">
-          <!-- login button at right corner of header -->
-          <a href="{{ url_for('auth.user_login') }}" class="btn login-btn"><i class="fas fa-user-circle me-2"></i>Login</a>
-        </div>
-      </div>
-    </nav>
+    {% include 'public/_header.html' %}
 
-    <!-- ========== HOME PAGE BODY ========== -->
-    <main class="container main-section my-4">
+    <main>
+        <section class="hero">
+            <div class="shop-wrap hero__grid">
+                <h1 class="chart" aria-label="See clearly. Frames, lenses and watches from {{ company.name }}, Mumbai.">
+                    <span class="chart__row chart__row--1" aria-hidden="true"><span class="chart__text">See</span><span class="chart__mark">6/60</span></span>
+                    <span class="chart__row chart__row--2" aria-hidden="true"><span class="chart__text">clearly</span><span class="chart__mark">6/36</span></span>
+                    <span class="chart__row chart__row--3" aria-hidden="true"><span class="chart__text">frames, lenses</span><span class="chart__mark">6/18</span></span>
+                    <span class="chart__row chart__row--4" aria-hidden="true"><span class="chart__text">and watches, in Mumbai</span><span class="chart__mark">6/9</span></span>
+                    <span class="chart__row chart__row--5" aria-hidden="true"><span class="chart__text">pick one here, order it on WhatsApp</span><span class="chart__mark">6/6</span></span>
+                </h1>
+                <div class="hero__side">
+                    <p>Choose a pair or a watch from what's in the shop today. Tap <strong>Order</strong> and a message to us is already written; just send it and we'll confirm the price and pickup.</p>
+                    <div class="hero__actions">
+                        <a class="btn-primary-shop" href="#shop">Browse the shop</a>
+                        <a class="btn-ghost-shop" href="{{ contact_url }}" target="_blank" rel="noopener"><i class="fab fa-whatsapp" aria-hidden="true"></i> Ask a question</a>
+                    </div>
+                    <ul class="hero__facts">
+                        <li><i class="fas fa-eye" aria-hidden="true"></i> Eye test and lens fitting in store</li>
+                        <li><i class="fas fa-store" aria-hidden="true"></i> Pick up from the shop or ask for delivery</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
 
-      <!-- Welcome / tagline (optional but friendly) -->
-      <div class="text-center mt-3 mb-2">
-        <span class="badge bg-light text-dark px-4 py-2 rounded-pill border"><i class="far fa-clock me-2"></i>Since 1985 · authentic collection</span>
-      </div>
+        <section class="catalog" id="shop" aria-labelledby="shopTitle">
+            <div class="shop-wrap">
+                <div class="catalog__head">
+                    <h2 id="shopTitle">In the shop</h2>
+                    <div class="catalog__tools">
+                        <label class="search">
+                            <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+                            <span class="visually-hidden">Search products</span>
+                            <input type="search" id="shopSearch" placeholder="Search frames, lenses, watches…" autocomplete="off">
+                        </label>
+                        <label class="sort">
+                            <span class="visually-hidden">Sort</span>
+                            <select id="shopSort">
+                                <option value="new">Newest</option>
+                                <option value="low">Price: low to high</option>
+                                <option value="high">Price: high to low</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
 
-      <!-- ***** section 1: SPECS (with 2 inner sections) ***** -->
-      <h2 class="section-title"><i class="fas fa-eye me-3"></i> Specs collection</h2>
-      <div class="row g-4 mb-5">
-        <!-- Goggles -->
-        <div class="col-md-6">
-          <div class="category-card">
-            <div class="category-header">
-              <i class="fas fa-snowboarding me-2"></i> Goggles
-            </div>
-            <div class="brand-list">
-              <!-- only brand names – clickable effect (UI concept) -->
-              <span class="brand-item">Oakley</span>
-              <span class="brand-item">Ray-Ban</span>
-              <span class="brand-item">Polaroid</span>
-              <span class="brand-item">Dragon</span>
-              <span class="brand-item">Smith</span>
-              <span class="brand-item">Bolle</span>
-              <span class="brand-item">Uvex</span>
-            </div>
-          </div>
-        </div>
-        <!-- Frames -->
-        <div class="col-md-6">
-          <div class="category-card">
-            <div class="category-header">
-              <i class="fas fa-regular fa-glasses me-2"></i> Frames
-            </div>
-            <div class="brand-list">
-              <span class="brand-item">Tom Ford</span>
-              <span class="brand-item">Prada</span>
-              <span class="brand-item">Gucci</span>
-              <span class="brand-item">Titan Eye+</span>
-              <span class="brand-item">Lenskart</span>
-              <span class="brand-item">Ray-Ban</span>
-              <span class="brand-item">Vogue</span>
-            </div>
-          </div>
-        </div>
-      </div>
+                {% if categories %}
+                <div class="filters" role="toolbar" aria-label="Filter by category">
+                    <button type="button" class="chip is-active" data-filter="all">All <span>{{ products|length }}</span></button>
+                    {% for cat in categories %}
+                    <button type="button" class="chip" data-filter="cat-{{ cat.id }}">{{ cat.name }} <span>{{ cat.count }}</span></button>
+                    {% endfor %}
+                </div>
+                {% for cat in categories if cat.types|length > 1 %}
+                <div class="subfilters" data-for="cat-{{ cat.id }}" hidden>
+                    <button type="button" class="subchip is-active" data-type="all">All {{ cat.name|lower }}</button>
+                    {% for t in cat.types %}
+                    <button type="button" class="subchip" data-type="{{ t.id }}">{{ t.name }}</button>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                {% endif %}
 
-      <!-- ***** section 2: WATCHES (with 2 inner sections) ***** -->
-      <h2 class="section-title"><i class="fas fa-clock me-3"></i> Watches collection</h2>
-      <div class="row g-4">
-        <!-- wrist watch -->
-        <div class="col-md-6">
-          <div class="category-card">
-            <div class="category-header">
-              <i class="fas fa-clock me-2"></i> Wrist watch
-            </div>
-            <div class="brand-list">
-              <span class="brand-item">Fossil</span>
-              <span class="brand-item">Titan</span>
-              <span class="brand-item">Casio</span>
-              <span class="brand-item">Seiko</span>
-              <span class="brand-item">Timex</span>
-              <span class="brand-item">Citizen</span>
-              <span class="brand-item">G-Shock</span>
-            </div>
-          </div>
-        </div>
-        <!-- hand watch (pocket / hand watch style) -->
-        <div class="col-md-6">
-          <div class="category-card">
-            <div class="category-header">
-              <i class="fas fa-hand-paper me-2"></i> Hand watch
-            </div>
-            <div class="brand-list">
-              <span class="brand-item">Daniel Klein</span>
-              <span class="brand-item">Fastrack</span>
-              <span class="brand-item">Sonata</span>
-              <span class="brand-item">Maxima</span>
-              <span class="brand-item">HMT</span>
-              <span class="brand-item">Rado</span>
-              <span class="brand-item">Tissot</span>
-            </div>
-          </div>
-        </div>
-      </div>
+                <div class="grid" id="productGrid">
+                    {% for p in products %}
+                        {% include 'public/_product_card.html' %}
+                    {% endfor %}
+                </div>
 
-      <!-- subtle hint: click on any brand to see all stock (simulated behaviour) -->
-      <div class="text-center mt-5 small text-secondary-emphasis opacity-75">
-        <i class="fas fa-mouse-pointer me-1"></i> Click on any brand to see full available stock (prototype interaction)
-      </div>
+                <p class="empty" id="emptyState" {% if products %}hidden{% endif %}>
+                    {% if products %}Nothing matches that search. Try another word, or <a href="{{ contact_url }}" target="_blank" rel="noopener">ask us on WhatsApp</a>.
+                    {% else %}New stock is on its way. <a href="{{ contact_url }}" target="_blank" rel="noopener">Message us on WhatsApp</a> to ask what's in the shop.{% endif %}
+                </p>
+            </div>
+        </section>
     </main>
 
-    <!-- ========== FOOTER with contact details and SINCE 1985 ========== -->
-    <footer class="footer">
-      <div class="container">
-        <div class="row gy-4 align-items-center">
-          <!-- left side: contact details + since badge -->
-          <div class="col-lg-7">
-            <div class="d-flex flex-wrap align-items-center">
-              <i class="fas fa-store-alt me-3 fa-2x" style="color:#ffd966;"></i>
-              <span class="fw-light fs-5">Mumbai Opticals — your vision & style since 1985</span>
-            </div>
-            <div class="mt-4 row">
-              <div class="col-sm-6">
-                <p><i class="fas fa-map-marker-alt contact-icon me-2"></i> 122, Fashion Street, Colaba, Mumbai 400001</p>
-                <p><i class="fas fa-phone-alt contact-icon me-2"></i> +91 22 2204 1985</p>
-              </div>
-              <div class="col-sm-6">
-                <p><i class="fas fa-envelope contact-icon me-2"></i> care@mumbaioptical.in</p>
-                <p><i class="fas fa-clock contact-icon me-2"></i> Mon-Sat 10:00 – 20:30</p>
-              </div>
-            </div>
-            <!-- since 1985 badge (prominent) -->
-            <div class="since-badge mt-2">
-              <i class="fas fa-certificate me-2"></i> SINCE 1985 — three generations of trust
-            </div>
-          </div>
-
-          <!-- right side: social / small links (just for elegance) -->
-          <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
-            <h5 class="text-light fs-6">follow & connect</h5>
-            <div class="mt-3">
-              <a href="#" class="text-light me-3 fs-4"><i class="fab fa-facebook-f"></i></a>
-              <a href="#" class="text-light me-3 fs-4"><i class="fab fa-instagram"></i></a>
-              <a href="#" class="text-light me-3 fs-4"><i class="fab fa-whatsapp"></i></a>
-              <a href="#" class="text-light fs-4"><i class="fab fa-x-twitter"></i></a>
-            </div>
-            <hr class="mt-4 w-50 ms-auto d-none d-lg-block" style="border-color: #7b9bb6;">
-            <p class="small mt-3 opacity-75"><i class="far fa-registered me-1"></i> Mumbai Opticals — tradition & quality</p>
-          </div>
-        </div>
-        <div class="text-center mt-5 small border-top pt-3" style="border-color: #2f5577 !important;">
-          © 2025 Mumbai Opticals · all stock subject to availability · <!-- additional legacy note -->
-          <span class="text-warning"><i class="fas fa-asterisk me-1"></i> vintage eyewear & watches</span>
-        </div>
-      </div>
-    </footer>
-
-    <!-- Bootstrap JS (optional for any interaction, but mostly for layout) -->
+    {% include 'public/_footer.html' %}
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ asset('js/pages/public/index.js') }}"></script>
+    <script src="{{ asset('js/pages/public/shop.js') }}"></script>
 {% endblock %}

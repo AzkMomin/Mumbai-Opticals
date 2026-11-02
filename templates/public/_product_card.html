@@ -1,0 +1,24 @@
+<article class="product-tile{% if not p.in_stock %} is-out{% endif %}"
+         data-category="{{ p.category_id }}" data-type="{{ p.type_id }}" data-price="{{ p.selling_price or 0 }}"
+         data-search="{{ (p.product_name ~ ' ' ~ p.type_name ~ ' ' ~ p.summary ~ ' ' ~ (p.model_code or ''))|lower }}">
+    <a class="product-tile__media{% if p.image_url %} has-image{% endif %}" href="{{ url_for('shop.product', product_id=p.product_id) }}" tabindex="-1" aria-hidden="true">
+        {% if p.image_url %}
+        <img src="{{ p.image_url }}" alt="" loading="lazy">
+        {% else %}
+        <span class="product-tile__placeholder"><i class="fas {{ p.icon }}"></i></span>
+        {% endif %}
+        {% if not p.in_stock %}<span class="product-tile__flag">Out of stock</span>
+        {% elif p.quantity <= 3 %}<span class="product-tile__flag product-tile__flag--low">Only {{ p.quantity }} left</span>{% endif %}
+    </a>
+    <div class="product-tile__body">
+        <p class="product-tile__type">{{ p.type_name }}</p>
+        <h3 class="product-tile__name"><a href="{{ url_for('shop.product', product_id=p.product_id) }}">{{ p.product_name }}</a></h3>
+        {% if p.summary %}<p class="product-tile__meta">{{ p.summary }}</p>{% endif %}
+        <div class="product-tile__foot">
+            <span class="product-tile__price">{{ p.price_text }}</span>
+            <a class="btn-order{% if not p.in_stock %} btn-order--ask{% endif %}" href="{{ p.order_url }}" target="_blank" rel="noopener">
+                <i class="fab fa-whatsapp" aria-hidden="true"></i>{% if p.in_stock %}Order{% else %}Ask{% endif %}
+            </a>
+        </div>
+    </div>
+</article>
