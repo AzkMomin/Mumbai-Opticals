@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Payment - Mumbai Opticals</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            color: #0b2f4e;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .payment-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        
+        .payment-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .payment-amount {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 1rem 0;
+        }
+        
+        .payment-number {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .info-card {
+            background: #f8f9fc;
+            border-radius: 10px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #28a745;
+        }
+        
+        .info-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: #0b2f4e;
+            font-size: 1.1rem;
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0b2f4e;
+            margin-bottom: 1rem;
+            border-left: 3px solid #0b2f4e;
+            padding-left: 0.75rem;
+        }
+        
+        .payment-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .payment-cash {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .payment-card-method {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .payment-upi {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .payment-cheque {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .bill-link {
+            text-decoration: none;
+            color: #0b2f4e;
+            font-weight: 600;
+        }
+        
+        .bill-link:hover {
+            color: #1e4a6f;
+            text-decoration: underline;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin: 0 5px;
+        }
+        
+        @media print {
+            .sidebar, .header, .no-print, .action-btn {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 0;
+            }
+            .payment-container {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'layout/navbar.html' %}
+    
+    <div class="main-content">
+        <div class="header no-print">
+            <h4 class="mb-0"><i class="fas fa-rupee-sign me-2"></i>Payment Details</h4>
+            <div>
+                <a href="{{ url_for('payments.edit_payment', payment_id=payment.payment_id) }}" class="btn btn-warning me-2">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+                <button onclick="confirmDelete()" class="btn btn-danger me-2">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </button>
+                <button onclick="window.print()" class="btn btn-info me-2">
+                    <i class="fas fa-print me-2"></i>Print
+                </button>
+                <a href="{{ url_for('payments.payments') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Payments
+                </a>
+            </div>
+        </div>
+        
+        <div class="payment-container">
+            <!-- Payment Header -->
+            <div class="payment-header">
+                <div class="payment-number">Payment #{{ payment.payment_number }}</div>
+                <div class="payment-amount">₹{{ "%.2f"|format(payment.amount) }}</div>
+                <div class="mt-2">
+                    <span class="payment-badge payment-{{ payment.payment_method|lower }}">
+                        <i class="fas 
+                            {% if payment.payment_method == 'CASH' %}fa-money-bill-wave
+                            {% elif payment.payment_method == 'CARD' %}fa-credit-card
+                            {% elif payment.payment_method == 'UPI' %}fa-mobile-alt
+                            {% elif payment.payment_method == 'CHEQUE' %}fa-file-invoice
+                            {% else %}fa-university{% endif %} me-1"></i>
+                        {{ payment.payment_method }}
+                    </span>
+                </div>
+                <div class="mt-2">
+                    <small>Received on: {{ payment.payment_date.strftime('%d/%m/%Y') }}</small>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Bill Information -->
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <div class="info-label">Bill Information</div>
+                        <div class="info-value mb-2">
+                            <a href="{{ url_for('bills.view_bill', bill_id=payment.bill_id) }}" class="bill-link">
+                                Bill #{{ payment.bill_number }}
+                            </a>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="info-label">Bill Total</div>
+                                <div class="fw-bold">₹{{ "%.2f"|format(payment.bill_total) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="info-label">Payment Amount</div>
+                                <div class="fw-bold text-success">₹{{ "%.2f"|format(payment.amount) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customer Information -->
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <div class="info-label">Customer Information</div>
+                        <div class="info-value mb-1">{{ payment.customer_name }}</div>
+                        <div class="text-muted small">
+                            <i class="fas fa-phone me-1"></i> {{ payment.customer_phone }}
+                        </div>
+                        {% if payment.customer_email %}
+                        <div class="text-muted small">
+                            <i class="fas fa-envelope me-1"></i> {{ payment.customer_email }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <!-- Payment Details -->
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <div class="info-label">Payment Details</div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="info-label">Payment Method</div>
+                                <div class="fw-bold">{{ payment.payment_method }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="info-label">Payment Date</div>
+                                <div class="fw-bold">{{ payment.payment_date.strftime('%d/%m/%Y') }}</div>
+                            </div>
+                        </div>
+                        {% if payment.reference_number %}
+                        <div class="mt-2">
+                            <div class="info-label">Reference Number</div>
+                            <div class="fw-bold">{{ payment.reference_number }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Received By -->
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <div class="info-label">Received Information</div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="info-label">Received By</div>
+                                <div class="fw-bold">{{ payment.received_by or 'System' }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="info-label">Received At</div>
+                                <div class="fw-bold">{{ payment.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notes Section -->
+            {% if payment.notes %}
+            <div class="info-card mt-3">
+                <div class="info-label">Notes</div>
+                <div class="info-value">{{ payment.notes }}</div>
+            </div>
+            {% endif %}
+            
+            <!-- Payment Receipt Footer -->
+            <div class="text-center mt-4 pt-3 border-top">
+                <p class="text-muted small mb-1">This is a computer generated payment receipt</p>
+                <p class="text-muted small">Mumbai Opticals - Thank you for your payment!</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this payment?</p>
+                    <p class="text-danger"><strong>Warning:</strong> This will restore the bill's balance and cannot be undone.</p>
+                    <p>Payment Amount: <strong class="text-danger">₹{{ "%.2f"|format(payment.amount) }}</strong></p>
+                    <p>Bill #{{ payment.bill_number }} will have its balance increased by ₹{{ "%.2f"|format(payment.amount) }}.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="{{ url_for('payments.delete_payment', payment_id=payment.payment_id) }}" class="btn btn-danger">Delete Payment</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        
+        function confirmDelete() {
+            deleteModal.show();
+        }
+    </script>
+</body>
+</html>

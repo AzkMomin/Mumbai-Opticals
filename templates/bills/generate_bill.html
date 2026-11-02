@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Bill - Mumbai Opticals</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 1.2rem;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0b2f4e 0%, #1e4a6f 100%);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            color: white;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .header .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.8rem;
+        }
+
+        .header .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .bill-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .customer-section {
+            background: #f8f9fc;
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #e1e9f0;
+        }
+
+        .selected-customer {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e1e9f0;
+            border-radius: 6px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-dropdown-item {
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid #e1e9f0;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .search-dropdown-item:hover {
+            background: #f0f5fa;
+        }
+
+        /* Product Type Selector - No Background */
+        .product-type-selector {
+            background: white;
+            border: 1px solid #e1e9f0;
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .product-type-selector .form-label {
+            color: #0b2f4e;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .product-type-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .product-type-btn {
+            background: white;
+            border: 1px solid #e1e9f0;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .product-type-btn:hover {
+            background: #f0f5fa;
+            border-color: #0b2f4e;
+        }
+
+        .product-type-btn.active {
+            background: #0b2f4e;
+            color: white;
+            border-color: #0b2f4e;
+        }
+
+        /* Product Section */
+        .product-section {
+            background: #f8f9fc;
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e1e9f0;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #0b2f4e;
+            margin-bottom: 0.8rem;
+            border-left: 3px solid #0b2f4e;
+            padding-left: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-section-btn {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 15px;
+        }
+
+        /* Product Table */
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0.8rem;
+            font-size: 0.7rem;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .product-table th,
+        .product-table td {
+            border: 1px solid #e1e9f0;
+            padding: 0.3rem;
+            vertical-align: middle;
+        }
+
+        .product-table th {
+            background: #e9ecef;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.65rem;
+        }
+
+        .product-select {
+            width: 100%;
+            padding: 0.2rem;
+            font-size: 0.7rem;
+            border: 1px solid #e1e9f0;
+            border-radius: 4px;
+        }
+
+        .quantity-input, .discount-input {
+            width: 65px;
+            text-align: center;
+            padding: 0.2rem;
+            border-radius: 4px;
+            border: 1px solid #e1e9f0;
+            font-size: 0.7rem;
+        }
+
+        .row-total {
+            font-weight: 600;
+            background: #f8f9fc;
+        }
+
+        .add-row-btn {
+            margin-top: 0.3rem;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.65rem;
+            border-radius: 15px;
+        }
+
+        .remove-row {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .remove-row:hover {
+            color: #c82333;
+        }
+
+        /* Prescription Section */
+        .prescription-section {
+            background: #f8f9fc;
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e1e9f0;
+        }
+
+        .prescription-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .prescription-table th,
+        .prescription-table td {
+            border: 1px solid #e1e9f0;
+            padding: 0.3rem;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .prescription-table th {
+            background: #e9ecef;
+            font-size: 0.65rem;
+        }
+
+        /* Summary Section */
+        .summary-card {
+            background: linear-gradient(135deg, #0b2f4e 0%, #1e4a6f 100%);
+            border-radius: 8px;
+            padding: 1rem;
+            position: sticky;
+            top: 20px;
+            color: white;
+        }
+
+        .summary-card h6 {
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.75rem;
+        }
+
+        .summary-total {
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-top: 2px solid rgba(255,255,255,0.2);
+            margin-top: 0.3rem;
+            padding-top: 0.3rem;
+        }
+
+        .final-discount {
+            width: 80px;
+            text-align: right;
+            background: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.2rem 0.3rem;
+            font-size: 0.7rem;
+        }
+
+        .summary-card select,
+        .summary-card textarea {
+            background: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            padding: 0.25rem;
+        }
+
+        .generate-btn {
+            background: #28a745;
+            border: none;
+            padding: 0.4rem;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .generate-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .form-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .form-control {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.5rem;
+        }
+
+        .btn-sm {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+        }
+
+        .alert {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            margin-bottom: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'layout/navbar.html' %}
+
+    <div class="main-content">
+        <div class="header">
+            <h2 class="page-title"><i class="fas fa-file-invoice me-2"></i>Generate New Bill</h2>
+            <a href="{{ url_for('bills.bills') }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="bill-container">
+            <form method="POST" id="billForm">
+                <!-- Customer Selection -->
+                <div class="customer-section">
+                    <label class="form-label fw-bold">Select Customer</label>
+                    <div class="search-wrapper">
+                        <input type="text" class="form-control" id="customerSearch"
+                               placeholder="Search customer by name or phone..." autocomplete="off">
+                        <div class="search-dropdown" id="customerDropdown"></div>
+                    </div>
+                    <input type="hidden" name="customer_id" id="customerId" required>
+                    <div class="selected-customer" id="selectedCustomer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong id="selectedCustomerName" style="font-size: 0.8rem;"></strong>
+                                <br>
+                                <small id="selectedCustomerDetails" style="font-size: 0.65rem;"></small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearCustomer()" style="font-size: 0.65rem; padding: 0.2rem 0.5rem;">
+                                <i class="fas fa-times"></i> Change
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Type Buttons -->
+                <div class="product-type-selector">
+                    <label class="form-label fw-bold mb-2">Select Product Types</label>
+                    <div class="product-type-buttons">
+                        <div class="product-type-btn" data-type="frames" onclick="toggleProductType('frames')">
+                            <i class="fas fa-glasses me-1"></i>Frames
+                        </div>
+                        <div class="product-type-btn" data-type="goggles" onclick="toggleProductType('goggles')">
+                            <i class="fas fa-sunglasses me-1"></i>Goggles
+                        </div>
+                        <div class="product-type-btn" data-type="lenses" onclick="toggleProductType('lenses')">
+                            <i class="fas fa-eye me-1"></i>Lenses
+                        </div>
+                        <div class="product-type-btn" data-type="watches" onclick="toggleProductType('watches')">
+                            <i class="fas fa-clock me-1"></i>Watches
+                        </div>
+                        <div class="product-type-btn" data-type="misc" onclick="toggleProductType('misc')">
+                            <i class="fas fa-box me-1"></i>Misc
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Tables Container -->
+                <div id="tablesContainer"></div>
+
+                <!-- Prescription Section -->
+                <div class="prescription-section">
+                    <div class="section-title">Prescription</div>
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small">Select Prescription</label>
+                            <select class="form-select form-select-sm" id="prescriptionSelect" style="font-size: 0.7rem;">
+                                <option value="">-- Select Prescription --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button type="button" class="btn btn-sm btn-success" onclick="loadPrescription()" style="font-size: 0.65rem;">
+                                <i class="fas fa-sync-alt me-1"></i>Load
+                            </button>
+                        </div>
+                    </div>
+                    <div id="prescriptionDetails" style="display: none;">
+                        <table class="prescription-table">
+                            <thead>
+                                <tr>
+                                    <th>Eye</th>
+                                    <th>SPH</th>
+                                    <th>CYL</th>
+                                    <th>AXIS</th>
+                                    <th>ADD</th>
+                                    <th>Vision</th>
+                                    <th>PD</th>
+                                    <th>Qty</th>
+                                    <th>MRP</th>
+                                    <th>Disc</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </thead>
+                                <tbody id="prescriptionRows"></tbody>
+                            </table>
+                        <button type="button" class="btn btn-sm btn-primary add-row-btn" onclick="addPrescriptionRow()">
+                            <i class="fas fa-plus me-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="row mt-3">
+                    <div class="col-md-6 offset-md-6">
+                        <div class="summary-card">
+                            <h6 class="mb-2">Bill Summary</h6>
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span id="subtotal">₹0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Item Discount:</span>
+                                <span id="itemDiscount">₹0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Additional Discount:</span>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" step="0.01" class="final-discount" id="additionalDiscount" value="0" placeholder="₹">
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <span>After Discount:</span>
+                                <span id="afterDiscount">₹0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Tax (GST %):</span>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" step="0.1" class="final-discount" id="tax" name="tax" value="0" placeholder="%">
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <span>Tax Amount:</span>
+                                <span id="taxAmount">₹0.00</span>
+                            </div>
+                            <div class="summary-row summary-total">
+                                <span>Grand Total:</span>
+                                <span id="grandTotal">₹0.00</span>
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label">Payment Method</label>
+                                <select class="form-control" name="payment_method" style="font-size: 0.7rem;">
+                                    <option value="CASH">Cash</option>
+                                    <option value="CARD">Card</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="CREDIT">Credit</option>
+                                </select>
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" name="notes" rows="1" placeholder="Notes..." style="font-size: 0.7rem;"></textarea>
+                            </div>
+                            <hr class="my-2">
+                            <button type="submit" class="btn generate-btn w-100" id="generateBtn">
+                                <i class="fas fa-save me-1"></i>Generate Bill
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allProducts = {{ products|tojson }};
+        let prescriptions = [];
+        let activeSections = {};
+
+        console.log('All Products:', allProducts);
+
+        // Product data organized by type
+        const productsByType = {
+            frames: allProducts.filter(p => p.type_name === 'Frames'),
+            goggles: allProducts.filter(p => p.type_name === 'Goggles'),
+            lenses: allProducts.filter(p => p.type_name === 'Lenses'),
+            watches: allProducts.filter(p => p.type_name === 'Wrist Watches' || p.type_name === 'Hand Watches'),
+            misc: allProducts.filter(p => p.type_name === 'Misc')
+        };
+
+        console.log('Products by Type:', productsByType);
+
+        // ==================== PRODUCT TYPE TOGGLE ====================
+        function toggleProductType(type) {
+            const btn = document.querySelector(`.product-type-btn[data-type="${type}"]`);
+            const isActive = btn.classList.contains('active');
+            
+            if (isActive) {
+                btn.classList.remove('active');
+                removeSection(type);
+            } else {
+                btn.classList.add('active');
+                createProductSection(type);
+                activeSections[type] = true;
+            }
+        }
+
+        function removeSection(type) {
+            const section = document.getElementById(`section_${type}`);
+            if (section) section.remove();
+            delete activeSections[type];
+            updateAllTotals();
+        }
+
+        function createProductSection(type) {
+            const container = document.getElementById('tablesContainer');
+            const sectionId = `section_${type}`;
+            const fields = getProductFields(type);
+            const typeNames = {
+                frames: 'Frames',
+                goggles: 'Goggles',
+                lenses: 'Lenses',
+                watches: 'Watches',
+                misc: 'Misc'
+            };
+            
+            let html = `
+                <div class="product-section" id="${sectionId}">
+                    <div class="section-title">
+                        <span><i class="fas ${type === 'frames' ? 'fa-glasses' : type === 'goggles' ? 'fa-sunglasses' : type === 'lenses' ? 'fa-eye' : type === 'watches' ? 'fa-clock' : 'fa-box'} me-1"></i>${typeNames[type]}</span>
+                        <button type="button" class="btn btn-sm btn-danger remove-section-btn" onclick="removeSection('${type}')">
+                            <i class="fas fa-times me-1"></i>Remove
+                        </button>
+                    </div>
+                    <table class="product-table" id="${sectionId}_table">
+                        <thead>
+                            <tr>
+                                ${fields.map(f => `<th>${f.label}</th>`).join('')}
+                                <th>Qty</th>
+                                <th>MRP</th>
+                                <th>Disc</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="${sectionId}_tbody"></tbody>
+                    </table>
+                    <button type="button" class="btn btn-sm btn-primary add-row-btn" onclick="addRowToSection('${type}')">
+                        <i class="fas fa-plus me-1"></i>Add
+                    </button>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            addRowToSection(type);
+            updateAllTotals();
+        }
+
+        function getProductFields(type) {
+            const baseFields = {
+                frames: [
+                    { name: 'item', label: 'Item', type: 'select', options: productsByType.frames },
+                    { name: 'frame_type', label: 'Frame Type' },
+                    { name: 'material', label: 'Material' },
+                    { name: 'model_name', label: 'Model Name' },
+                    { name: 'model_code', label: 'Model Code' },
+                    { name: 'model_color', label: 'Color' },
+                    { name: 'model_size', label: 'Size' }
+                ],
+                goggles: [
+                    { name: 'item', label: 'Item', type: 'select', options: productsByType.goggles },
+                    { name: 'frame_type', label: 'Frame Type' },
+                    { name: 'material', label: 'Material' },
+                    { name: 'model_name', label: 'Model Name' },
+                    { name: 'model_code', label: 'Model Code' },
+                    { name: 'model_color', label: 'Color' },
+                    { name: 'model_size', label: 'Size' }
+                ],
+                lenses: [
+                    { name: 'item', label: 'Item', type: 'select', options: productsByType.lenses },
+                    { name: 'lens_for', label: 'Lens For' },
+                    { name: 'lens_type', label: 'Lens Type' },
+                    { name: 'which_side', label: 'Side' },
+                    { name: 'company', label: 'Company' },
+                    { name: 'add_on', label: 'Add On' },
+                    { name: 'index_val', label: 'Index' },
+                    { name: 'dia', label: 'DIA' }
+                ],
+                watches: [
+                    { name: 'item', label: 'Item', type: 'select', options: productsByType.watches },
+                    { name: 'watch_type', label: 'Type' },
+                    { name: 'mechanism', label: 'Mechanism' },
+                    { name: 'strap_material', label: 'Strap' },
+                    { name: 'dial_color', label: 'Dial' },
+                    { name: 'model_name', label: 'Model' },
+                    { name: 'model_code', label: 'Code' }
+                ],
+                misc: [
+                    { name: 'product_name', label: 'Name' },
+                    { name: 'brand', label: 'Brand' },
+                    { name: 'color', label: 'Color' },
+                    { name: 'size', label: 'Size' }
+                ]
+            };
+            return baseFields[type] || [];
+        }
+
+        function addRowToSection(type) {
+            const tbody = document.getElementById(`section_${type}_tbody`);
+            const rowId = Date.now();
+            const fields = getProductFields(type);
+            const productsList = productsByType[type] || [];
+            
+            let html = `<tr id="${type}_row_${rowId}">`;
+            fields.forEach(field => {
+                if (field.type === 'select') {
+                    let options = '<option value="">-- Select Item --</option>';
+                    productsList.forEach(opt => {
+                        options += `<option value="${opt.product_id}" data-price="${opt.selling_price || 0}" data-name="${opt.product_name}">${opt.product_name} (₹${opt.selling_price || 0})</option>`;
+                    });
+                    html += `<td><select class="form-control form-control-sm product-select" name="${field.name}" onchange="updateItemDetails(this)">${options}</select></td>`;
+                } else {
+                    html += `<td><input type="text" class="form-control form-control-sm product-field" name="${field.name}" value="" style="font-size: 0.7rem;"></td>`;
+                }
+            });
+            html += `
+                <td><input type="number" class="form-control form-control-sm quantity" value="1" min="1" onchange="updateRowTotal(this)" style="width: 55px; font-size: 0.7rem;"></td>
+                <td><input type="number" class="form-control form-control-sm mrp" value="0" step="0.01" onchange="updateRowTotal(this)" style="width: 70px; font-size: 0.7rem;"></td>
+                <td><input type="number" class="form-control form-control-sm discount" value="0" step="0.01" onchange="updateRowTotal(this)" style="width: 70px; font-size: 0.7rem;"></td>
+                <td class="row-total" style="font-size: 0.7rem;">₹0.00</td>
+                <td><i class="fas fa-trash remove-row" onclick="this.closest('tr').remove(); updateAllTotals();"></i></td>
+            </td>`;
+            tbody.insertAdjacentHTML('beforeend', html);
+            updateAllTotals();
+        }
+
+        function updateItemDetails(selectElement) {
+            const row = selectElement.closest('tr');
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const price = selectedOption.getAttribute('data-price') || 0;
+            const productName = selectedOption.getAttribute('data-name') || '';
+            
+            // Update MRP field
+            const mrpInput = row.querySelector('.mrp');
+            if (mrpInput) {
+                mrpInput.value = parseFloat(price).toFixed(2);
+                updateRowTotal(mrpInput);
+            }
+            
+            // Optionally update product name field if it exists (for misc)
+            const nameInput = row.querySelector('input[name="product_name"]');
+            if (nameInput && productName) {
+                nameInput.value = productName;
+            }
+        }
+
+        function addPrescriptionRow() {
+            const tbody = document.getElementById('prescriptionRows');
+            const rowId = Date.now();
+            const html = `
+                <tr id="prescription_row_${rowId}">
+                    <td><select class="form-control form-control-sm eye-select" style="font-size: 0.7rem;"><option value="Right">Right</option><option value="Left">Left</option></select></td>
+                    <td><input type="text" class="form-control form-control-sm sph" style="font-size: 0.7rem;"></td>
+                    <td><input type="text" class="form-control form-control-sm cyl" style="font-size: 0.7rem;"></td>
+                    <td><input type="text" class="form-control form-control-sm axis" style="font-size: 0.7rem;"></td>
+                    <td><input type="text" class="form-control form-control-sm add" style="font-size: 0.7rem;"></td>
+                    <td><input type="text" class="form-control form-control-sm vision" style="font-size: 0.7rem;"></td>
+                    <td><input type="text" class="form-control form-control-sm pd" style="font-size: 0.7rem;"></td>
+                    <td><input type="number" class="form-control form-control-sm quantity" value="1" min="1" onchange="updateRowTotal(this)" style="width: 55px; font-size: 0.7rem;"></td>
+                    <td><input type="number" class="form-control form-control-sm mrp" value="0" step="0.01" onchange="updateRowTotal(this)" style="width: 70px; font-size: 0.7rem;"></td>
+                    <td><input type="number" class="form-control form-control-sm discount" value="0" step="0.01" onchange="updateRowTotal(this)" style="width: 70px; font-size: 0.7rem;"></td>
+                    <td class="row-total" style="font-size: 0.7rem;">₹0.00</td>
+                    <td><i class="fas fa-trash remove-row" onclick="this.closest('tr').remove(); updateAllTotals();"></i></td>
+                </tr>`;
+            tbody.insertAdjacentHTML('beforeend', html);
+            updateAllTotals();
+        }
+
+        function updateRowTotal(element) {
+            const row = element.closest('tr');
+            const quantity = parseFloat(row.querySelector('.quantity')?.value || 0);
+            const mrp = parseFloat(row.querySelector('.mrp')?.value || 0);
+            const discount = parseFloat(row.querySelector('.discount')?.value || 0);
+            const total = (quantity * mrp) - discount;
+            const totalCell = row.querySelector('.row-total');
+            if (totalCell) totalCell.textContent = `₹${total.toFixed(2)}`;
+            updateAllTotals();
+        }
+
+        function updateAllTotals() {
+            let subtotal = 0;
+            let itemDiscount = 0;
+            
+            document.querySelectorAll('.row-total').forEach(cell => {
+                const val = parseFloat(cell.textContent.replace('₹', ''));
+                if (!isNaN(val)) subtotal += val;
+            });
+            
+            document.querySelectorAll('.discount').forEach(input => {
+                const val = parseFloat(input.value);
+                if (!isNaN(val)) itemDiscount += val;
+            });
+            
+            const additionalDiscount = parseFloat(document.getElementById('additionalDiscount').value) || 0;
+            const afterDiscount = subtotal - itemDiscount - additionalDiscount;
+            const taxPercent = parseFloat(document.getElementById('tax').value) || 0;
+            const taxAmount = afterDiscount * (taxPercent / 100);
+            const grandTotal = afterDiscount + taxAmount;
+            
+            document.getElementById('subtotal').innerHTML = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('itemDiscount').innerHTML = `₹${itemDiscount.toFixed(2)}`;
+            document.getElementById('afterDiscount').innerHTML = `₹${afterDiscount.toFixed(2)}`;
+            document.getElementById('taxAmount').innerHTML = `₹${taxAmount.toFixed(2)}`;
+            document.getElementById('grandTotal').innerHTML = `₹${grandTotal.toFixed(2)}`;
+        }
+
+        document.getElementById('additionalDiscount').addEventListener('input', () => updateAllTotals());
+        document.getElementById('tax').addEventListener('input', () => updateAllTotals());
+
+        // ==================== CUSTOMER SEARCH ====================
+        const customerSearch = document.getElementById('customerSearch');
+        const customerDropdown = document.getElementById('customerDropdown');
+        let customerSearchTimeout;
+
+        customerSearch.addEventListener('focus', () => loadInitialCustomers());
+        customerSearch.addEventListener('input', (e) => searchCustomers(e.target.value));
+
+        function loadInitialCustomers() {
+            fetch('/search_customers?term=')
+                .then(r => r.json()).then(updateCustomerDropdown);
+        }
+
+        function searchCustomers(term) {
+            clearTimeout(customerSearchTimeout);
+            if (term.length < 2 && term.length > 0) return;
+            customerSearchTimeout = setTimeout(() => {
+                fetch(`/search_customers?term=${encodeURIComponent(term)}`)
+                    .then(r => r.json()).then(updateCustomerDropdown);
+            }, 300);
+        }
+
+        function updateCustomerDropdown(customers) {
+            customerDropdown.innerHTML = '';
+            if (!customers.length) {
+                customerDropdown.innerHTML = '<div class="search-dropdown-item text-muted">No customers found</div>';
+                customerDropdown.style.display = 'block';
+                return;
+            }
+            customers.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'search-dropdown-item';
+                div.innerHTML = `<div><strong>${escapeHtml(c.name)}</strong><br><small>${c.phone}</small></div>`;
+                div.onclick = () => selectCustomer(c);
+                customerDropdown.appendChild(div);
+            });
+            customerDropdown.style.display = 'block';
+        }
+
+        function selectCustomer(customer) {
+            document.getElementById('customerId').value = customer.customer_id;
+            document.getElementById('selectedCustomerName').textContent = customer.name;
+            document.getElementById('selectedCustomerDetails').innerHTML = `${customer.phone} | ${customer.email || ''}`;
+            document.getElementById('selectedCustomer').style.display = 'block';
+            customerSearch.value = '';
+            customerDropdown.style.display = 'none';
+            loadCustomerPrescriptions(customer.customer_id);
+        }
+
+        function clearCustomer() {
+            document.getElementById('customerId').value = '';
+            document.getElementById('selectedCustomer').style.display = 'none';
+            customerSearch.value = '';
+        }
+
+        // ==================== LOAD PRESCRIPTIONS ====================
+        function loadCustomerPrescriptions(customerId) {
+            fetch(`/get_customer_prescriptions?customer_id=${customerId}`)
+                .then(r => r.json())
+                .then(data => {
+                    prescriptions = data;
+                    const select = document.getElementById('prescriptionSelect');
+                    select.innerHTML = '<option value="">-- Select Prescription --</option>';
+                    data.forEach(p => {
+                        select.innerHTML += `<option value="${p.prescription_id}">${p.prescription_date}</option>`;
+                    });
+                });
+        }
+
+        function loadPrescription() {
+            const presId = document.getElementById('prescriptionSelect').value;
+            const prescription = prescriptions.find(p => p.prescription_id == presId);
+            if (prescription) {
+                document.getElementById('prescriptionDetails').style.display = 'block';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            addPrescriptionRow();
+        });
+    </script>
+</body>
+</html>

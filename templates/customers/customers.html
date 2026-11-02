@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Management - Mumbai Opticals</title>
+  <!-- Bootstrap 5 & Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      background-color: #f8f9fc;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      padding: 2rem;
+    }
+
+    .header {
+      background: white;
+      padding: 1rem 2rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      color: #0b2f4e;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .add-btn {
+      background: #0b2f4e;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .add-btn:hover {
+      background: #1e4a6f;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(11,47,78,0.2);
+    }
+
+    .add-btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Search Bar */
+    .search-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 0.5rem 1rem;
+      border: 1.5px solid #e1e9f0;
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-bar i {
+      color: #0b2f4e;
+      margin-right: 10px;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      width: 100%;
+      background: transparent;
+    }
+
+    .search-btn {
+      background: #0b2f4e;
+      color: white;
+      border: none;
+      padding: 0.5rem 2rem;
+      border-radius: 8px;
+      font-weight: 500;
+      margin-left: 10px;
+      transition: 0.2s;
+    }
+
+    .search-btn:hover {
+      background: #1e4a6f;
+    }
+
+    .reset-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      margin-left: 10px;
+      transition: 0.2s;
+    }
+
+    .reset-btn:hover {
+      background: #5a6268;
+    }
+
+    /* Customers Table */
+    .customers-table {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+
+    .customers-table table {
+      width: 100%;
+      min-width: 1000px;
+    }
+
+    .customers-table th {
+      color: #0b2f4e;
+      font-weight: 600;
+      padding: 1rem 0.5rem;
+      border-bottom: 2px solid #e1e9f0;
+    }
+
+    .customers-table td {
+      padding: 1rem 0.5rem;
+      border-bottom: 1px solid #e1e9f0;
+      vertical-align: middle;
+    }
+
+    .customer-avatar {
+      width: 40px;
+      height: 40px;
+      background: #f0f5fa;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b2f4e;
+      font-weight: 600;
+    }
+
+    .badge-active {
+      background: #d4edda;
+      color: #155724;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      display: inline-block;
+    }
+
+    .badge-inactive {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      display: inline-block;
+    }
+
+    .view-btn {
+      color: #0b2f4e;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 5px;
+    }
+
+    .view-btn:hover {
+      color: #1e4a6f;
+    }
+
+    .edit-btn {
+      color: #ffc107;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 5px;
+    }
+
+    .edit-btn:hover {
+      color: #e0a800;
+    }
+
+    .delete-btn {
+      color: #dc3545;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 5px;
+    }
+
+    .delete-btn:hover {
+      color: #c82333;
+    }
+
+    .delete-btn:disabled {
+      color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .pagination {
+      margin-top: 2rem;
+      justify-content: center;
+    }
+
+    .page-link {
+      color: #0b2f4e;
+      border: 1px solid #e1e9f0;
+      margin: 0 3px;
+      border-radius: 8px;
+    }
+
+    .page-link:hover {
+      background: #f0f5fa;
+      color: #0b2f4e;
+      border-color: #0b2f4e;
+    }
+
+    .page-item.active .page-link {
+      background: #0b2f4e;
+      border-color: #0b2f4e;
+      color: white;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 3rem;
+      color: #6c757d;
+    }
+
+    /* Modal Styles */
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      color: white;
+      border-radius: 15px 15px 0 0;
+      padding: 1rem 1.5rem;
+      border-bottom: none;
+    }
+
+    .modal-header.error-header {
+      background: #dc3545;
+    }
+
+    .modal-header.success-header {
+      background: #28a745;
+    }
+
+    .modal-header.info-header {
+      background: #0b2f4e;
+    }
+
+    .modal-header.warning-header {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .modal-header .btn-close {
+      filter: brightness(0) invert(1);
+    }
+
+    .modal-header.warning-header .btn-close {
+      filter: none;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e1e9f0;
+    }
+
+    .btn-modal {
+      background: #0b2f4e;
+      color: white;
+      border: none;
+      padding: 0.5rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .btn-modal-success {
+      background: #28a745;
+    }
+
+    .btn-modal-error {
+      background: #dc3545;
+    }
+
+    .modal-icon {
+      font-size: 2rem;
+      margin-right: 0.5rem;
+    }
+
+    /* Search Bar - Compact */
+    .search-bar {
+      background: white;
+      border-radius: 50px;
+      padding: 0.3rem 0.3rem 0.3rem 1rem;
+      border: 1.5px solid #e1e9f0;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+
+    .search-bar i {
+      color: #0b2f4e;
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 0.95rem;
+      padding: 0.5rem 0;
+    }
+
+    .search-btn {
+      background: #0b2f4e;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover {
+      background: #1e4a6f;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(11,47,78,0.2);
+    }
+
+    .reset-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-left: 8px;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .reset-btn:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(108,117,125,0.2);
+    }
+
+    /* Update responsive styles */
+    @media (max-width: 768px) {
+      .search-bar {
+        flex-wrap: wrap;
+        border-radius: 15px;
+        padding: 0.5rem;
+      }
+
+      .search-bar input {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+
+      .search-btn, .reset-btn {
+        width: calc(50% - 4px);
+        margin: 0;
+        text-align: center;
+      }
+
+      .reset-btn {
+        margin-left: 8px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+        display: none;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .search-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-btn, .reset-btn {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include 'layout/navbar.html' %}
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header">
+      <h2 class="page-title"><i class="fas fa-user-circle me-2"></i>Customer Management</h2>
+      <div>
+        <span class="badge bg-info text-white me-2">
+          {% if current_user.user_type == 'super-admin' %}Super Admin
+          {% elif current_user.user_type == 'admin' %}Admin
+          {% else %}Employee{% endif %}
+        </span>
+        <button class="add-btn" onclick="window.location.href='{{ url_for('customers.add_customer') }}'">
+          <i class="fas fa-plus me-2"></i>Add New Customer
+        </button>
+      </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message d-none" data-category="{{ category }}" data-message="{{ message }}"></div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Search Bar -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-md-8 col-lg-6">
+        <div class="search-bar d-flex">
+          <i class="fas fa-search align-self-center"></i>
+          <input type="text" class="form-control border-0 shadow-none" placeholder="Search customers by name, email or phone..." id="searchInput" value="{{ current_search }}">
+          <button class="search-btn" onclick="searchCustomers()">
+            <i class="fas fa-search me-2"></i>Search
+          </button>
+          <button class="reset-btn" onclick="resetSearch()">
+            <i class="fas fa-undo me-2"></i>Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers Table -->
+    <div class="customers-table">
+      <table>
+        <thead>
+          <tr>
+            <th>#ID</th>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if customers %}
+            {% for customer in customers %}
+            <tr>
+              <td>#{{ customer.customer_id }}</td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="customer-avatar me-2">{{ customer.name[:2]|upper }}</div>
+                  <div>
+                    <div class="fw-bold">{{ customer.name }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ customer.phone }}</td>
+              <td>{{ customer.email }}</td>
+              <td>{{ customer.created_at }}</td>
+              <td>
+                <button class="view-btn" onclick="viewCustomer({{ customer.customer_id }})" title="View Details">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="edit-btn" onclick="editCustomer({{ customer.customer_id }})" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                {% if current_user.user_type in ['super-admin', 'admin'] %}
+                <button class="delete-btn" onclick="deleteCustomer({{ customer.customer_id }})" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="8" class="no-data">
+                <i class="fas fa-user-circle fa-3x mb-3" style="color: #e1e9f0;"></i>
+                <h5>No customers found</h5>
+                <p class="text-muted">
+                  {% if current_search %}
+                    No customers match your search criteria.
+                  {% else %}
+                    Click "Add New Customer" to create your first customer.
+                  {% endif %}
+                </p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      {% if pagination.total_pages > 1 %}
+      <nav>
+        <ul class="pagination mt-4">
+          <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('customers.customers', page=pagination.prev_page, search=current_search) }}">Previous</a>
+          </li>
+
+          {% for p in range(1, pagination.total_pages + 1) %}
+            {% if p >= pagination.current_page - 2 and p <= pagination.current_page + 2 %}
+              <li class="page-item {% if p == pagination.current_page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('customers.customers', page=p, search=current_search) }}">{{ p }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('customers.customers', page=pagination.next_page, search=current_search) }}">Next</a>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+
+      <div class="text-center text-muted mt-3">
+        <small>Showing {{ customers|length }} of {{ pagination.total_records }} records</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Modal -->
+  <div class="modal fade" id="messageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header" id="modalHeader">
+          <h5 class="modal-title">
+            <i class="fas" id="modalIcon"></i>
+            <span id="modalTitle"></span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="modalMessage"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-modal" id="modalButton" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+
+    function toggleSubmenu(id) {
+      const submenu = document.getElementById(id);
+      submenu.classList.toggle('show');
+    }
+
+    function showMessageModal(type, title, message) {
+      const modalHeader = document.getElementById('modalHeader');
+      const modalIcon = document.getElementById('modalIcon');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalButton = document.getElementById('modalButton');
+
+      modalHeader.className = 'modal-header';
+
+      switch(type) {
+        case 'error':
+          modalHeader.classList.add('error-header');
+          modalIcon.className = 'fas fa-exclamation-triangle modal-icon';
+          modalTitle.textContent = title || 'Error';
+          modalButton.className = 'btn-modal btn-modal-error';
+          break;
+        case 'success':
+          modalHeader.classList.add('success-header');
+          modalIcon.className = 'fas fa-check-circle modal-icon';
+          modalTitle.textContent = title || 'Success';
+          modalButton.className = 'btn-modal btn-modal-success';
+          break;
+        case 'warning':
+          modalHeader.classList.add('warning-header');
+          modalIcon.className = 'fas fa-exclamation-circle modal-icon';
+          modalTitle.textContent = title || 'Warning';
+          modalButton.className = 'btn-modal';
+          break;
+        default:
+          modalHeader.classList.add('info-header');
+          modalIcon.className = 'fas fa-info-circle modal-icon';
+          modalTitle.textContent = title || 'Information';
+          modalButton.className = 'btn-modal';
+      }
+
+      modalMessage.textContent = message;
+      messageModal.show();
+    }
+
+    window.onload = function() {
+      const flashMessages = document.querySelectorAll('.flash-message');
+      flashMessages.forEach(flash => {
+        const category = flash.dataset.category;
+        const message = flash.dataset.message;
+
+        if (category === 'error') {
+          showMessageModal('error', 'Error', message);
+        } else if (category === 'success') {
+          showMessageModal('success', 'Success', message);
+        } else if (category === 'warning') {
+          showMessageModal('warning', 'Warning', message);
+        } else {
+          showMessageModal('info', 'Information', message);
+        }
+      });
+    };
+
+    function searchCustomers() {
+      const searchText = document.getElementById('searchInput').value.trim();
+      window.location.href = "{{ url_for('customers.customers') }}?search=" + encodeURIComponent(searchText);
+    }
+
+    function resetSearch() {
+      window.location.href = "{{ url_for('customers.customers') }}";
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        searchCustomers();
+      }
+    });
+
+    function viewCustomer(id) {
+      window.open(`{{ url_for('customers.view_customer') }}?id=${id}`, '_blank');
+    }
+
+    function editCustomer(id) {
+      window.location.href = `{{ url_for('customers.add_customer') }}?id=${id}`;
+    }
+
+    function deleteCustomer(id) {
+      if (confirm('Are you sure you want to delete this customer?')) {
+        window.location.href = `{{ url_for('customers.delete_customer') }}?id=${id}`;
+      }
+    }
+  </script>
+</body>
+</html>

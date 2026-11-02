@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Mumbai Opticals</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 1rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            color: #0b2f4e;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .add-btn {
+            background: #0b2f4e;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .add-btn:hover {
+            background: #1e4a6f;
+            transform: translateY(-1px);
+        }
+        
+        /* Search Bar - Compact */
+        .search-bar {
+            background: white;
+            border-radius: 30px;
+            padding: 0.2rem 0.2rem 0.2rem 0.8rem;
+            border: 1px solid #e1e9f0;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .search-bar i {
+            color: #0b2f4e;
+            margin-right: 6px;
+            font-size: 0.8rem;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 0.75rem;
+            padding: 0.3rem 0;
+            flex: 1;
+        }
+
+        .search-btn {
+            background: #0b2f4e;
+            color: white;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            background: #1e4a6f;
+            transform: translateY(-1px);
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            margin-left: 6px;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        /* Filter Tabs - Compact */
+        .filter-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.25rem 0.8rem;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid #e1e9f0;
+            color: #6c757d;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.7rem;
+        }
+
+        .filter-tab:hover {
+            background: #f0f5fa;
+        }
+
+        .filter-tab.active {
+            background: #0b2f4e;
+            color: white;
+            border-color: #0b2f4e;
+        }
+
+        .filter-tab.stock-low {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .filter-tab.stock-low:hover {
+            background: #f1b0b7;
+        }
+
+        .filter-tab.stock-low.active {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .filter-tab.stock-medium {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffeeba;
+        }
+
+        .filter-tab.stock-medium:hover {
+            background: #ffe8a1;
+        }
+
+        .filter-tab.stock-medium.active {
+            background: #ffc107;
+            color: #000;
+            border-color: #ffc107;
+        }
+
+        .filter-tab.stock-high {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .filter-tab.stock-high:hover {
+            background: #b8dfc2;
+        }
+
+        .filter-tab.stock-high.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .badge-count {
+            background: rgba(0,0,0,0.1);
+            padding: 0.1rem 0.3rem;
+            border-radius: 15px;
+            font-size: 0.6rem;
+            margin-left: 4px;
+        }
+
+        .filter-tab.active .badge-count {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .stock-card {
+            background: white;
+            border-radius: 8px;
+            padding: 0.6rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 0.6rem;
+            transition: 0.2s;
+        }
+        
+        .stock-card:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #f8f9fc;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .product-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .product-image-placeholder {
+            width: 50px;
+            height: 50px;
+            background: #e1e9f0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .stock-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .stock-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .stock-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .stock-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+            transition: 0.2s;
+            border: none;
+            font-size: 0.7rem;
+        }
+        
+        .view-btn {
+            background: #e7f3ff;
+            color: #0b2f4e;
+        }
+        
+        .edit-btn {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .delete-btn {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .stock-progress {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 4px;
+        }
+
+        .btn-sm {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.4rem;
+        }
+
+        h6 {
+            font-size: 0.8rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .text-muted.small {
+            font-size: 0.65rem;
+        }
+
+        p {
+            margin-bottom: 0.2rem;
+            font-size: 0.7rem;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .modal-header {
+            background: #0b2f4e;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            padding: 0.6rem 1rem;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .modal-title {
+            font-size: 0.9rem;
+        }
+
+        .modal-body {
+            padding: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .modal-footer {
+            padding: 0.6rem;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+            .search-bar {
+                flex-wrap: wrap;
+                border-radius: 10px;
+                padding: 0.3rem;
+            }
+            .search-bar input {
+                width: 100%;
+                margin-bottom: 0.3rem;
+            }
+            .search-btn, .reset-btn {
+                width: calc(50% - 3px);
+                margin: 0;
+                text-align: center;
+                font-size: 0.65rem;
+                padding: 0.2rem 0.5rem;
+            }
+            .reset-btn {
+                margin-left: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'layout/navbar.html' %}
+    
+    <div class="main-content">
+        <div class="header">
+            <h2 class="page-title"><i class="fas fa-box me-2"></i>Products & Stock</h2>
+            <div>
+                <a href="{{ url_for('stock.low_stock') }}" class="btn btn-warning btn-sm me-1">
+                    <i class="fas fa-exclamation-triangle me-1"></i>Low Stock
+                </a>
+                <a href="{{ url_for('stock.stock_transactions') }}" class="btn btn-info btn-sm me-1 text-white">
+                    <i class="fas fa-history me-1"></i>History
+                </a>
+                <a href="{{ url_for('stock.add_stock') }}" class="btn btn-success btn-sm me-1">
+                    <i class="fas fa-plus-circle me-1"></i>Add Stock
+                </a>
+                <a href="{{ url_for('products.add_product') }}" class="add-btn">
+                    <i class="fas fa-plus me-1"></i>Add
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="row justify-content-center mb-3">
+            <div class="col-md-8 col-lg-6">
+                <div class="search-bar d-flex">
+                    <i class="fas fa-search align-self-center"></i>
+                    <input type="text" class="form-control border-0 shadow-none" 
+                           placeholder="Search by name or code..." 
+                           id="searchProduct" 
+                           value="{{ current_search }}">
+                    <button class="search-btn" onclick="applySearch()">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                    <button class="reset-btn" onclick="resetSearch()">
+                        <i class="fas fa-undo me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Filter Tabs -->
+        <div class="filter-tabs">
+            <a href="{{ url_for('products.products', stock_filter='all', search=current_search) }}" 
+               class="filter-tab {% if current_stock_filter == 'all' %}active{% endif %}">
+                All <span class="badge-count">{{ counts.total }}</span>
+            </a>
+            <a href="{{ url_for('products.products', stock_filter='low', search=current_search) }}" 
+               class="filter-tab stock-low {% if current_stock_filter == 'low' %}active{% endif %}">
+                Low <span class="badge-count">{{ counts.low_stock }}</span>
+            </a>
+            <a href="{{ url_for('products.products', stock_filter='medium', search=current_search) }}" 
+               class="filter-tab stock-medium {% if current_stock_filter == 'medium' %}active{% endif %}">
+                Medium <span class="badge-count">{{ counts.medium_stock }}</span>
+            </a>
+            <a href="{{ url_for('products.products', stock_filter='high', search=current_search) }}" 
+               class="filter-tab stock-high {% if current_stock_filter == 'high' %}active{% endif %}">
+                High <span class="badge-count">{{ counts.high_stock }}</span>
+            </a>
+        </div>
+        
+        <!-- Products List -->
+        <div id="productsList">
+            {% if products %}
+                {% for product in products %}
+                {% set stock_percentage = (product.quantity / 50 * 100) if product.quantity < 50 else 100 %}
+                {% if product.quantity <= product.reorder_level %}
+                    {% set stock_class = 'stock-low' %}
+                    {% set progress_class = 'bg-danger' %}
+                {% elif product.quantity <= product.reorder_level * 2 %}
+                    {% set stock_class = 'stock-medium' %}
+                    {% set progress_class = 'bg-warning' %}
+                {% else %}
+                    {% set stock_class = 'stock-high' %}
+                    {% set progress_class = 'bg-success' %}
+                {% endif %}
+                
+                <div class="stock-card">
+                    <div class="row align-items-center">
+                        <!-- Product Image -->
+                        <div class="col-md-1 col-2">
+                            {% if product.product_image %}
+                            <img src="{{ url_for('static', filename=product.product_image) }}" 
+                                 class="product-image" 
+                                 alt="{{ product.product_name }}"
+                                 onclick="previewImage('{{ url_for('static', filename=product.product_image) }}')"
+                                 title="Click to preview">
+                            {% else %}
+                            <div class="product-image-placeholder" onclick="previewImage(null)">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Product Info -->
+                        <div class="col-md-3 col-4">
+                            <h6 class="mb-1 fw-bold">{{ product.product_name or 'Unnamed Product' }}</h6>
+                            <div>
+                                <span class="badge bg-secondary">{{ product.category_name }}</span>
+                                <span class="badge bg-info">{{ product.type_name }}</span>
+                            </div>
+                            <div class="text-muted small">Code: {{ product.model_code or 'N/A' }}</div>
+                        </div>
+                        
+                        <!-- Stock Info -->
+                        <div class="col-md-3 col-3">
+                            <div class="d-flex align-items-center">
+                                <span class="stock-badge {{ stock_class }}">
+                                    <i class="fas fa-boxes me-1"></i>{{ product.quantity or 0 }}
+                                </span>
+                            </div>
+                            <div class="stock-progress bg-light">
+                                <div class="{{ progress_class }}" style="width: {{ stock_percentage }}%; height: 100%; border-radius: 2px;"></div>
+                            </div>
+                            <div class="text-muted small">Reorder: {{ product.reorder_level or 5 }}</div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="col-md-3 col-1 text-end">
+                            <a href="{{ url_for('products.view_product', product_id=product.product_id) }}" class="action-btn view-btn" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('products.edit_product', product_id=product.product_id) }}" class="action-btn edit-btn" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button onclick="confirmDelete({{ product.product_id }})" class="action-btn delete-btn" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button onclick="addStock({{ product.product_id }})" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus"></i> Stock
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="text-center p-4">
+                <i class="fas fa-box-open fa-3x mb-2" style="color: #e1e9f0;"></i>
+                <h5 style="font-size: 0.9rem;">No Products Found</h5>
+                <p class="text-muted small">
+                    {% if current_search or current_stock_filter != 'all' %}
+                        No products match your filters.
+                    {% else %}
+                        Click "Add" to create your first product.
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-image me-2"></i>Product Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" alt="Product" class="preview-image" id="modalPreviewImage">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <a href="#" id="downloadImageBtn" class="btn btn-primary btn-sm" style="background: #0b2f4e;" download>
+                        <i class="fas fa-download me-1"></i>Download
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this product?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger btn-sm">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Stock Modal -->
+    <div class="modal fade" id="addStockModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Add Stock</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('stock.add_stock') }}">
+                    <div class="modal-body">
+                        <input type="hidden" name="product_id" id="modalProductId">
+                        <div class="mb-2">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" name="quantity" required min="1">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Purchase Price (₹)</label>
+                            <input type="number" step="0.01" class="form-control" name="purchase_price" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Selling Price (₹)</label>
+                            <input type="number" step="0.01" class="form-control" name="selling_price" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success btn-sm">Add Stock</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const addStockModal = new bootstrap.Modal(document.getElementById('addStockModal'));
+        
+        function previewImage(imagePath) {
+            const modalImage = document.getElementById('modalPreviewImage');
+            const downloadBtn = document.getElementById('downloadImageBtn');
+            
+            if (imagePath && imagePath !== '#' && imagePath !== 'null') {
+                modalImage.src = imagePath;
+                downloadBtn.href = imagePath;
+            } else {
+                modalImage.src = 'https://via.placeholder.com/400x300?text=No+Image';
+                downloadBtn.href = '#';
+            }
+            imagePreviewModal.show();
+        }
+        
+        function confirmDelete(productId) {
+            document.getElementById('confirmDeleteBtn').href = "{{ url_for('products.delete_product', product_id=0) }}".replace('0', productId);
+            deleteModal.show();
+        }
+        
+        function addStock(productId) {
+            document.getElementById('modalProductId').value = productId;
+            addStockModal.show();
+        }
+
+        function applySearch() {
+            const searchTerm = document.getElementById('searchProduct').value.trim();
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('search', searchTerm);
+            currentUrl.searchParams.set('page', '1');
+            window.location.href = currentUrl.toString();
+        }
+
+        function resetSearch() {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.delete('search');
+            currentUrl.searchParams.set('page', '1');
+            window.location.href = currentUrl.toString();
+        }
+
+        document.getElementById('searchProduct').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applySearch();
+            }
+        });
+    </script>
+</body>
+</html>
