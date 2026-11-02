@@ -41,10 +41,9 @@
             </div>
         </section>
 
-        <section class="catalog" id="shop" aria-labelledby="shopTitle">
+        <section class="catalog" id="shop" aria-label="Products">
             <div class="shop-wrap">
                 <div class="catalog__head">
-                    <h2 id="shopTitle">In the shop</h2>
                     <div class="catalog__tools">
                         <label class="search">
                             <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
@@ -63,28 +62,16 @@
                     </div>
                 </div>
 
-                {% if categories %}
-                <div class="filters" role="toolbar" aria-label="Filter by category">
-                    <button type="button" class="chip is-active" data-filter="all">All <span>{{ products|length }}</span></button>
-                    {% for cat in categories %}
-                    <button type="button" class="chip" data-filter="cat-{{ cat.id }}">{{ cat.name }} <span>{{ cat.count }}</span></button>
-                    {% endfor %}
-                </div>
-                {% for cat in categories if cat.types|length > 1 %}
-                <div class="subfilters" data-for="cat-{{ cat.id }}" hidden>
-                    <button type="button" class="subchip is-active" data-type="all">All {{ cat.name|lower }}</button>
-                    {% for t in cat.types %}
-                    <button type="button" class="subchip" data-type="{{ t.id }}">{{ t.name }}</button>
-                    {% endfor %}
-                </div>
+                {% for section in sections %}
+                <section class="type-section" aria-labelledby="type-{{ section.id }}">
+                    <h2 class="type-section__title" id="type-{{ section.id }}">{{ section.name }} <span>{{ section.products|length }}</span></h2>
+                    <div class="grid">
+                        {% for p in section.products %}
+                            {% include 'public/_product_card.html' %}
+                        {% endfor %}
+                    </div>
+                </section>
                 {% endfor %}
-                {% endif %}
-
-                <div class="grid" id="productGrid">
-                    {% for p in products %}
-                        {% include 'public/_product_card.html' %}
-                    {% endfor %}
-                </div>
 
                 <p class="empty" id="emptyState" {% if products %}hidden{% endif %}>
                     {% if products %}Nothing matches that search. Try another word, or <a href="{{ contact_url }}" target="_blank" rel="noopener">ask us on WhatsApp</a>.

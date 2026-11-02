@@ -511,3 +511,24 @@ body.shop {
 .product-tile__body .rating-line + .product-tile__foot { margin-top: 0; padding-top: 0.45rem; }
 .rating-line { flex-wrap: wrap; row-gap: 0.1rem; }
 .rating-line__count { white-space: nowrap; }
+
+/* Home page: one section per product type */
+.catalog__head { justify-content: flex-end; }
+.type-section { margin-top: 2.25rem; }
+.type-section:first-of-type { margin-top: 0.5rem; }
+.type-section[hidden] { display: none; }
+.type-section__title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--navy);
+    font-size: clamp(1.35rem, 2.6vw, 1.8rem);
+    font-weight: 800;
+    font-stretch: 112%;
+    color: var(--navy);
+}
+.type-section__title span { font-size: 0.95rem; font-weight: 600; font-stretch: 100%; color: var(--ochre); }
+.type-section .grid { margin-top: 1.1rem; }
+.type-section .product-tile__type { display: none; }

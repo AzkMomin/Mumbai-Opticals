@@ -152,18 +152,15 @@ def order_link(product):
 def shop_page():
     products = _prepare_all(db.query_all(
         PUBLIC_SELECT + f" ORDER BY {IN_STOCK_FIRST}, p.created_at DESC, p.product_id DESC"))
-    categories = []
+    # One section per product type, ordered by category (catch-all categories last), then type name
+    sections = {}
     for p in products:
-        cat = next((c for c in categories if c['id'] == p['category_id']), None)
-        if not cat:
-            cat = {'id': p['category_id'], 'name': p['category_name'], 'types': [], 'count': 0}
-            categories.append(cat)
-        cat['count'] += 1
-        if not any(t['id'] == p['type_id'] for t in cat['types']):
-            cat['types'].append({'id': p['type_id'], 'name': p['type_name']})
-    # Biggest categories first, "Misc"-style catch-alls last
-    categories.sort(key=lambda c: (c['name'].lower() in ('misc', 'other', 'others'), -c['count'], c['name']))
-    return render_template('public/index.html', products=products, categories=categories,
+        section = sections.setdefault(p['type_id'], {
+            'id': p['type_id'], 'name': p['type_name'], 'category': p['category_name'], 'products': []})
+        section['products'].append(p)
+    order = lambda s: (s['category'].lower() in ('misc', 'other', 'others'), s['category'], s['name'])
+    sections = sorted(sections.values(), key=order)
+    return render_template('public/index.html', products=products, sections=sections,
                            contact_url=contact_link())
 
 
