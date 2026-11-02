@@ -513,7 +513,7 @@ body.shop {
 .rating-line__count { white-space: nowrap; }
 
 /* Home page: one section per product type */
-.catalog__head { justify-content: flex-end; }
+.catalog__head { justify-content: flex-start; }
 .type-section { margin-top: 2.25rem; }
 .type-section:first-of-type { margin-top: 0.5rem; }
 .type-section[hidden] { display: none; }

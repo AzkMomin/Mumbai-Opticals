@@ -64,7 +64,7 @@
 
                 {% for section in sections %}
                 <section class="type-section" aria-labelledby="type-{{ section.id }}">
-                    <h2 class="type-section__title" id="type-{{ section.id }}">{{ section.name }} <span>{{ section.products|length }}</span></h2>
+                    <h2 class="type-section__title" id="type-{{ section.id }}">{{ section.name }}</h2>
                     <div class="grid">
                         {% for p in section.products %}
                             {% include 'public/_product_card.html' %}
