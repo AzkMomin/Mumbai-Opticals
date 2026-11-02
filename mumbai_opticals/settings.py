@@ -13,6 +13,10 @@ MAX_UPLOAD_BYTES = 16 * 1024 * 1024
 
 PER_PAGE = 10
 
+# Manager's WhatsApp number for orders from the shop page (country code, digits only).
+# config.py can override it with ORDER_WHATSAPP.
+ORDER_WHATSAPP = '917276082474'
+
 # Third-party libraries loaded from CDNs (one place to upgrade them)
 CDN = {
     'bootstrap_css': 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
@@ -90,5 +94,5 @@ def load_local_config():
         'WEBHOOK_SECRET': get('WEBHOOK_SECRET'),
         'WSGI_FILE': get('WSGI_FILE'),
         # WhatsApp number that receives orders from the shop page, with country code (e.g. '919876543210')
-        'ORDER_WHATSAPP': get('ORDER_WHATSAPP'),
+        'ORDER_WHATSAPP': get('ORDER_WHATSAPP', ORDER_WHATSAPP),
     }
