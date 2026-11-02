@@ -12,8 +12,14 @@
     <div class="product-tile__body">
         <p class="product-tile__type">{{ p.type_name }}</p>
         <h3 class="product-tile__name"><a href="{{ url_for('shop.product', product_id=p.product_id) }}">{{ p.product_name }}</a></h3>
+        {% if p.card_details %}
+        <dl class="product-tile__specs">
+            {% for label, value in p.card_details %}
+            <div><dt>{{ label }}:</dt><dd>{{ value }}</dd></div>
+            {% endfor %}
+        </dl>
+        {% endif %}
         {{ rating_line(p) }}
-        {% if p.summary %}<p class="product-tile__meta">{{ p.summary }}</p>{% endif %}
         <div class="product-tile__foot">
             <span class="product-tile__price">{{ p.price_text }}</span>
             <a class="btn-order{% if not p.in_stock %} btn-order--ask{% endif %}" href="{{ p.order_url }}" target="_blank" rel="noopener">

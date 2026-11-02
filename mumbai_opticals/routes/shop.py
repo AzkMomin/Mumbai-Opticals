@@ -33,11 +33,21 @@ IN_STOCK_FIRST = "(COALESCE(s.quantity, 0) > 0) DESC"
 
 # Details worth showing a customer, by field
 DETAIL_LABELS = [
-    ('model_name', 'Model'), ('model_code', 'Code'), ('frame_type', 'Frame'), ('material', 'Material'),
+    ('model_name', 'Model'), ('model_code', 'Model no.'), ('frame_type', 'Frame'), ('material', 'Material'),
     ('model_color', 'Colour'), ('model_size', 'Size'), ('lens_type', 'Lens'), ('lens_for', 'For'),
     ('which_side', 'Side'), ('company', 'Brand'), ('watch_type', 'Type'), ('watch_mechanism', 'Movement'),
     ('strap_material', 'Strap'), ('dial_color', 'Dial'), ('water_resistance', 'Water resistance'),
 ]
+
+# The few details a customer needs on a product card, by kind of product
+CARD_FIELDS = {
+    'frames': [('model_name', 'Model'), ('model_code', 'Model no.'), ('model_color', 'Colour'), ('frame_type', 'Frame')],
+    'lenses': [('company', 'Brand'), ('lens_type', 'Lens type'), ('lens_for', 'For'), ('model_code', 'Model no.')],
+    'watches': [('model_name', 'Model'), ('model_code', 'Model no.'), ('dial_color', 'Dial'), ('strap_material', 'Strap')],
+    'other': [('model_name', 'Model'), ('model_code', 'Model no.'), ('model_color', 'Colour'), ('company', 'Brand')],
+}
+CARD_GROUPS = {'Frames': 'frames', 'Goggles': 'frames', 'Lenses': 'lenses',
+               'Wrist Watches': 'watches', 'Hand Watches': 'watches'}
 
 TYPE_ICONS = {
     'Frames': 'fa-glasses', 'Goggles': 'fa-glasses', 'Lenses': 'fa-eye',
@@ -90,6 +100,8 @@ def _prepare(product, photos=None):
     product['icon'] = TYPE_ICONS.get(product['type_name'], 'fa-box')
     product['details'] = [(label, product[key]) for key, label in DETAIL_LABELS if product.get(key)]
     product['summary'] = ' · '.join(str(v) for _, v in product['details'][:3])
+    fields = CARD_FIELDS[CARD_GROUPS.get(product['type_name'], 'other')]
+    product['card_details'] = [(label, product[key]) for key, label in fields if product.get(key)]
     paths = (photos or {}).get(product['product_id']) or ([product['product_image']] if product.get('product_image') else [])
     product['images'] = [url_for('static', filename=p) for p in paths]
     product['image_url'] = product['images'][0] if product['images'] else None

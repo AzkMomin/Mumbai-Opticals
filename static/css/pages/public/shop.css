@@ -501,3 +501,13 @@ body.shop {
 @media (prefers-reduced-motion: reduce) {
     .gallery__img, .rec-row__track { transition: none; scroll-behavior: auto; }
 }
+
+/* Key details on product cards */
+.product-tile__specs { margin: 0.45rem 0 0; display: grid; gap: 0.12rem; font-size: 0.84rem; }
+.product-tile__specs div { display: flex; gap: 0.35rem; min-width: 0; }
+.product-tile__specs dt { flex: none; font-weight: 500; color: var(--muted); }
+.product-tile__specs dd { margin: 0; color: var(--ink); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.product-tile__body .rating-line { margin-top: auto; padding-top: 0.7rem; align-self: flex-start; }
+.product-tile__body .rating-line + .product-tile__foot { margin-top: 0; padding-top: 0.45rem; }
+.rating-line { flex-wrap: wrap; row-gap: 0.1rem; }
+.rating-line__count { white-space: nowrap; }
