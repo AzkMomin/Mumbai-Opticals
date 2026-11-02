@@ -3766,5 +3766,76 @@ def utility_processor():
 #=================================================================================================
 #******************************************************************************************************************************************************
 
+#=================================================================================================
+
+                            #Auto-deploy webhook (GitHub -> PythonAnywhere)
+
+#=================================================================================================
+# GitHub calls this URL on every push. If the request is signed with WEBHOOK_SECRET
+# (set in config.py on the server), it pulls the latest code and reloads the site.
+import hmac
+import hashlib
+import subprocess
+import getpass
+
+try:
+    from config import WEBHOOK_SECRET
+except ImportError:
+    WEBHOOK_SECRET = None
+
+try:
+    from config import WSGI_FILE
+except ImportError:
+    WSGI_FILE = f"/var/www/{getpass.getuser()}_pythonanywhere_com_wsgi.py"
+
+DEPLOY_BRANCH = 'main'
+REPO_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+@app.route('/git-webhook', methods=['POST'])
+def git_webhook():
+    if not WEBHOOK_SECRET:
+        return jsonify(error='Webhook not configured'), 503
+
+    signature = request.headers.get('X-Hub-Signature-256', '')
+    expected = 'sha256=' + hmac.new(WEBHOOK_SECRET.encode(), request.get_data(), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(signature, expected):
+        abort(403)
+
+    event = request.headers.get('X-GitHub-Event', '')
+    if event == 'ping':
+        return jsonify(status='pong'), 200
+    if event != 'push':
+        return jsonify(status=f'ignored event {event}'), 200
+
+    payload = request.get_json(silent=True) or {}
+    if payload.get('ref') != f'refs/heads/{DEPLOY_BRANCH}':
+        return jsonify(status='ignored branch', ref=payload.get('ref')), 200
+
+    try:
+        result = subprocess.run(
+            ['git', 'pull', '--ff-only', 'origin', DEPLOY_BRANCH],
+            cwd=REPO_DIR, capture_output=True, text=True, timeout=120,
+        )
+    except Exception as e:
+        return jsonify(status='pull failed', error=str(e)), 500
+
+    if result.returncode != 0:
+        return jsonify(status='pull failed', output=result.stdout + result.stderr), 500
+
+    # Touching the WSGI file makes PythonAnywhere reload the web app.
+    try:
+        os.utime(WSGI_FILE, None)
+    except OSError as e:
+        return jsonify(status='pulled, reload failed', error=str(e), output=result.stdout), 500
+
+    return jsonify(status='deployed', output=result.stdout), 200
+
+#=================================================================================================
+
+                            #Auto-deploy webhook End
+
+#=================================================================================================
+
 if __name__ == '__main__':
     app.run(debug=True)
