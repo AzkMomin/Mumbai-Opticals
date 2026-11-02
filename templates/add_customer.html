@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if edit_mode %}Edit{% else %}Add{% endif %} Customer - Mumbai Opticals</title>
+  <!-- Bootstrap 5 & Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- intl-tel-input CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+  <style>
+    body {
+      background-color: #f8f9fc;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    .main-content {
+      margin-left: 280px;
+      padding: 2rem;
+    }
+
+    .header {
+      background: white;
+      padding: 1rem 2rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      color: #0b2f4e;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 2.5rem;
+    }
+
+    .form-label {
+      color: #0b2f4e;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #e1e9f0;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #0b2f4e;
+      box-shadow: 0 0 0 0.2rem rgba(11,47,78,0.1);
+    }
+
+    /* intl-tel-input styling */
+    .iti {
+      width: 100%;
+    }
+
+    .iti__flag-container {
+      border-radius: 12px 0 0 12px;
+    }
+
+    .iti__selected-flag {
+      background-color: transparent !important;
+      border-right: 1px solid #e1e9f0;
+    }
+
+    .iti--separate-dial-code .iti__selected-flag {
+      background-color: #f8f9fc;
+      border-radius: 12px 0 0 12px;
+    }
+
+    .iti__country-list {
+      border-radius: 12px;
+      border: 1.5px solid #e1e9f0;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .iti__country.iti__highlight {
+      background-color: #f0f5fa;
+    }
+
+    #phoneError {
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    .submit-btn {
+      background: #0b2f4e;
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      width: 100%;
+      margin-top: 2rem;
+      transition: 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: #1e4a6f;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(11,47,78,0.3);
+    }
+
+    .cancel-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      width: 100%;
+      margin-top: 1rem;
+      transition: 0.2s;
+    }
+
+    .cancel-btn:hover {
+      background: #5a6268;
+    }
+
+    .section-title {
+      color: #0b2f4e;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 1.5rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e1e9f0;
+    }
+
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      color: white;
+      border-radius: 15px 15px 0 0;
+      padding: 1rem 1.5rem;
+      border-bottom: none;
+    }
+
+    .modal-header.error-header {
+      background: #dc3545;
+    }
+
+    .modal-header.success-header {
+      background: #28a745;
+    }
+
+    .modal-header.info-header {
+      background: #0b2f4e;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      font-size: 1.1rem;
+    }
+
+    .btn-modal {
+      background: #0b2f4e;
+      color: white;
+      border: none;
+      padding: 0.5rem 2rem;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+        display: none;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <<!-- Include Navbar -->
+    {% include 'navbar.html' %}
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header">
+      <h2 class="page-title">
+        <i class="fas {% if edit_mode %}fa-edit{% else %}fa-user-plus{% endif %} me-2"></i>
+        {% if edit_mode %}Edit Customer{% else %}Add New Customer{% endif %}
+      </h2>
+      <div>
+        <span class="badge bg-info text-white me-2">
+          {% if current_user.user_type == 'super-admin' %}Super Admin
+          {% elif current_user.user_type == 'admin' %}Admin
+          {% else %}Employee{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message d-none" data-category="{{ category }}" data-message="{{ message }}"></div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="form-card">
+      <form method="POST" action="{% if edit_mode %}{{ url_for('add_customer') }}?id={{ customer_data.customer_id }}{% else %}{{ url_for('add_customer') }}{% endif %}">
+        {% if edit_mode %}
+          <input type="hidden" name="customer_id" value="{{ customer_data.customer_id }}">
+        {% endif %}
+
+        <div class="row">
+          <div class="col-md-12 mb-3">
+            <label class="form-label">Name *</label>
+            <input type="text" class="form-control" name="name" value="{{ customer_data.name if customer_data else '' }}" placeholder="Enter customer name" required>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" class="form-control" id="phone" name="phone"
+                   value="{{ customer_data.phone if customer_data else '' }}"
+                   placeholder="Enter phone number" required>
+            <small class="text-danger d-none" id="phoneError">Please enter a valid phone number</small>
+            <input type="hidden" id="fullPhone" name="fullPhone">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Email Address *</label>
+            <input type="email" class="form-control" name="email" value="{{ customer_data.email if customer_data else '' }}" placeholder="customer@example.com" required>
+            <small class="text-muted">Must be unique</small>
+          </div>
+        </div>
+        <div class="text-end">
+            {% if edit_mode %}
+            <a href="{{ url_for('customers') }}" class="btn btn-secondary me-2">
+                <i class="fas fa-times me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary" style="background: #0b2f4e;">
+                <i class="fas fa-save me-2"></i>Update Customer
+            </button>
+            {% else %}
+            <button type="reset" class="btn btn-secondary me-2" onclick="return confirm('Are you sure you want to reset the form?')">
+                <i class="fas fa-undo me-2"></i>Reset
+            </button>
+            <button type="submit" class="btn btn-primary" style="background: #0b2f4e;">
+                <i class="fas fa-save me-2"></i>Save Customer
+            </button>
+            {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Message Modal -->
+  <div class="modal fade" id="messageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header" id="modalHeader">
+          <h5 class="modal-title">
+            <i class="fas" id="modalIcon"></i>
+            <span id="modalTitle"></span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="modalMessage"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-modal" id="modalButton" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+
+    function toggleSubmenu(id) {
+      const submenu = document.getElementById(id);
+      submenu.classList.toggle('show');
+    }
+
+    function showMessageModal(type, title, message) {
+      const modalHeader = document.getElementById('modalHeader');
+      const modalIcon = document.getElementById('modalIcon');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalButton = document.getElementById('modalButton');
+
+      modalHeader.className = 'modal-header';
+
+      switch(type) {
+        case 'error':
+          modalHeader.classList.add('error-header');
+          modalIcon.className = 'fas fa-exclamation-triangle';
+          modalTitle.textContent = title || 'Error';
+          modalButton.className = 'btn-modal btn-modal-error';
+          break;
+        case 'success':
+          modalHeader.classList.add('success-header');
+          modalIcon.className = 'fas fa-check-circle';
+          modalTitle.textContent = title || 'Success';
+          modalButton.className = 'btn-modal btn-modal-success';
+          break;
+        default:
+          modalHeader.classList.add('info-header');
+          modalIcon.className = 'fas fa-info-circle';
+          modalTitle.textContent = title || 'Information';
+          modalButton.className = 'btn-modal';
+      }
+
+      modalMessage.textContent = message;
+      messageModal.show();
+    }
+
+    // Initialize intl-tel-input
+    const phoneInput = document.querySelector("#phone");
+    let iti;
+
+    // Combined window.onload function
+    window.onload = function() {
+      // Initialize phone input with country selector
+      iti = window.intlTelInput(phoneInput, {
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+        separateDialCode: true,
+        initialCountry: "in", // Default to India
+        preferredCountries: ["in", "us", "gb", "ae"],
+        geoIpLookup: function(callback) {
+          fetch('https://ipinfo.io/json?token=your_token_here')
+            .then(response => response.json())
+            .then(data => callback(data.country))
+            .catch(() => callback('in'));
+        }
+      });
+
+      // Set initial value if exists
+      if (phoneInput.value) {
+        iti.setNumber(phoneInput.value);
+        document.getElementById('fullPhone').value = iti.getNumber();
+      }
+
+      // Handle existing flash messages
+      const flashMessages = document.querySelectorAll('.flash-message');
+      flashMessages.forEach(flash => {
+        const category = flash.dataset.category;
+        const message = flash.dataset.message;
+
+        if (category === 'error') {
+          showMessageModal('error', 'Error', message);
+        } else if (category === 'success') {
+          showMessageModal('success', 'Success', message);
+        } else {
+          showMessageModal('info', 'Information', message);
+        }
+      });
+    };
+
+    // Validate phone number on blur
+    phoneInput.addEventListener('blur', function() {
+      const phoneError = document.getElementById('phoneError');
+      if (iti.isValidNumber()) {
+        phoneError.classList.add('d-none');
+        document.getElementById('fullPhone').value = iti.getNumber();
+      } else {
+        phoneError.classList.remove('d-none');
+      }
+    });
+
+    // Validate on keyup as well
+    phoneInput.addEventListener('keyup', function() {
+      const phoneError = document.getElementById('phoneError');
+      if (iti.isValidNumber()) {
+        phoneError.classList.add('d-none');
+        document.getElementById('fullPhone').value = iti.getNumber();
+      }
+    });
+
+    // Update form submission to use full international number
+    document.querySelector('form').addEventListener('submit', function(e) {
+      if (!iti.isValidNumber()) {
+        e.preventDefault();
+        showMessageModal('error', 'Invalid Phone', 'Please enter a valid phone number with country code');
+      } else {
+        // Set the full international number before submitting
+        document.getElementById('fullPhone').value = iti.getNumber();
+      }
+    });
+  </script>
+</body>
+</html>

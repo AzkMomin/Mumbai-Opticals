@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Bill #{{ bill.bill_number }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 20px;
+        }
+        
+        .bill-container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .shop-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .bill-title {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .customer-info {
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background: #f2f2f2;
+        }
+        
+        .text-end {
+            text-align: right;
+        }
+        
+        .summary {
+            margin-top: 20px;
+            border-top: 2px dashed #333;
+            padding-top: 10px;
+        }
+        
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+        }
+        
+        .barcode {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            .bill-container {
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bill-container">
+        <div class="header">
+            <div class="shop-name">{{ company.name }}</div>
+            <div>{{ company.address }}</div>
+            <div>Tel: {{ company.phone }} | GST: {{ company.gst }}</div>
+            <div class="bill-title">TAX INVOICE</div>
+        </div>
+        
+        <div class="info-row">
+            <div><strong>Bill No:</strong> #{{ bill.bill_number }}</div>
+            <div><strong>Date:</strong> {{ bill.bill_date.strftime('%d/%m/%Y') }}</div>
+        </div>
+        
+        <div class="customer-info">
+            <div class="info-row">
+                <div><strong>Customer:</strong> {{ bill.customer_name or 'Walk-in Customer' }}</div>
+                <div><strong>Phone:</strong> {{ bill.customer_phone or 'N/A' }}</div>
+            </div>
+            {% if bill.customer_email %}
+            <div class="info-row">
+                <div><strong>Email:</strong> {{ bill.customer_email }}</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Code</th>
+                    <th class="text-end">Qty</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">Disc%</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.model_code or '-' }}</td>
+                    <td class="text-end">{{ item.quantity }}</td>
+                    <td class="text-end">₹{{ "%.2f"|format(item.price_per_unit) }}</td>
+                    <td class="text-end">{{ "%.1f"|format(item.discount_percent or 0) }}%</td>
+                    <td class="text-end">₹{{ "%.2f"|format(item.total_price) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="summary">
+            <div class="info-row">
+                <span>Subtotal:</span>
+                <span>₹{{ "%.2f"|format(bill.subtotal) }}</span>
+            </div>
+            {% if bill.discount > 0 %}
+            <div class="info-row">
+                <span>Discount:</span>
+                <span>- ₹{{ "%.2f"|format(bill.discount) }}</span>
+            </div>
+            {% endif %}
+            {% if bill.tax > 0 %}
+            <div class="info-row">
+                <span>Tax (GST):</span>
+                <span>+ ₹{{ "%.2f"|format(bill.tax) }}</span>
+            </div>
+            {% endif %}
+            <div class="info-row total">
+                <span>Total Amount:</span>
+                <span>₹{{ "%.2f"|format(bill.total_amount) }}</span>
+            </div>
+            <div class="info-row">
+                <span>Payment Method:</span>
+                <span>{{ bill.payment_method }}</span>
+            </div>
+        </div>
+        
+        <div class="barcode">
+            <svg id="barcode"></svg>
+            <div class="mt-1">{{ bill.bill_number }}</div>
+        </div>
+        
+        {% if bill.notes %}
+        <div class="mt-3">
+            <strong>Notes:</strong> {{ bill.notes }}
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>** This is a computer generated invoice **</p>
+        </div>
+    </div>
+    
+    <script>
+        JsBarcode("#barcode", "{{ bill.bill_number }}", {
+            format: "CODE128",
+            width: 1.5,
+            height: 50,
+            displayValue: false,
+            margin: 10
+        });
+        
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

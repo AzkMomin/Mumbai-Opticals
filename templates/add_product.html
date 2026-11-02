@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if edit_mode %}Edit{% else %}Add{% endif %} Product - Mumbai Opticals</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 1.5rem;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .form-header {
+            background: #0b2f4e;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-type-section {
+            background: #f8f9fc;
+            border-radius: 10px;
+            border: 1px solid #e1e9f0;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .product-type-header {
+            background: #e9ecef;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .product-type-header h6 {
+            margin: 0;
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .product-type-header i {
+            color: #0b2f4e;
+        }
+
+        .product-type-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: #f8f9fc;
+        }
+
+        .type-tab {
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            background: white;
+            border: 1px solid #e1e9f0;
+            color: #6c757d;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .type-tab:hover {
+            background: #f0f5fa;
+            transform: translateY(-1px);
+        }
+
+        .type-tab.active {
+            background: #0b2f4e;
+            color: white;
+            border-color: #0b2f4e;
+        }
+
+        .type-tab i {
+            margin-right: 5px;
+            font-size: 0.75rem;
+        }
+
+        .selection-indicator {
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            padding: 0.6rem 1rem;
+            margin: 0 1rem 1rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .selection-indicator i {
+            color: #ffc107;
+            font-size: 1rem;
+        }
+
+        .selection-indicator span {
+            color: #856404;
+            font-size: 0.8rem;
+        }
+
+        .product-type-static {
+            background: #f8f9fc;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #e1e9f0;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .product-type-badge {
+            background: #0b2f4e;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .dynamic-fields {
+            transition: all 0.3s ease;
+        }
+
+        .fields-container {
+            background: #f8f9fc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .section-title {
+            color: #0b2f4e;
+            border-left: 3px solid #0b2f4e;
+            padding-left: 0.8rem;
+            margin: 1rem 0 0.8rem 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .image-preview {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #e1e9f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            background: white;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview:hover .overlay {
+            opacity: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.3s;
+            font-size: 0.7rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0b2f4e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .required:after {
+            content: " *";
+            color: red;
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.6rem;
+        }
+
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.8rem;
+        }
+
+        .alert {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .text-muted small {
+            font-size: 0.65rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-header">
+            <h5 class="mb-0"><i class="fas fa-box me-2"></i>{% if edit_mode %}Edit{% else %}Add New{% endif %} Product</h5>
+            <a href="{{ url_for('products') }}" class="btn btn-light btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+        </div>
+
+        <div class="form-container">
+            <form method="POST" enctype="multipart/form-data" id="productForm">
+                {% if edit_mode and product %}
+                    <div class="product-type-static">
+                        <div class="product-type-badge">
+                            <i class="fas fa-{% if product.category_name == 'Specs' %}glasses{% elif product.category_name == 'Watches' %}clock{% else %}box{% endif %} me-2"></i>
+                            {{ product.category_name }} - {{ product.type_name }}
+                        </div>
+                        <input type="hidden" name="product_type_id" id="product_type_id" value="{{ product.product_type_id }}">
+                    </div>
+                {% else %}
+                    <div class="product-type-section">
+                        <div class="product-type-header">
+                            <h6><i class="fas fa-tag me-2"></i>Product Types <span class="text-danger">*</span></h6>
+                        </div>
+                        <div class="product-type-tabs">
+                            {% for type in product_types %}
+                            <div class="type-tab {% if (form_data and form_data.product_type_id|int == type.type_id) %}active{% endif %}"
+                                 onclick="selectProductType('{{ type.type_id }}', this)"
+                                 data-type-id="{{ type.type_id }}">
+                                <i class="fas fa-{% if type.category_name == 'Specs' %}glasses{% elif type.category_name == 'Watches' %}clock{% else %}box{% endif %} me-1"></i>
+                                {{ type.type_name }}
+                            </div>
+                            {% endfor %}
+                            <input type="hidden" name="product_type_id" id="product_type_id" 
+                                   value="{% if form_data %}{{ form_data.product_type_id }}{% endif %}">
+                        </div>
+                        
+                        <div id="selectionIndicator" class="selection-indicator" style="display: {% if form_data and form_data.product_type_id %}none{% else %}flex{% endif %}">
+                            <i class="fas fa-hand-point-right"></i>
+                            <span>Please select a product type to continue</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div id="dynamicFields" class="dynamic-fields" style="{% if edit_mode and product %}display: block;{% elif form_data and form_data.product_type_id %}display: block;{% else %}display: none;{% endif %}">
+                    <div class="fields-container">
+                        <h6 class="section-title">
+                            <i class="fas fa-cog me-2"></i>
+                            <span id="selectedProductType">
+                                {% if edit_mode and product %}
+                                    {{ product.type_name }} Details
+                                {% elif form_data and form_data.product_type_id %}
+                                    {% for type in product_types if type.type_id == form_data.product_type_id|int %}
+                                        {{ type.type_name }} Details
+                                    {% endfor %}
+                                {% else %}
+                                    Product Details
+                                {% endif %}
+                            </span>
+                        </h6>
+
+                        <!-- Product Image Upload -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Product Image</label>
+                                <div class="d-flex align-items-center">
+                                    <div class="image-preview me-2" onclick="document.getElementById('product_image').click()">
+                                        <img id="imagePreview" src="
+                                            {% if edit_mode and product and product.product_image %}
+                                                {{ url_for('static', filename=product.product_image) }}
+                                            {% elif form_data and form_data.product_image %}
+                                                {{ url_for('static', filename=form_data.product_image) }}
+                                            {% else %}
+                                                #
+                                            {% endif %}" 
+                                             alt="Preview" 
+                                             style="display: {% if (edit_mode and product and product.product_image) or (form_data and form_data.product_image) %}block{% else %}none{% endif %};">
+                                        <div id="uploadPlaceholder" style="display: {% if (edit_mode and product and product.product_image) or (form_data and form_data.product_image) %}none{% else %}block{% endif %};">
+                                            <i class="fas fa-camera fa-1x mb-1"></i>
+                                            <p class="mb-0" style="font-size: 0.7rem;">Upload</p>
+                                        </div>
+                                        <div class="overlay">
+                                            <i class="fas fa-upload me-1"></i>Change
+                                        </div>
+                                    </div>
+                                    <input type="file" class="d-none" name="product_image" id="product_image" accept="image/*">
+                                    <div>
+                                        <small class="text-muted">Max 16MB</small>
+                                        {% if edit_mode and product and product.product_image %}
+                                        <small class="text-muted d-block mt-1">
+                                            <i class="fas fa-check-circle text-success me-1"></i>Current: {{ product.product_image.split('/')[-1][:20] }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Name & Description -->
+                        <div class="row g-2">
+                            <div class="col-md-12 mb-2">
+                                <label class="form-label required">Product Name</label>
+                                <input type="text" class="form-control" name="product_name" 
+                                       value="{% if edit_mode and product %}{{ product.product_name }}{% elif form_data %}{{ form_data.product_name }}{% endif %}" 
+                                       required>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="product_description" rows="2" style="font-size: 0.85rem;">{% if edit_mode and product %}{{ product.product_description }}{% elif form_data %}{{ form_data.product_description }}{% endif %}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Product Fields -->
+                        <div class="row g-2" id="productFields"></div>
+
+                        <!-- Pricing Section - NEW -->
+                        <h6 class="section-title mt-3">
+                            <i class="fas fa-tags me-2"></i>Pricing Details
+                        </h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label required">Selling Price (MRP) (₹)</label>
+                                <input type="number" step="0.01" class="form-control" name="selling_price" 
+                                       value="{% if edit_mode and product %}{{ product.selling_price or '0.00' }}{% elif form_data %}{{ form_data.selling_price }}{% else %}0.00{% endif %}" 
+                                       required min="0">
+                                <small class="text-muted">Retail price / Maximum Retail Price</small>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label required">Purchase Price (₹)</label>
+                                <input type="number" step="0.01" class="form-control" name="purchase_price" 
+                                       value="{% if edit_mode and product %}{{ product.purchase_price or '0.00' }}{% elif form_data %}{{ form_data.purchase_price }}{% else %}0.00{% endif %}" 
+                                       required min="0">
+                                <small class="text-muted">Cost price / Purchase price</small>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-2 mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            <small>Stock quantity will be added separately from the "Add Stock" section.</small>
+                        </div>
+
+                        <hr class="my-3">
+                        <div class="text-end">
+                            {% if edit_mode %}
+                            <a href="{{ url_for('products') }}" class="btn btn-secondary btn-sm me-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-sm" style="background: #0b2f4e;">
+                                <i class="fas fa-save me-1"></i>Update
+                            </button>
+                            {% else %}
+                            <button type="reset" class="btn btn-secondary btn-sm me-2">
+                                <i class="fas fa-undo me-1"></i>Reset
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-sm" style="background: #0b2f4e;">
+                                <i class="fas fa-save me-1"></i>Save
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const isEditMode = {{ 'true' if edit_mode else 'false' }};
+        
+        function selectProductType(typeId, element) {
+            if (isEditMode) return;
+            
+            const indicator = document.getElementById('selectionIndicator');
+            if (indicator) {
+                indicator.style.display = 'none';
+            }
+            
+            document.querySelectorAll('.type-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            element.classList.add('active');
+            document.getElementById('product_type_id').value = typeId;
+            
+            const dynamicFields = document.getElementById('dynamicFields');
+            dynamicFields.style.display = 'block';
+            
+            const selectedType = element.textContent.trim();
+            document.getElementById('selectedProductType').textContent = selectedType + ' Details';
+            
+            loadProductFields(typeId);
+        }
+        
+        function loadProductFields(typeId) {
+            const productFields = document.getElementById('productFields');
+            productFields.innerHTML = '<div class="col-12 text-center p-2"><span class="loading-spinner"></span> Loading...</div>';
+            
+            fetch(`/get_product_fields/${typeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    productFields.innerHTML = data.html;
+                    
+                    {% if edit_mode and product %}
+                    const product = {{ product|tojson }};
+                    Object.keys(product).forEach(key => {
+                        const input = document.querySelector(`[name="${key}"]`);
+                        if (input && key !== 'product_type_id' && key !== 'product_name' && 
+                            key !== 'product_description' && key !== 'selling_price' && 
+                            key !== 'purchase_price' && product[key]) {
+                            input.value = product[key];
+                        }
+                    });
+                    {% endif %}
+                    
+                    {% if form_data %}
+                    const fields = {{ form_data|tojson }};
+                    Object.keys(fields).forEach(key => {
+                        const input = document.querySelector(`[name="${key}"]`);
+                        if (input && key !== 'product_type_id' && key !== 'product_name' && 
+                            key !== 'product_description' && key !== 'selling_price' && 
+                            key !== 'purchase_price') {
+                            input.value = fields[key];
+                        }
+                    });
+                    {% endif %}
+                });
+        }
+
+        {% if edit_mode and product %}
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProductFields('{{ product.product_type_id }}');
+        });
+        {% elif form_data and form_data.product_type_id %}
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeId = '{{ form_data.product_type_id }}';
+            const tab = document.querySelector(`.type-tab[data-type-id="${typeId}"]`);
+            if (tab) {
+                tab.classList.add('active');
+                document.getElementById('product_type_id').value = typeId;
+                loadProductFields(typeId);
+                
+                const indicator = document.getElementById('selectionIndicator');
+                if (indicator) indicator.style.display = 'none';
+            }
+        });
+        {% endif %}
+
+        document.getElementById('product_image')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('uploadPlaceholder');
+            
+            if (file) {
+                if (file.size > 16 * 1024 * 1024) {
+                    alert('File size exceeds 16MB');
+                    this.value = '';
+                    return;
+                }
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file');
+                    this.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            const typeId = document.getElementById('product_type_id').value;
+            if (!typeId && !isEditMode) {
+                e.preventDefault();
+                alert('Please select a product type');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

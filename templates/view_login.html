@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Login - Mumbai Opticals</title>
+  <!-- Bootstrap 5 & Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      background-color: #f8f9fc;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      padding: 2rem;
+    }
+
+    .header {
+      background: white;
+      padding: 1rem 2rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      color: #0b2f4e;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .profile-card {
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .user-avatar-large {
+      width: 120px;
+      height: 120px;
+      background: #f0f5fa;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b2f4e;
+      font-size: 3rem;
+      font-weight: 600;
+      border: 4px solid #0b2f4e;
+      margin: 0 auto 1rem;
+    }
+
+    .user-name {
+      color: #0b2f4e;
+      font-size: 2rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge-super-admin {
+      background: #0b2f4e;
+      color: white;
+      padding: 0.4rem 1.5rem;
+      border-radius: 30px;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .badge-admin {
+      background: #ffc107;
+      color: #000;
+      padding: 0.4rem 1.5rem;
+      border-radius: 30px;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .badge-employee {
+      background: #17a2b8;
+      color: white;
+      padding: 0.4rem 1.5rem;
+      border-radius: 30px;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .badge-active {
+      background: #d4edda;
+      color: #155724;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+
+    .badge-inactive {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .info-item {
+      padding: 1rem;
+      background: #f8f9fc;
+      border-radius: 15px;
+      border: 1px solid #e1e9f0;
+    }
+
+    .info-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+      color: #0b2f4e;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .activity-section {
+      background: white;
+      border-radius: 25px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+      color: #0b2f4e;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .activity-table {
+      width: 100%;
+    }
+
+    .activity-table th {
+      color: #0b2f4e;
+      font-weight: 600;
+      padding: 1rem 0.5rem;
+      border-bottom: 2px solid #e1e9f0;
+    }
+
+    .activity-table td {
+      padding: 1rem 0.5rem;
+      border-bottom: 1px solid #e1e9f0;
+    }
+
+    .permission-note {
+      background: #f0f5fa;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #0b2f4e;
+    }
+
+    .edit-btn {
+      background: #ffc107;
+      color: #000;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 500;
+      margin-right: 1rem;
+      transition: 0.2s;
+    }
+
+    .edit-btn:hover {
+      background: #e0a800;
+    }
+
+    .edit-btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .back-btn {
+      background: #0b2f4e;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      transition: 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #1e4a6f;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+        display: none;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include 'navbar.html' %}
+
+    <!-- Main Content -->
+    <div class="main-content">
+     <div class="header">
+      <h2 class="page-title"><i class="fas fa-user-circle me-2"></i>Login Details</h2>
+      <div>
+        <span class="badge bg-info text-white me-2" id="currentUserRole">
+          {% if session.user_type == 'super-admin' %}Super Admin
+          {% elif session.user_type == 'admin' %}Admin
+          {% else %}Employee{% endif %}
+        </span>
+        <button class="edit-btn" id="editBtn" onclick="editLogin()">
+          <i class="fas fa-edit me-2"></i>Edit Login
+        </button>
+        <a href="{{ url_for('manage_logins') }}" class="back-btn ms-2">
+          <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+      </div>
+    </div>
+
+    <!-- User Profile -->
+    <div class="profile-card">
+      <div class="text-center">
+        <div class="user-avatar-large" id="userInitials">{{ user.initials }}</div>
+        <h1 class="user-name" id="userFullName">{{ user.name }}</h1>
+        <div id="userTypeBadge">
+          {% if user.user_type == 'super-admin' %}
+            <span class="badge-super-admin">{{ user.user_type_display }}</span>
+          {% elif user.user_type == 'admin' %}
+            <span class="badge-admin">{{ user.user_type_display }}</span>
+          {% else %}
+            <span class="badge-employee">{{ user.user_type_display }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Username</div>
+          <div class="info-value" id="userUsername">{{ user.username }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Status</div>
+          <div class="info-value" id="userStatus">
+            {% if user.status == 'active' %}
+              <span class="badge-active">{{ user.status_display }}</span>
+            {% else %}
+              <span class="badge-inactive">{{ user.status_display }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Gender</div>
+          <div class="info-value" id="userGender">{{ user.gender|capitalize }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Mobile Number</div>
+          <div class="info-value" id="userPhone">{{ user.mobile_no }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">User Type</div>
+          <div class="info-value" id="userType">{{ user.user_type_display }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Created By</div>
+          <div class="info-value" id="userCreatedBy">{{ user.created_by }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Created On</div>
+          <div class="info-value" id="userCreatedOn">{{ user.created_at }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Last Updated</div>
+          <div class="info-value" id="userUpdatedOn">{{ user.updated_at if user.updated_at else 'Not updated' }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Last Login</div>
+          <div class="info-value" id="userLastLogin">{{ user.last_login if user.last_login else 'Never logged in' }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Login ID</div>
+          <div class="info-value" id="userLoginId">{{ user.login_id }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity (You'll need to create an activity_log table for this) -->
+    <div class="activity-section">
+      <h3 class="section-title">Recent Activity</h3>
+
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Action</th>
+            <th>IP Address</th>
+            <th>Device</th>
+          </tr>
+        </thead>
+        <tbody id="activityTableBody">
+          <tr>
+            <td colspan="4" class="text-center text-muted py-4">
+              <i class="fas fa-info-circle me-2"></i>
+              Activity log feature coming soon
+            </td>
+          </tr>
+          <!-- Sample data - replace with actual activity log when available
+          <tr>
+            <td>16 Mar 2024, 10:30 AM</td>
+            <td>Login successful</td>
+            <td>192.168.1.100</td>
+            <td>Chrome / Windows</td>
+          </tr>
+          -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Permissions Note -->
+    <div class="permission-note" id="permissionNote">
+      <i class="fas fa-info-circle me-2"></i>
+      <span id="permissionText">
+        {% if session.user_type == 'super-admin' %}
+          You have full access to manage this login.
+        {% elif session.user_type == 'admin' %}
+          {% if user.user_type == 'super-admin' %}
+            You cannot edit Super Admin accounts.
+          {% elif user.user_type == 'admin' and session.user_id != user.login_id %}
+            You can only edit your own account or Employee accounts.
+          {% else %}
+            You can edit this login.
+          {% endif %}
+        {% elif session.user_type == 'employee' %}
+          {% if session.user_id == user.login_id %}
+            You can edit your own login details.
+          {% else %}
+            You can only view your own login details.
+          {% endif %}
+        {% endif %}
+      </span>
+    </div>
+  </div>
+
+  <script>
+    // Current logged in user from session
+    const currentUser = {
+      id: {{ session.get('user_id', 0) }},
+      username: '{{ session.get('username', '') }}',
+      role: '{{ session.get('user_type', '') }}',
+      name: '{{ session.get('name', '') }}'
+    };
+
+    const viewedUser = {
+      id: {{ user.login_id }},
+      type: '{{ user.user_type }}'
+    };
+
+    function toggleSubmenu(id) {
+      const submenu = document.getElementById(id);
+      submenu.classList.toggle('show');
+    }
+
+    window.onload = function() {
+      applyPermissions();
+    };
+
+    function applyPermissions() {
+      const editBtn = document.getElementById('editBtn');
+      const permissionText = document.getElementById('permissionText');
+
+      if (currentUser.role === 'super-admin') {
+        // Super admin can edit any login
+        editBtn.disabled = false;
+      }
+      else if (currentUser.role === 'admin') {
+        // Admin can edit employees and themselves
+        if (viewedUser.type === 'super-admin') {
+          editBtn.disabled = true;
+        } else if (viewedUser.type === 'admin' && viewedUser.id !== currentUser.id) {
+          editBtn.disabled = true;
+        } else {
+          editBtn.disabled = false;
+        }
+      }
+      else if (currentUser.role === 'employee') {
+        // Employee can only edit themselves
+        editBtn.disabled = viewedUser.id !== currentUser.id;
+      }
+    }
+
+    function editLogin() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+      if (id) {
+        window.location.href = "{{ url_for('add_login') }}?id=" + id;
+      }
+    }
+  </script>
+</body>
+</html>

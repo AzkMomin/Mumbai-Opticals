@@ -1,0 +1,98 @@
+/* Custom Styles for Mumbai Opticals */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,.15);
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #0066cc;
+    border-color: #0066cc;
+}
+
+.btn-primary:hover {
+    background-color: #0052a3;
+    border-color: #0052a3;
+}
+
+/* Dashboard specific */
+.stats-card {
+    border-radius: 10px;
+    transition: transform 0.3s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Sidebar navigation */
+.sidebar {
+    min-height: calc(100vh - 56px);
+    background: #343a40;
+    color: white;
+}
+
+.sidebar .nav-link {
+    color: rgba(255,255,255,.8);
+    padding: 10px 15px;
+    margin: 2px 0;
+}
+
+.sidebar .nav-link:hover {
+    color: white;
+    background: rgba(255,255,255,.1);
+}
+
+.sidebar .nav-link.active {
+    background: #0066cc;
+    color: white;
+}
+
+/* Product images */
+.product-img {
+    max-height: 200px;
+    object-fit: contain;
+    padding: 10px;
+}
+
+/* Bill styles */
+.bill-header {
+    border-bottom: 3px solid #0066cc;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.bill-total {
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        min-height: auto;
+    }
+}

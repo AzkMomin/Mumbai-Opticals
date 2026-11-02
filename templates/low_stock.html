@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Stock Products - Mumbai Opticals</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            color: #0b2f4e;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(108,117,125,0.2);
+            color: white;
+        }
+        
+        .warning-header {
+            background: #fff3cd;
+            color: #856404;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #ffc107;
+            display: flex;
+            align-items: center;
+        }
+        
+        .warning-header i {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+        
+        .stock-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+            transition: 0.3s;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .stock-card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #f8f9fc;
+        }
+        
+        .product-image-placeholder {
+            width: 80px;
+            height: 80px;
+            background: #e1e9f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 2rem;
+        }
+        
+        .stock-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .stock-critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .stock-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .progress-bar {
+            border-radius: 5px;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: 0.2s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-add-stock {
+            background: #0b2f4e;
+            color: white;
+        }
+        
+        .btn-add-stock:hover {
+            background: #1e4a6f;
+            color: white;
+        }
+        
+        .btn-view {
+            background: #e7f3ff;
+            color: #0b2f4e;
+        }
+        
+        .btn-view:hover {
+            background: #d1e5fa;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        
+        .badge-count {
+            background: #0b2f4e;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="main-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="header">
+            <h2 class="page-title">
+                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                Low Stock Products
+                <span class="badge-count">{{ products|length }}</span>
+            </h2>
+            <a href="{{ url_for('products') }}" class="back-btn">
+                <i class="fas fa-arrow-left me-2"></i>Back to Products
+            </a>
+        </div>
+        
+        <!-- Warning Header -->
+        {% if products %}
+        <div class="warning-header">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>
+                <h5 class="mb-0">These products are running low on stock!</h5>
+                <p class="mb-0">Reorder soon to avoid stockouts.</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Products List -->
+        <div class="row">
+            {% if products %}
+                {% for product in products %}
+                {% set stock_percentage = (product.quantity / product.reorder_level * 100) if product.reorder_level > 0 else 0 %}
+                {% set critical = product.quantity == 0 %}
+                <div class="col-12">
+                    <div class="stock-card">
+                        <div class="row align-items-center">
+                            <!-- Product Image -->
+                            <div class="col-md-1">
+                                {% if product.product_image %}
+                                <img src="{{ url_for('static', filename=product.product_image) }}" 
+                                     class="product-image" alt="{{ product.product_name }}">
+                                {% else %}
+                                <div class="product-image-placeholder">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product Info -->
+                            <div class="col-md-3">
+                                <h6 class="mb-1 fw-bold">{{ product.product_name or 'Unnamed Product' }}</h6>
+                                <p class="mb-0 text-muted small">
+                                    <span class="badge bg-secondary">{{ product.category_name }}</span>
+                                    <span class="badge bg-info">{{ product.type_name }}</span>
+                                </p>
+                                <p class="mb-0 text-muted small">Code: {{ product.model_code or 'N/A' }}</p>
+                            </div>
+                            
+                            <!-- Stock Info -->
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="stock-badge {% if critical %}stock-critical{% else %}stock-warning{% endif %} me-2">
+                                        <i class="fas fa-boxes me-1"></i>
+                                        Stock: {{ product.quantity }}
+                                    </span>
+                                    <span class="text-muted small">Reorder: {{ product.reorder_level }}</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar {% if critical %}bg-danger{% else %}bg-warning{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ stock_percentage }}%;" 
+                                         aria-valuenow="{{ stock_percentage }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ "%.1f"|format(stock_percentage) }}%
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    {{ product.reorder_level - product.quantity }} more needed to reach reorder level
+                                </small>
+                            </div>
+                            
+                            <!-- Price Info -->
+                            <div class="col-md-2">
+                                <p class="mb-0"><strong>₹{{ product.selling_price or '0.00' }}</strong></p>
+                                <p class="mb-0 text-muted small">Selling Price</p>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="col-md-3 text-end">
+                                <a href="{{ url_for('view_product', product_id=product.product_id) }}" 
+                                   class="action-btn btn-view me-2">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </a>
+                                <button onclick="addStock({{ product.product_id }})" 
+                                        class="action-btn btn-add-stock">
+                                    <i class="fas fa-plus me-1"></i> Add Stock
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="col-12">
+                <div class="text-center p-5">
+                    <i class="fas fa-check-circle fa-4x mb-3" style="color: #28a745;"></i>
+                    <h5>No Low Stock Products</h5>
+                    <p class="text-muted">All products have sufficient stock levels.</p>
+                    <a href="{{ url_for('products') }}" class="btn btn-primary mt-3" style="background: #0b2f4e;">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Products
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Add Stock Modal -->
+    <div class="modal fade" id="addStockModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Add Stock</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('add_stock') }}">
+                    <div class="modal-body">
+                        <input type="hidden" name="product_id" id="modalProductId">
+                        <div class="mb-3">
+                            <label class="form-label">Quantity to Add</label>
+                            <input type="number" class="form-control" name="quantity" required min="1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Purchase Price (₹)</label>
+                            <input type="number" step="0.01" class="form-control" name="purchase_price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Selling Price (₹)</label>
+                            <input type="number" step="0.01" class="form-control" name="selling_price" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Add Stock</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const addStockModal = new bootstrap.Modal(document.getElementById('addStockModal'));
+        
+        function addStock(productId) {
+            document.getElementById('modalProductId').value = productId;
+            addStockModal.show();
+        }
+    </script>
+</body>
+</html>

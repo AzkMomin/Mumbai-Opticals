@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Customer - Mumbai Opticals</title>
+  <!-- Bootstrap 5 & Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      background-color: #f8f9fc;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+    }
+
+    .view-card {
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 2.5rem;
+    }
+
+    .view-title {
+      color: #0b2f4e;
+      font-size: 2rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .customer-avatar-large {
+      width: 100px;
+      height: 100px;
+      background: #f0f5fa;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b2f4e;
+      font-size: 2.5rem;
+      font-weight: 600;
+      border: 4px solid #0b2f4e;
+      margin: 0 auto 1rem;
+    }
+
+    .info-row {
+      padding: 1rem 0;
+      border-bottom: 1px solid #e1e9f0;
+      display: flex;
+    }
+
+    .info-label {
+      color: #6c757d;
+      font-weight: 500;
+      width: 140px;
+    }
+
+    .info-value {
+      color: #0b2f4e;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .badge-active {
+      background: #d4edda;
+      color: #155724;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+
+    .badge-inactive {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+
+    .btn-back {
+      background: #0b2f4e;
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 2rem;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-back:hover {
+      background: #1e4a6f;
+      color: white;
+    }
+
+    .btn-edit {
+      background: #ffc107;
+      color: #000;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 1rem;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-edit:hover {
+      background: #e0a800;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="view-card">
+      <div class="customer-avatar-large">
+        {{ customer.name[:2]|upper }}
+      </div>
+      
+      <h2 class="view-title">{{ customer.name }}</h2>
+      
+      <div class="info-row">
+        <span class="info-label">Customer ID:</span>
+        <span class="info-value">#{{ customer.customer_id }}</span>
+      </div>
+      
+      <div class="info-row">
+        <span class="info-label">Phone:</span>
+        <span class="info-value">{{ customer.phone }}</span>
+      </div>
+      
+      <div class="info-row">
+        <span class="info-label">Email:</span>
+        <span class="info-value">{{ customer.email }}</span>
+      </div>
+      
+      <div class="info-row">
+        <span class="info-label">Created Date:</span>
+        <span class="info-value">{{ customer.created_at }}</span>
+      </div>
+      
+      <a href="{{ url_for('customers') }}" class="btn-back">
+        <i class="fas fa-arrow-left me-2"></i>Back to Customers
+      </a>
+      
+      <a href="{{ url_for('add_customer') }}?id={{ customer.customer_id }}" class="btn-edit">
+        <i class="fas fa-edit me-2"></i>Edit Customer
+      </a>
+    </div>
+  </div>
+</body>
+</html>
