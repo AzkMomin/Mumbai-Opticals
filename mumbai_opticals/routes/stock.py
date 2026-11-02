@@ -42,7 +42,7 @@ def add_stock():
 @bp.route('/products/low_stock')
 def low_stock():
     products = db.query_all("""
-        SELECT p.*, pt.type_name, pc.category_name, s.quantity, s.reorder_level, s.selling_price
+        SELECT p.*, pt.type_name, pc.category_name, s.quantity, s.reorder_level
         FROM products p
         JOIN product_types pt ON p.product_type_id = pt.type_id
         JOIN product_categories pc ON pt.category_id = pc.category_id

@@ -8,8 +8,7 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 
 from .. import db
 from ..auth import require_login
-from ..helpers import DELETE_METHODS, change_stock, payment_status_for
-from ..settings import COMPANY
+from ..helpers import DELETE_METHODS, change_stock, get_company, payment_status_for
 
 bp = Blueprint('bills', __name__)
 bp.before_request(require_login)
@@ -86,7 +85,7 @@ def bills():
 def _bill_products():
     products = db.query_all("""
         SELECT p.product_id, p.product_name, p.product_image, p.model_name, p.model_code,
-               COALESCE(s.selling_price, p.selling_price) AS selling_price,
+               p.selling_price,
                pt.type_name, pc.category_name, s.quantity
         FROM products p
         JOIN product_types pt ON p.product_type_id = pt.type_id
@@ -239,7 +238,7 @@ def generate_bill():
         INSERT INTO bills (bill_number, customer_id, bill_date, subtotal, discount, tax, total_amount,
                            payment_method, notes, status, payment_status, total_paid, balance_due,
                            prescription_details)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'ACTIVE', 'PENDING', 0, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'PENDING', 'PENDING', 0, %s, %s)
     """, (bill_number, customer_id, datetime.now().date(), subtotal, discount_total, tax_amount, total,
           request.form.get('payment_method', 'CASH'), request.form.get('notes', ''), total,
           json.dumps(prescription_rows) if prescription_rows else None))
@@ -284,7 +283,7 @@ def bill_items(bill_id):
     items = db.query_all("""
         SELECT bi.*, p.product_name, p.product_image, p.model_code, p.model_name, p.model_color, p.model_size,
                p.frame_type, p.material, p.lens_for, p.lens_type, p.which_side, p.company,
-               p.watch_type, p.watch_mechanism, p.strap_material, p.dial_color, p.brand, p.color, p.size,
+               p.watch_type, p.watch_mechanism, p.strap_material, p.dial_color,
                pt.type_name, pc.category_name
         FROM bill_items bi
         JOIN products p ON bi.product_id = p.product_id
@@ -358,7 +357,7 @@ def print_bill(bill_id):
         flash('Bill not found', 'error')
         return redirect(url_for('bills.bills'))
     return render_template('bills/print_bill.html', bill=_bill_money(bill), items=bill_items(bill_id),
-                           company=COMPANY, prescription=bill_prescription(bill))
+                           company=get_company(), prescription=bill_prescription(bill))
 
 
 @bp.route('/bills/edit/<int:bill_id>', methods=['GET', 'POST'])
@@ -387,10 +386,11 @@ def edit_bill(bill_id):
         payment_status, balance_due = payment_status_for(total, total_paid)
         db.execute("""
             UPDATE bills SET customer_id = %s, bill_date = %s, discount = %s, tax = %s, total_amount = %s,
-                   balance_due = %s, payment_status = %s, payment_method = %s, notes = %s
+                   balance_due = %s, payment_status = %s, status = IF(%s = 'PAID', 'PAID', 'PENDING'),
+                   payment_method = %s, notes = %s
             WHERE bill_id = %s
         """, (customer_id, request.form.get('bill_date') or bill['bill_date'], discount, tax, total,
-              balance_due, payment_status, request.form.get('payment_method') or bill['payment_method'],
+              balance_due, payment_status, payment_status, request.form.get('payment_method') or bill['payment_method'],
               request.form.get('notes', ''), bill_id))
         db.commit()
         flash('Bill updated successfully!', 'success')
@@ -451,7 +451,7 @@ def send_bill_whatsapp(bill_id):
 
     bill_link = url_for('portal.customer_view_bill', bill_id=bill_id, _external=True)
     message = (f"Dear Customer,\n\nYour bill has been generated. Click the link below to view your bill:\n\n"
-               f"{bill_link}\n\nThank you for shopping with {COMPANY['name']}!")
+               f"{bill_link}\n\nThank you for shopping with {get_company()['name']}!")
     phone = ''.join(ch for ch in bill['phone'] if ch.isdigit())
     return redirect(f"https://wa.me/{phone}?text={quote(message)}")
 
@@ -461,7 +461,7 @@ def search_products():
     term = f"%{request.args.get('term', '')}%"
     rows = db.query_all("""
         SELECT p.product_id, p.product_name, p.product_image, pt.type_name, pc.category_name,
-               s.quantity, COALESCE(s.selling_price, p.selling_price) AS selling_price
+               s.quantity, p.selling_price
         FROM products p
         JOIN product_types pt ON p.product_type_id = pt.type_id
         JOIN product_categories pc ON pt.category_id = pc.category_id

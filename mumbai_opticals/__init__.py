@@ -7,10 +7,10 @@ from flask import Flask, jsonify, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
 
 from . import db
-from .helpers import error_page
+from .helpers import error_page, get_company
 from .schema import ensure_schema
 from .security import check_csrf, csrf_token
-from .settings import BASE_DIR, CDN, COMPANY, MAX_UPLOAD_BYTES, STATIC_DIR, load_local_config
+from .settings import BASE_DIR, CDN, MAX_UPLOAD_BYTES, STATIC_DIR, load_local_config
 
 # Endpoints that answer with JSON (used by page scripts)
 JSON_ENDPOINTS = {
@@ -99,6 +99,6 @@ def create_app():
 
     @app.context_processor
     def template_helpers():
-        return {'now': datetime.now, 'asset': asset, 'cdn': CDN, 'csrf_token': csrf_token, 'company': COMPANY}
+        return {'now': datetime.now, 'asset': asset, 'cdn': CDN, 'csrf_token': csrf_token, 'company': get_company()}
 
     return app

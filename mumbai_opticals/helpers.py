@@ -3,11 +3,11 @@ import os
 import uuid
 from datetime import datetime
 
-from flask import current_app, render_template
+from flask import current_app, g, render_template
 from werkzeug.utils import secure_filename
 
 from . import db
-from .settings import ALLOWED_IMAGE_EXTENSIONS, PER_PAGE, STATIC_DIR
+from .settings import ALLOWED_IMAGE_EXTENSIONS, COMPANY, PER_PAGE, STATIC_DIR
 
 # Delete/cancel actions only run from a POST (a form with the CSRF token), never from a plain link
 DELETE_METHODS = ['POST']
@@ -111,3 +111,24 @@ def payment_status_for(bill_total, total_paid):
     if total_paid > 0:
         return 'PARTIALLY_PAID', balance_due
     return 'PENDING', balance_due
+
+
+# ---------------- company ----------------
+
+def get_company():
+    """Shop details for bills: the CompanyDetail table if it has a row, else settings.COMPANY."""
+    if 'company' in g:
+        return g.company
+    company = dict(COMPANY)
+    try:
+        row = db.query_one("SELECT * FROM CompanyDetail ORDER BY company_id LIMIT 1")
+    except Exception:
+        row = None
+    if row:
+        address = ', '.join(x for x in [row.get('address'), row.get('landmark')] if x)
+        company.update({k: v for k, v in {
+            'name': row.get('company_name'), 'phone': row.get('phone'), 'email': row.get('email'),
+            'gst': row.get('gst_no'), 'address': address, 'owner': row.get('owner'),
+        }.items() if v})
+    g.company = company
+    return company

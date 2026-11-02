@@ -87,7 +87,8 @@ def add_login():
 
     form = request.form
     full_name, username, password = form.get('fullName'), form.get('username'), form.get('password')
-    login_type, status, phone, gender = form.get('loginType'), form.get('status'), form.get('phone'), form.get('gender')
+    login_type, status, phone = form.get('loginType'), form.get('status'), form.get('phone')
+    gender = (form.get('gender') or '').capitalize() or None  # stored as Male / Female / Other
 
     if user['user_type'] == 'admin' and login_type == 'super-admin':
         flash("You cannot create or promote Super Admin accounts.", "error")

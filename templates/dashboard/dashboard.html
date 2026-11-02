@@ -83,12 +83,13 @@
 
       <!-- Brand Stock Table -->
       <div class="brand-stock-table">
-        <h5 class="mb-4" style="color: #0b2f4e;">Stock Overview by Brand</h5>
+        <h5 class="mb-4" style="color: #0b2f4e;">Stock Overview by Type</h5>
         <table>
           <thead>
             <tr>
-              <th>Brand</th>
+              <th>Category</th>
               <th>Type</th>
+              <th>Products</th>
               <th>Total Stock</th>
               <th>Sold ({{ periods[period] }})</th>
               <th>Status</th>
@@ -97,14 +98,15 @@
           <tbody>
             {% for row in brand_stock %}
             <tr>
-              <td>{{ row.brand }}</td>
+              <td>{{ row.category_name }}</td>
               <td>{{ row.type_name }}</td>
+              <td>{{ row.products }}</td>
               <td>{{ row.total_stock }}</td>
               <td>{{ row.sold }}</td>
-              <td>{% if row.low_items %}<span class="badge-warning">Low Stock</span>{% else %}<span class="badge-success">In Stock</span>{% endif %}</td>
+              <td>{% if row.low_items %}<span class="badge-warning">{{ row.low_items }} Low</span>{% else %}<span class="badge-success">In Stock</span>{% endif %}</td>
             </tr>
             {% else %}
-            <tr><td colspan="5" class="text-muted">No products yet.</td></tr>
+            <tr><td colspan="6" class="text-muted">No products yet.</td></tr>
             {% endfor %}
           </tbody>
         </table>

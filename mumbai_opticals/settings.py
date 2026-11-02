@@ -21,7 +21,7 @@ CDN = {
 }
 
 # Shop details shown on bills, printed bills, prescriptions and the customer bill page.
-# CHECK THESE: the address, phone and GST number must be the shop's real details.
+# Used only when the CompanyDetail table in the database is empty; fill that table in instead.
 COMPANY = {
     'name': 'Mumbai Opticals',
     'address': '123, Linking Road, Bandra West, Mumbai - 400050',
@@ -71,7 +71,6 @@ PRODUCT_DETAIL_COLUMNS = [
     'frame_type', 'material', 'model_name', 'model_code', 'model_color', 'model_size',
     'lens_type', 'which_side', 'lens_for', 'company',
     'watch_type', 'watch_mechanism', 'strap_material', 'water_resistance', 'dial_color',
-    'sku', 'brand', 'color', 'size',
 ]
 
 

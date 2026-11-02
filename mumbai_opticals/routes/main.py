@@ -103,13 +103,14 @@ def dashboard():
         row['qty'] = int(row['qty'] or 0)
 
     brand_stock = db.query_all("""
-        SELECT COALESCE(NULLIF(p.brand, ''), 'Unbranded') AS brand, pt.type_name,
+        SELECT pc.category_name, pt.type_name, COUNT(*) AS products,
                SUM(COALESCE(s.quantity, 0)) AS total_stock,
                SUM(COALESCE(s.reorder_level, 5)) AS reorder_total,
                SUM(COALESCE(s.quantity, 0) <= COALESCE(s.reorder_level, 5)) AS low_items,
                COALESCE(SUM(sold.qty), 0) AS sold
         FROM products p
         JOIN product_types pt ON pt.type_id = p.product_type_id
+        JOIN product_categories pc ON pc.category_id = pt.category_id
         LEFT JOIN stock s ON s.product_id = p.product_id
         LEFT JOIN (
             SELECT bi.product_id, SUM(bi.quantity) AS qty
@@ -117,12 +118,11 @@ def dashboard():
             WHERE b.status != 'CANCELLED' AND b.bill_date >= %s AND b.bill_date < %s
             GROUP BY bi.product_id
         ) sold ON sold.product_id = p.product_id
-        GROUP BY brand, pt.type_name
-        ORDER BY sold DESC, total_stock DESC
-        LIMIT 10
+        GROUP BY pc.category_name, pt.type_name
+        ORDER BY pc.category_name, pt.type_name
     """, (start, end))
     for row in brand_stock:
-        for key in ('total_stock', 'low_items', 'sold'):
+        for key in ('products', 'total_stock', 'low_items', 'sold'):
             row[key] = int(row[key] or 0)
 
     return render_template('dashboard/dashboard.html', stats=stats, chart=chart, top_products=top_products,

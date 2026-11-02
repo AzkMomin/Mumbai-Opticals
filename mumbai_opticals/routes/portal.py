@@ -4,7 +4,7 @@ import re
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from .. import db
-from ..settings import COMPANY
+from ..helpers import get_company
 from .bills import bill_items
 
 bp = Blueprint('portal', __name__)
@@ -46,7 +46,8 @@ def customer_view_bill(bill_id):
         return render_template('portal/customer_verify.html', bill_id=bill_id)
 
     if session.get(verified_key):
-        company = dict(COMPANY, logo=url_for('static', filename=COMPANY['logo'], _external=True))
+        company = get_company()
+        company = dict(company, logo=url_for('static', filename=company['logo'], _external=True))
         return render_template('portal/customer_bill.html', bill=bill, items=bill_items(bill_id), company=company)
 
     return render_template('portal/customer_verify.html', bill_id=bill_id)

@@ -27,8 +27,12 @@ def _update_bill_totals(bill_id):
     total_paid = db.to_float(db.query_value("SELECT COALESCE(SUM(amount), 0) FROM payments WHERE bill_id = %s",
                                             (bill_id,)))
     payment_status, balance_due = payment_status_for(bill_total, total_paid)
-    db.execute("UPDATE bills SET total_paid = %s, balance_due = %s, payment_status = %s WHERE bill_id = %s",
-               (total_paid, balance_due, payment_status, bill_id))
+    # bills.status is PAID / PENDING / CANCELLED; keep it in step unless the bill is cancelled
+    db.execute("""
+        UPDATE bills SET total_paid = %s, balance_due = %s, payment_status = %s,
+               status = IF(status = 'CANCELLED', status, IF(%s = 'PAID', 'PAID', 'PENDING'))
+        WHERE bill_id = %s
+    """, (total_paid, balance_due, payment_status, payment_status, bill_id))
 
 
 @bp.route('/bills/receive_payment/<int:bill_id>', methods=['GET', 'POST'])

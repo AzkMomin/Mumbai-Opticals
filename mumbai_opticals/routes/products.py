@@ -12,8 +12,7 @@ bp.before_request(require_login)
 
 PRODUCT_SELECT = """
     SELECT p.*, pt.type_name, pc.category_name,
-           COALESCE(s.quantity, 0) AS quantity, s.purchase_price AS stock_purchase_price,
-           s.selling_price AS stock_selling_price, s.reorder_level
+           COALESCE(s.quantity, 0) AS quantity, s.reorder_level
     FROM products p
     JOIN product_types pt ON p.product_type_id = pt.type_id
     JOIN product_categories pc ON pt.category_id = pc.category_id
@@ -22,12 +21,6 @@ PRODUCT_SELECT = """
 
 
 def _with_prices(product):
-    """Stock prices win over the product's own prices when set (matches the old pages)."""
-    if product:
-        for key in ('purchase_price', 'selling_price'):
-            stock_value = product.pop(f'stock_{key}', None)
-            if stock_value is not None:
-                product[key] = stock_value
     return product
 
 
@@ -109,18 +102,17 @@ def add_product():
         return redirect(url_for('products.add_product'))
 
     columns = ['product_type_id', 'product_name', 'product_image', 'product_description',
-               'selling_price', 'purchase_price'] + PRODUCT_DETAIL_COLUMNS + ['warranty']
+               'selling_price', 'purchase_price'] + PRODUCT_DETAIL_COLUMNS
     values = [product_type['type_id'], product_name, product_image, request.form.get('product_description', ''),
               selling_price, purchase_price] + \
-             [request.form.get(c, '') for c in PRODUCT_DETAIL_COLUMNS] + [request.form.get('warranty', '')]
+             [request.form.get(c, '') for c in PRODUCT_DETAIL_COLUMNS]
     product_id = db.execute(
         f"INSERT INTO products ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(columns))})", values)
 
     # Stock starts at 0; it is added from the "Add Stock" page
     db.execute("""
-        INSERT INTO stock (product_id, quantity, purchase_price, selling_price, reorder_level)
-        VALUES (%s, 0, %s, %s, %s)
-    """, (product_id, purchase_price, selling_price, request.form.get('reorder_level') or 5))
+        INSERT INTO stock (product_id, quantity, reorder_level) VALUES (%s, 0, %s)
+    """, (product_id, request.form.get('reorder_level') or 5))
     db.commit()
 
     flash('Product added successfully! Stock can be added later from the "Add Stock" section.', 'success')
@@ -207,7 +199,7 @@ def edit_product(product_id):
         return back
     product_image = product_image or product.get('product_image') or ''
 
-    detail_columns = PRODUCT_DETAIL_COLUMNS + ['warranty']
+    detail_columns = PRODUCT_DETAIL_COLUMNS
     sets = ', '.join(f"{c} = %s" for c in ['product_name', 'product_image', 'product_description',
                                             'selling_price', 'purchase_price'] + detail_columns)
     values = [product_name, product_image, request.form.get('product_description', ''), selling_price,
@@ -215,9 +207,7 @@ def edit_product(product_id):
     db.execute(f"UPDATE products SET {sets} WHERE product_id = %s", values + [product_id])
 
     # Quantity is changed through stock transactions so the history stays correct
-    db.execute("""
-        UPDATE stock SET purchase_price = %s, selling_price = %s, reorder_level = %s WHERE product_id = %s
-    """, (purchase_price, selling_price, reorder_level, product_id))
+    db.execute("UPDATE stock SET reorder_level = %s WHERE product_id = %s", (reorder_level, product_id))
     db.commit()
     flash('Product updated successfully!', 'success')
     return redirect(url_for('products.view_product', product_id=product_id))
