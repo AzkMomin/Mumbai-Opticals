@@ -8,3 +8,4 @@ venv/
 *.sqlite3
 *.log
 static/uploads/
+.secret_key

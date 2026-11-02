@@ -11,7 +11,7 @@ import re
 import base64
 import uuid
 import pytz
-from werkzeug.security import generate_password_hash # type: ignore
+from werkzeug.security import generate_password_hash, check_password_hash # type: ignore
 import mysql.connector
 from collections import defaultdict
 from decimal import Decimal
@@ -35,7 +35,31 @@ app.config['MYSQL_HOST'] = HOST
 app.config['MYSQL_USER'] = USER
 app.config['MYSQL_PASSWORD'] = PASSWORD
 app.config['MYSQL_DB'] = DB
-app.secret_key = secrets.token_hex(32)
+# Keep the session key stable across reloads so staff aren't logged out on every
+# restart/deploy. Uses SECRET_KEY from config.py if set, otherwise a key file
+# created once next to this file (ignored by git).
+def _load_secret_key():
+    try:
+        from config import SECRET_KEY
+        if SECRET_KEY:
+            return SECRET_KEY
+    except ImportError:
+        pass
+    key_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.secret_key')
+    try:
+        with open(key_file) as f:
+            key = f.read().strip()
+            if key:
+                return key
+    except FileNotFoundError:
+        pass
+    key = secrets.token_hex(32)
+    with open(key_file, 'w') as f:
+        f.write(key)
+    os.chmod(key_file, 0o600)
+    return key
+
+app.secret_key = _load_secret_key()
 
 # File upload config
 app.config['UPLOAD_FOLDER'] = 'static/uploads/products'
@@ -121,43 +145,75 @@ def after_request(response):
 
 #=================================================================================================
 
-def update_stock_transaction(product_id, transaction_type, quantity, reference_id, reference_type, notes=''):
-    """Helper function to record stock transactions"""
-    try:
-        cursor = mysql.connection.cursor()
+def error_page(e, status=500):
+    """Log the real error for the server log, show staff a generic message."""
+    app.logger.exception("Request failed: %s", e)
+    return render_template('error.html',
+                           error="Something went wrong. Please try again, or contact the administrator if it keeps happening."), status
 
-        # Get current stock
-        cursor.execute("SELECT quantity FROM stock WHERE product_id = %s", (product_id,))
-        stock = cursor.fetchone()
 
-        if stock:
-            previous_quantity = stock['quantity']
+def change_stock(cursor, product_id, transaction_type, quantity, reference_id, reference_type, notes=''):
+    """Change a product's stock and record the movement in stock_transactions.
 
-            if transaction_type == 'SALE':
-                new_quantity = previous_quantity - quantity
-            elif transaction_type in ['PURCHASE', 'RETURN']:
-                new_quantity = previous_quantity + quantity
-            else:  # ADJUSTMENT
-                new_quantity = quantity  # quantity here is the new quantity
+    SALE subtracts, PURCHASE/RETURN add. Uses the caller's cursor so it is part of
+    the caller's database transaction (commit/rollback together). `notes` may contain
+    {previous} and {new} placeholders.
+    """
+    cursor.execute("SELECT quantity FROM stock WHERE product_id = %s FOR UPDATE", (product_id,))
+    row = cursor.fetchone()
+    previous_quantity = (row['quantity'] if isinstance(row, dict) else row[0]) if row else 0
+    if transaction_type == 'SALE':
+        new_quantity = previous_quantity - quantity
+    else:
+        new_quantity = previous_quantity + quantity
+    cursor.execute("UPDATE stock SET quantity = %s WHERE product_id = %s", (new_quantity, product_id))
+    notes = notes.replace('{previous}', str(previous_quantity)).replace('{new}', str(new_quantity))
+    cursor.execute("""
+        INSERT INTO stock_transactions
+        (product_id, transaction_type, quantity, previous_quantity, new_quantity, reference_id, reference_type, notes)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, (product_id, transaction_type, quantity, previous_quantity, new_quantity, reference_id, reference_type, notes))
+    return previous_quantity, new_quantity
 
-            # Update stock
-            cursor.execute("""
-                UPDATE stock SET quantity = %s
-                WHERE product_id = %s
-            """, (new_quantity, product_id))
 
-            # Record transaction
-            cursor.execute("""
-                INSERT INTO stock_transactions
-                (product_id, transaction_type, quantity, previous_quantity, new_quantity, reference_id, reference_type, notes)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (product_id, transaction_type, quantity, previous_quantity, new_quantity, reference_id, reference_type, notes))
+PASSWORD_HASH_METHOD = 'pbkdf2:sha256'
+_password_column_length = None
 
-            mysql.connection.commit()
 
-        cursor.close()
-    except Exception as e:
-        print(f"Error in update_stock_transaction: {str(e)}")
+def is_password_hash(value):
+    return bool(value) and value.startswith(('pbkdf2:', 'scrypt:'))
+
+
+def hash_password(password):
+    return generate_password_hash(password, method=PASSWORD_HASH_METHOD)
+
+
+def password_column_fits_hash(cursor):
+    """True if users.password can hold a hash (checked once per process)."""
+    global _password_column_length
+    if _password_column_length is None:
+        cursor.execute("""
+            SELECT CHARACTER_MAXIMUM_LENGTH AS len FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'password'
+        """)
+        row = cursor.fetchone()
+        length = (row['len'] if isinstance(row, dict) else row[0]) if row else None
+        _password_column_length = length or 0
+    return _password_column_length >= 120
+
+
+def verify_password(stored, given):
+    if not stored or not given:
+        return False
+    if is_password_hash(stored):
+        return check_password_hash(stored, given)
+    # Old plain-text password (upgraded to a hash after a successful login)
+    return secrets.compare_digest(str(stored).encode(), str(given).encode())
+
+
+def password_for_storage(cursor, password):
+    """Hash the password if the column is wide enough, else keep it as-is."""
+    return hash_password(password) if password_column_fits_hash(cursor) else password
 
 #=================================================================================================
 
@@ -180,18 +236,22 @@ def login():
     return render_template('login.html')
 
 @app.route('/login/dashboard')
+@login_required
 def dashboard():
     return render_template('dashboard.html')
 
 @app.route('/login/view_login')
+@login_required
 def view_login():
     return render_template('view_login.html')
 
 @app.route('/login/add_list')
+@login_required
 def add_list():
     return render_template('add_list.html')
 
 @app.route('/login/all_list')
+@login_required
 def all_list():
     return render_template('all_list.html')
 #=================================================================================================
@@ -227,22 +287,27 @@ def user_login():
             conn = get_db()
             cursor = conn.cursor(dictionary=True)
 
-            query = "SELECT * FROM users WHERE username = %s AND password = %s"
-            cursor.execute(query, (email, password))
-
-            # Fetch user record
+            cursor.execute("SELECT * FROM users WHERE username = %s", (email,))
             user = cursor.fetchone()
 
-            # Close database connection
+            if user and not verify_password(user['password'], password):
+                user = None
+
+            if user and str(user.get('status') or '').lower() == 'inactive':
+                cursor.close()
+                conn.close()
+                return render_template('login.html', error="This account is inactive. Please contact the administrator.")
+
+            # Upgrade an old plain-text password to a secure hash
+            if user and not is_password_hash(user['password']) and password_column_fits_hash(cursor):
+                cursor.execute("UPDATE users SET password = %s WHERE login_id = %s",
+                               (hash_password(password), user['login_id']))
+                conn.commit()
+
             cursor.close()
             conn.close()
 
             if user:
-                print("="*50)
-                print("USER FOUND IN DATABASE:")
-                print(user)  # Print the entire user record
-                print("="*50)
-
                 # Get user details from database
                 login_id = user['login_id']
                 username = user.get('username', email)
@@ -257,12 +322,6 @@ def user_login():
                 # Force session to save
                 session.modified = True
 
-                print("SESSION SET:")
-                print(f"user_id: {session.get('user_id')}")
-                print(f"user_type: {session.get('user_type')}")
-                print(f"username: {session.get('username')}")
-                print("="*50)
-
                 # Set role-specific session variables and redirect
                 if user_type == 'super-admin' or user_type == 'admin':
                     session['admin_id'] = login_id
@@ -273,19 +332,12 @@ def user_login():
                     return render_template('login.html', error=error)
 
             else:
-                print("No user found with these credentials")
                 error = "Invalid email or password. Please try again."
                 return render_template('login.html', error=error)
 
-        except mysql.connector.Error as err:
-            print(f"Database Error: {err}")
-            error = "A database error occurred. Please try again later."
-            return render_template('login.html', error=str(err))
-
         except Exception as e:
-            print(f"Unexpected Error: {e}")
-            error = "An unexpected error occurred. Please try again."
-            return render_template('login.html', error=str(e))
+            app.logger.exception("Login failed: %s", e)
+            return render_template('login.html', error="A server error occurred. Please try again later.")
 
     # GET request - show the login page
     return render_template('login.html')
@@ -367,7 +419,6 @@ def manage_logins():
                 user_type,
                 username,
                 name,
-                password,
                 gender,
                 mobile_no,
                 status,
@@ -460,14 +511,9 @@ def manage_logins():
                               current_filter=filter_type,
                               current_search=search_name)
 
-    except mysql.connector.Error as err:
-        print(f"Database Error: {err}")
-        flash("Error loading users. Please try again.", "error")
-        return redirect(url_for('dashboard'))
-
     except Exception as e:
-        print(f"Unexpected Error: {e}")
-        flash("An unexpected error occurred.", "error")
+        app.logger.exception("Error loading users: %s", e)
+        flash("Error loading users. Please try again.", "error")
         return redirect(url_for('dashboard'))
 
 #-------------------------------------------------------#
@@ -566,9 +612,9 @@ def add_login():
                     update_fields.append("username = %s")
                     update_values.append(username)
 
-                if password and password != user_data['password']:  # Only update if password is changed
+                if password and not verify_password(user_data['password'], password):  # Only update if password is changed
                     update_fields.append("password = %s")
-                    update_values.append(password)
+                    update_values.append(password_for_storage(cursor, password))
 
                 if login_type and login_type != user_data['user_type']:
                     update_fields.append("user_type = %s")
@@ -623,7 +669,7 @@ def add_login():
                     INSERT INTO users
                     (user_type, username, name, password, gender, mobile_no, status, created_at)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
-                ''', (login_type, username, full_name, password, gender, phone, status))
+                ''', (login_type, username, full_name, password_for_storage(cursor, password), gender, phone, status))
                 conn.commit()
                 flash("New login added successfully!", "success")
                 cursor.close()
@@ -639,7 +685,7 @@ def add_login():
                              current_user=current_user)
 
     except Exception as e:
-        return render_template('add_login.html',error = e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Add Login End
@@ -692,7 +738,9 @@ def delete_login():
         flash(f"Login deleted successfully.", "success")
         return redirect(url_for('manage_logins'))
 
-    except mysql.connector.Error as err:
+    except Exception as e:
+        app.logger.exception("Delete login failed: %s", e)
+        flash("Could not delete the login. Please try again.", "error")
         return redirect(url_for('manage_logins'))
 
 #-------------------------------------------------------#
@@ -795,9 +843,7 @@ def customers():
                              current_search=search)
 
     except Exception as e:
-        print(f"Error in customers: {str(e)}")
-        flash(f"An error occurred: {str(e)}", "error")
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # List Customer End
@@ -955,7 +1001,7 @@ def add_customer():
                              current_user=current_user)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Add Customer End
@@ -990,7 +1036,7 @@ def delete_customer():
         return redirect(url_for('customers'))
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Delete Customer End
@@ -1000,6 +1046,7 @@ def delete_customer():
                  # View Customer
 #-------------------------------------------------------#
 @app.route('/customers/view')
+@login_required
 def view_customer():
     try:
         customer_id = request.args.get('id', type=int)
@@ -1034,7 +1081,7 @@ def view_customer():
         return render_template('view_customer.html', customer=customer)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 #-------------------------------------------------------#
                  # View Customer End
 #-------------------------------------------------------#
@@ -1044,6 +1091,7 @@ def view_customer():
 #-------------------------------------------------------#
 
 @app.route('/search_customers')
+@login_required
 def search_customers():
     try:
         search_term = request.args.get('term', '')
@@ -1068,7 +1116,7 @@ def search_customers():
         return jsonify(customers)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Search Customers End
@@ -1177,8 +1225,7 @@ def products():
                              current_search=search_query)
 
     except Exception as e:
-        print(f"Error in products: {str(e)}")
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Products List End
@@ -1324,7 +1371,7 @@ def add_product():
         return render_template('add_product.html', product_types=product_types)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Add Product End
@@ -1335,6 +1382,7 @@ def add_product():
 #-------------------------------------------------------#
 
 @app.route('/get_product_fields/<int:type_id>')
+@login_required
 def get_product_fields(type_id):
     try:
         conn = get_db()
@@ -1408,7 +1456,7 @@ def get_product_fields(type_id):
         })
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Get Product Fields End
@@ -1461,7 +1509,7 @@ def view_product(product_id):
         return render_template('view_product.html', product=product, transactions=transactions)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # View Product End
@@ -1585,7 +1633,7 @@ def edit_product(product_id):
         return render_template('edit_product.html', product=product)
 
     except Exception as e:
-        return render_template('error.html',error = e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Edit Product End
@@ -1620,7 +1668,7 @@ def delete_product(product_id):
         conn.close()
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
     return redirect(url_for('products'))
 
@@ -1647,28 +1695,14 @@ def add_stock():
             product_id = request.form['product_id']
             quantity = int(request.form['quantity'])
 
-            # Get current stock quantity
+            if quantity <= 0:
+                flash('Quantity must be greater than 0.', 'error')
+                return redirect(url_for('add_stock'))
+
             cursor.execute("SELECT quantity FROM stock WHERE product_id = %s", (product_id,))
-            stock = cursor.fetchone()
-
-            if stock:
-                previous_quantity = stock['quantity']
-                new_quantity = previous_quantity + quantity
-
-                # Update stock quantity only
-                cursor.execute("""
-                    UPDATE stock SET quantity = %s WHERE product_id = %s
-                """, (new_quantity, product_id))
-
-                # Record transaction
-                update_stock_transaction(
-                    product_id,
-                    'PURCHASE',
-                    quantity,
-                    product_id,
-                    'MANUAL_STOCK',
-                    f'Added {quantity} units. Previous: {previous_quantity}, New: {new_quantity}'
-                )
+            if cursor.fetchone():
+                change_stock(cursor, product_id, 'PURCHASE', quantity, product_id, 'MANUAL_STOCK',
+                             f'Added {quantity} units. Previous: {{previous}}, New: {{new}}')
 
             conn.commit()
             flash('Stock updated successfully!', 'success')
@@ -1693,8 +1727,8 @@ def add_stock():
         return render_template('add_stock.html', products=products)
 
     except Exception as e:
-        print(f"Error in add_stock: {str(e)}")
-        flash(f'Error adding stock: {str(e)}', 'error')
+        app.logger.exception("Error in add_stock: %s", e)
+        flash('Error adding stock. Please try again.', 'error')
         return redirect(url_for('products'))
 
 #-------------------------------------------------------#
@@ -1735,7 +1769,7 @@ def low_stock():
         return render_template('low_stock.html', products=low_stock_products)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Low Stock End
@@ -1803,8 +1837,8 @@ def stock_transactions():
                              current_filter=filter_type)
 
     except Exception as e:
-        print(f"Error in stock_transactions: {str(e)}")
-        flash(f"An error occurred: {str(e)}", "error")
+        app.logger.exception("Error in stock_transactions: %s", e)
+        flash("Could not load stock transactions. Please try again.", "error")
         return redirect(url_for('products'))
 
 #-------------------------------------------------------#
@@ -1843,7 +1877,8 @@ def get_stock_transaction(transaction_id):
         return jsonify(transaction)
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        app.logger.exception("get_stock_transaction failed: %s", e)
+        return jsonify({'error': 'Server error'}), 500
 
 #-------------------------------------------------------#
                  # Get Stock Transaction End
@@ -1947,8 +1982,8 @@ def edit_stock_transaction():
         return redirect(url_for('stock_transactions'))
 
     except Exception as e:
-        print(f"Error in edit_stock_transaction: {str(e)}")
-        flash(f'Error updating transaction: {str(e)}', 'error')
+        app.logger.exception("Error in edit_stock_transaction: %s", e)
+        flash('Error updating transaction. Please try again.', 'error')
         return redirect(url_for('stock_transactions'))
 
 #-------------------------------------------------------#
@@ -2009,8 +2044,8 @@ def delete_stock_transaction(transaction_id):
         return redirect(url_for('stock_transactions'))
 
     except Exception as e:
-        print(f"Error in delete_stock_transaction: {str(e)}")
-        flash(f'Error deleting transaction: {str(e)}', 'error')
+        app.logger.exception("Error in delete_stock_transaction: %s", e)
+        flash('Error deleting transaction. Please try again.', 'error')
         return redirect(url_for('stock_transactions'))
 
 #-------------------------------------------------------#
@@ -2046,7 +2081,6 @@ def bills():
         date_from = request.args.get('date_from', '')
         date_to = request.args.get('date_to', '')
         search = request.args.get('search', '')
-        is_ajax = request.args.get('ajax', '0') == '1'
 
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
@@ -2170,15 +2204,6 @@ def bills():
             'cancelled': int(tab_counts['cancelled']) if tab_counts['cancelled'] else 0
         }
 
-        # If AJAX request, return JSON for real-time filtering
-        if is_ajax:
-            html = render_template('bills_partial.html', bills=bills)
-            return jsonify({
-                'html': html,
-                'summary': summary,
-                'filter_counts': filter_counts
-            })
-
         return render_template('bills.html',
                              bills=bills,
                              summary=summary,
@@ -2189,7 +2214,7 @@ def bills():
                              current_search=search)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 #-------------------------------------------------------#
                  # Bills List End
 #-------------------------------------------------------#
@@ -2312,21 +2337,9 @@ def generate_bill():
                     total_price
                 ))
 
-                # Update stock
-                update_stock_transaction(
-                    product_id,
-                    'SALE',
-                    quantity,
-                    bill_id,
-                    'BILL',
-                    f'Sold {quantity} units in bill {bill_number}'
-                )
-
-                cursor.execute("""
-                    UPDATE stock
-                    SET quantity = quantity - %s
-                    WHERE product_id = %s
-                """, (quantity, product_id))
+                # Update stock and record the sale
+                change_stock(cursor, product_id, 'SALE', quantity, bill_id, 'BILL',
+                             f'Sold {quantity} units in bill {bill_number}')
 
             conn.commit()
 
@@ -2374,7 +2387,7 @@ def generate_bill():
         return render_template('generate_bill.html', products=products)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Generate Bill Ends
@@ -2488,7 +2501,7 @@ def receive_payment(bill_id):
         return render_template('receive_payment.html', bill=bill)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 #-------------------------------------------------------#
                  # Receive Payment Ends
 #-------------------------------------------------------#
@@ -2530,7 +2543,7 @@ def view_payment(payment_id):
         return render_template('view_payment.html', payment=payment)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # View Payment Ends
@@ -2552,7 +2565,6 @@ def payments():
         date_from = request.args.get('date_from', '')
         date_to = request.args.get('date_to', '')
         search = request.args.get('search', '')
-        is_ajax = request.args.get('ajax', '0') == '1'
 
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
@@ -2630,13 +2642,6 @@ def payments():
         cursor.close()
         conn.close()
 
-        if is_ajax:
-            html = render_template('payments_partial.html', payments=payments)
-            return jsonify({
-                'html': html,
-                'summary': summary
-            })
-
         return render_template('payments.html',
                              payments=payments,
                              summary=summary,
@@ -2645,7 +2650,7 @@ def payments():
                              current_search=search)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Payments List
@@ -2759,7 +2764,7 @@ def edit_payment(payment_id):
         return render_template('edit_payment.html', payment=payment)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Edit Payment Ends
@@ -2837,9 +2842,7 @@ def delete_payment(payment_id):
         return redirect(url_for('payments'))
 
     except Exception as e:
-        print(f"Error in delete_payment: {str(e)}")
-        flash(f'Error deleting payment: {str(e)}', 'error')
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Delete Payment Ends
@@ -2850,6 +2853,7 @@ def delete_payment(payment_id):
 #-------------------------------------------------------#
 
 @app.route('/bills/send_whatsapp/<int:bill_id>')
+@login_required
 def send_bill_whatsapp(bill_id):
     try:
         conn = get_db()
@@ -2882,7 +2886,7 @@ def send_bill_whatsapp(bill_id):
         return redirect(whatsapp_url)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Send Bill via WhatsApp Ends
@@ -2952,7 +2956,7 @@ def customer_view_bill(bill_id):
                 'phone': '+91 98765 43210',
                 'email': 'info@mumbaiopticals.com',
                 'gst': '27AAECM1234F1Z9',
-                'logo': url_for('static', filename='images/logo.png', _external=True)
+                'logo': url_for('static', filename='Images/Logo/Logo.png', _external=True)
             }
 
             return render_template('customer_bill.html', bill=bill, items=items, company=company)
@@ -2964,7 +2968,7 @@ def customer_view_bill(bill_id):
         return render_template('customer_verify.html', bill_id=bill_id)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 #-------------------------------------------------------#
        # Customer View Bill (with Phone Verification) End
 #-------------------------------------------------------#
@@ -3024,7 +3028,7 @@ def print_bill(bill_id):
         return render_template('print_bill.html', bill=bill, items=items, company=company)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Print Bill End
@@ -3035,6 +3039,7 @@ def print_bill(bill_id):
 #-------------------------------------------------------#
 
 @app.route('/search_products')
+@login_required
 def search_products():
     try:
         search_term = request.args.get('term', '')
@@ -3057,7 +3062,7 @@ def search_products():
         conn.close()
         return jsonify(products)
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Search Products for Bill End
@@ -3141,7 +3146,7 @@ def view_bill(bill_id):
         return render_template('view_bill.html', bill=bill, items=items, payments=payments)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # View Bill End
@@ -3229,7 +3234,7 @@ def edit_bill(bill_id):
         return render_template('edit_bill.html', bill=bill, items=items, products=products)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Edit Bill End
@@ -3250,27 +3255,20 @@ def delete_bill(bill_id):
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
 
-        # First, restore stock for items in this bill
-        cursor.execute("SELECT product_id, quantity FROM bill_items WHERE bill_id = %s", (bill_id,))
-        items = cursor.fetchall()
+        cursor.execute("SELECT status FROM bills WHERE bill_id = %s", (bill_id,))
+        bill = cursor.fetchone()
+        if not bill:
+            cursor.close()
+            conn.close()
+            flash('Bill not found', 'error')
+            return redirect(url_for('bills'))
 
-        for item in items:
-            # Record stock return transaction
-            update_stock_transaction(
-                item['product_id'],
-                'RETURN',
-                item['quantity'],
-                bill_id,
-                'BILL_DELETED',
-                f'Stock restored from deleted bill #{bill_id}'
-            )
-
-            # Update stock quantity
-            cursor.execute("""
-                UPDATE stock
-                SET quantity = quantity + %s
-                WHERE product_id = %s
-            """, (item['quantity'], item['product_id']))
+        # Restore stock for items in this bill (a cancelled bill already had its stock restored)
+        if bill['status'] != 'CANCELLED':
+            cursor.execute("SELECT product_id, quantity FROM bill_items WHERE bill_id = %s", (bill_id,))
+            for item in cursor.fetchall():
+                change_stock(cursor, item['product_id'], 'RETURN', item['quantity'], bill_id,
+                             'BILL_DELETED', f'Stock restored from deleted bill #{bill_id}')
 
         # Delete bill (cascade will delete bill_items)
         cursor.execute("DELETE FROM bills WHERE bill_id = %s", (bill_id,))
@@ -3282,7 +3280,7 @@ def delete_bill(bill_id):
         flash('Bill deleted successfully and stock restored!', 'success')
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
     return redirect(url_for('bills'))
 
@@ -3305,28 +3303,27 @@ def cancel_bill(bill_id):
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
 
+        cursor.execute("SELECT status FROM bills WHERE bill_id = %s", (bill_id,))
+        bill = cursor.fetchone()
+        if not bill:
+            cursor.close()
+            conn.close()
+            flash('Bill not found', 'error')
+            return redirect(url_for('bills'))
+        if bill['status'] == 'CANCELLED':
+            cursor.close()
+            conn.close()
+            flash('This bill is already cancelled.', 'warning')
+            return redirect(url_for('view_bill', bill_id=bill_id))
+
         # Update bill status
         cursor.execute("UPDATE bills SET status = 'CANCELLED' WHERE bill_id = %s", (bill_id,))
 
         # Restore stock
         cursor.execute("SELECT product_id, quantity FROM bill_items WHERE bill_id = %s", (bill_id,))
-        items = cursor.fetchall()
-
-        for item in items:
-            update_stock_transaction(
-                item['product_id'],
-                'RETURN',
-                item['quantity'],
-                bill_id,
-                'BILL_CANCELLED',
-                f'Stock restored from cancelled bill #{bill_id}'
-            )
-
-            cursor.execute("""
-                UPDATE stock
-                SET quantity = quantity + %s
-                WHERE product_id = %s
-            """, (item['quantity'], item['product_id']))
+        for item in cursor.fetchall():
+            change_stock(cursor, item['product_id'], 'RETURN', item['quantity'], bill_id,
+                         'BILL_CANCELLED', f'Stock restored from cancelled bill #{bill_id}')
 
         conn.commit()
         cursor.close()
@@ -3335,7 +3332,7 @@ def cancel_bill(bill_id):
         flash('Bill cancelled successfully and stock restored!', 'success')
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
     return redirect(url_for('view_bill', bill_id=bill_id))
 
@@ -3383,58 +3380,8 @@ def prescriptions_list():
         return render_template('prescriptions_list.html', prescriptions=prescriptions)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
-
-@app.route('/debug_prescription_images')
-def debug_prescription_images():
-    try:
-        if 'user_id' not in session:
-            return jsonify({'error': 'Not logged in'}), 401
-
-        conn = get_db()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("""
-            SELECT prescription_id, photo_path
-            FROM prescriptions
-            WHERE photo_path IS NOT NULL AND photo_path != ''
-        """)
-        prescriptions = cursor.fetchall()
-        cursor.close()
-        conn.close()
-
-        result = []
-        base_dir = os.path.join(app.root_path, 'static')
-
-        for pres in prescriptions:
-            # Full path where file should be
-            full_path = os.path.join(base_dir, pres['photo_path'])
-            exists = os.path.exists(full_path)
-
-            # Get file info
-            file_info = {
-                'id': pres['prescription_id'],
-                'db_path': pres['photo_path'],
-                'full_path': full_path,
-                'exists': exists,
-                'url': url_for('static', filename=pres['photo_path']) if exists else None
-            }
-
-            if exists:
-                file_info['size'] = os.path.getsize(full_path)
-                file_info['permissions'] = oct(os.stat(full_path).st_mode)[-3:]
-
-            result.append(file_info)
-
-        return jsonify({
-            'base_directory': base_dir,
-            'base_dir_exists': os.path.exists(base_dir),
-            'prescriptions': result
-        })
-
-    except Exception as e:
-        return render_template('error.html', error=e)
 
 #-------------------------------------------------------#
                  # Prescriptions List End
@@ -3458,8 +3405,11 @@ def add_prescription():
 
             # Handle file upload
             photo_path = ''
-            if 'photo' in request.files:
-                photo = request.files['photo']
+            photo = request.files.get('photo')
+            if photo and photo.filename:
+                if not allowed_file(photo.filename):
+                    flash('Prescription photo must be a PNG, JPG or GIF image.', 'error')
+                    return redirect(url_for('add_prescription'))
                 filename = secure_filename(photo.filename)
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                 new_filename = f"pres_{timestamp}_{filename}"
@@ -3508,7 +3458,7 @@ def add_prescription():
         return render_template('add_prescription.html')
 
     except Exception as e:
-        return render_template('error.html', error = e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Add Prescription End
@@ -3547,7 +3497,7 @@ def view_prescription(prescription_id):
         return render_template('view_prescription.html', prescription=prescription)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # View Prescription End
@@ -3586,7 +3536,7 @@ def print_prescription(prescription_id):
         return render_template('print_prescription.html', prescription=prescription)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Print Prescription End
@@ -3616,7 +3566,7 @@ def delete_prescription(prescription_id):
         flash('Prescription deleted successfully!', 'success')
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
     return redirect(url_for('prescriptions_list'))
 
@@ -3648,7 +3598,7 @@ def edit_prescription(prescription_id):
                     filename = secure_filename(photo.filename)
                     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                     new_filename = f"pres_{timestamp}_{filename}"
-                    photo.save(os.path.join('static/uploads/prescriptions', new_filename))
+                    photo.save(os.path.join(app.root_path, 'static', 'uploads', 'prescriptions', new_filename))
                     photo_path = f"uploads/prescriptions/{new_filename}"
 
             query = """
@@ -3706,7 +3656,7 @@ def edit_prescription(prescription_id):
                              prescription=prescription)
 
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Edit Prescription End
@@ -3717,16 +3667,15 @@ def edit_prescription(prescription_id):
 #-------------------------------------------------------#
 
 @app.route('/get_customer_prescriptions')
+@login_required
 def get_customer_prescriptions():
     try:
         customer_id = request.args.get('customer_id', type=int)
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("""
-            SELECT prescription_id, prescription_date,
-                   right_sph, right_cyl, right_axis, right_add, right_vision,
-                   left_sph, left_cyl, left_axis, left_add, left_vision,
-                   pupillary_distance
+            SELECT prescription_id, DATE_FORMAT(prescription_date, '%Y-%m-%d') AS prescription_date,
+                   eye, splt, cvl, axis, add_value, vision, pupillary_distance
             FROM prescriptions
             WHERE customer_id = %s
             ORDER BY prescription_date DESC
@@ -3736,7 +3685,7 @@ def get_customer_prescriptions():
         conn.close()
         return jsonify(prescriptions)
     except Exception as e:
-        return render_template('error.html', error=e)
+        return error_page(e)
 
 #-------------------------------------------------------#
                  # Get Prescription End
