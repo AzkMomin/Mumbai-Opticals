@@ -8,7 +8,8 @@
     <a href="{{ url_for('main.dashboard') }}" class="mobile-topbar__logo">
         <img src="{{ url_for('static', filename='Images/Logo/Logo.png') }}" alt="Mumbai Opticals">
     </a>
-    <span class="mobile-topbar__user" title="{{ session.get('username', 'User') }}">{{ session.get('username', 'U')[:2].upper() if session.get('username') else 'U' }}</span>
+    {% set display_name = session.get('name') or session.get('username') or 'User' %}
+    <span class="mobile-topbar__user" title="{{ display_name }}">{{ (display_name.split()|map('first')|join('')|upper)[:2] }}</span>
 </header>
 <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
 
@@ -20,11 +21,8 @@
     </div>
     <div class="user-info">
         <div class="user-details">
-            <div class="user-avatar">
-                {{ session.get('username', 'U')[:2].upper() if session.get('username') else 'U' }}
-            </div>
             <div class="user-text">
-                <div class="user-name">{{ session.get('username', 'User') }}</div>
+                <div class="user-name">{{ session.get('name') or session.get('username', 'User') }}</div>
                 <div class="user-role">
                     <span class="user-role-badge">
                         <i class="fas fa-user-tag me-1"></i>
