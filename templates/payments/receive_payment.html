@@ -67,10 +67,12 @@
                         <label class="form-label fw-bold">Payment Amount <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text">₹</span>
-                            <input type="number" step="0.01" class="form-control" name="amount" 
-                                   id="amount" required min="0.01" max="{{ bill.balance_due }}">
+                            <input type="number" step="0.01" min="0.01" class="form-control" name="amount" id="amount"
+                                   inputmode="decimal" required autocomplete="off"
+                                   value="{{ "%.2f"|format(bill.balance_due) }}"
+                                   data-max-amount="{{ "%.2f"|format(bill.balance_due) }}" data-limit-label="the remaining amount on this bill">
                         </div>
-                        <small class="text-muted">Maximum: ₹{{ "%.2f"|format(bill.balance_due) }}</small>
+                        <small class="text-muted">Remaining on this bill: ₹{{ "%.2f"|format(bill.balance_due) }}. Change it for a part payment.</small>
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -120,6 +122,7 @@
 {% endblock %}
 
 {% block scripts %}
+    <script src="{{ asset('js/payment_amount.js') }}"></script>
     <script src="{{ asset('js/layout.js') }}"></script>
     <script>
         document.getElementById('payment_method').addEventListener('change', function() {
@@ -133,31 +136,8 @@
             }
         });
 
-        document.getElementById('amount').addEventListener('input', function() {
-            const amount = parseFloat(this.value);
-            const maxAmount = {{ bill.balance_due }};
-
-            if (amount > maxAmount) {
-                this.value = maxAmount;
-                alert(`Amount cannot exceed balance due of ₹${maxAmount.toFixed(2)}`);
-            }
-        });
-
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
             const amount = parseFloat(document.getElementById('amount').value);
-            const maxAmount = {{ bill.balance_due }};
-
-            if (amount <= 0) {
-                e.preventDefault();
-                alert('Please enter a valid amount greater than 0');
-                return false;
-            }
-
-            if (amount > maxAmount) {
-                e.preventDefault();
-                alert(`Amount cannot exceed balance due of ₹${maxAmount.toFixed(2)}`);
-                return false;
-            }
 
             const confirmMsg = `Are you sure you want to receive payment of ₹${amount.toFixed(2)}?`;
             if (!confirm(confirmMsg)) {

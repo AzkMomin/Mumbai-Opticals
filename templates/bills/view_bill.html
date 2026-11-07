@@ -42,8 +42,8 @@
         <div class="bill-container">
             <!-- Invoice Header -->
             <div class="invoice-header">
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="row align-items-start">
+                    <div class="col-md-4">
                         <div class="company-name">{{ company.name }}</div>
                         <div class="mt-2">
                             <small class="text-muted">{{ company.address }}</small><br>
@@ -51,7 +51,21 @@
                             <small class="text-muted">GST No: {{ company.gst }}</small>
                         </div>
                     </div>
-                    <div class="col-md-6 text-end">
+                    <div class="col-md-4 text-center bill-status-top">
+                        {% if bill.status == 'CANCELLED' %}
+                        <span class="bill-status-pill status-cancelled"><i class="fas fa-ban me-1"></i>Cancelled</span>
+                        {% elif bill.payment_status == 'PAID' %}
+                        <span class="bill-status-pill status-paid"><i class="fas fa-check-circle me-1"></i>Paid in Full</span>
+                        {% elif bill.payment_status == 'PARTIALLY_PAID' %}
+                        <span class="bill-status-pill status-partially_paid"><i class="fas fa-adjust me-1"></i>Partially Paid</span>
+                        {% else %}
+                        <span class="bill-status-pill status-pending"><i class="fas fa-clock me-1"></i>Payment Pending</span>
+                        {% endif %}
+                        {% if bill.status != 'CANCELLED' and bill.balance_due and bill.balance_due > 0 %}
+                        <div class="bill-status-due">Balance due: <strong>₹{{ "%.2f"|format(bill.balance_due) }}</strong></div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-end">
                         <div class="invoice-title">TAX INVOICE</div>
                         <div class="invoice-number mt-2">Invoice No. {{ bill.bill_number }}</div>
                         <div>Date: {{ bill.bill_date.strftime('%d/%m/%Y') if bill.bill_date else bill.created_at.strftime('%d/%m/%Y') }}</div>
@@ -303,16 +317,6 @@
                             <span class="text-warning">₹{{ "%.2f"|format(bill.balance_due) }}</span>
                         </div>
                         {% endif %}
-                        <div class="summary-row mt-2">
-                            <span>Payment Status:</span>
-                            <span>
-                                <span class="payment-status status-{{ bill.payment_status|lower }}">
-                                    {% if bill.payment_status == 'PENDING' %}Pending
-                                    {% elif bill.payment_status == 'PARTIALLY_PAID' %}Partially Paid
-                                    {% else %}Paid in Full{% endif %}
-                                </span>
-                            </span>
-                        </div>
                     </div>
                 </div>
             </div>

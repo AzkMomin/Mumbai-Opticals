@@ -199,3 +199,16 @@ body {
         margin-left: 0;
     }
 }
+
+/* Payment status, top centre of the bill */
+.bill-status-top { padding-top: 0.2rem; }
+.bill-status-pill { display: inline-flex; align-items: center; padding: 0.45rem 1.1rem; border-radius: 999px; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.01em; border: 2px solid currentColor; }
+.bill-status-pill.status-paid { color: #157347; background: #e8f6ee; }
+.bill-status-pill.status-partially_paid { color: #0a6c85; background: #e5f5f9; }
+.bill-status-pill.status-pending { color: #a15c00; background: #fff4e0; }
+.bill-status-pill.status-cancelled { color: #b02a37; background: #fdecee; }
+.bill-status-due { margin-top: 0.45rem; font-size: 0.85rem; color: #5b6b78; }
+@media (max-width: 767.98px) {
+    .bill-status-top { order: -1; margin-bottom: 1rem; }
+    .invoice-header .text-end { text-align: left !important; margin-top: 1rem; }
+}

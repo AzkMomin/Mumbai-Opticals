@@ -41,8 +41,10 @@
                         <label class="form-label fw-bold">Payment Amount <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text">₹</span>
-                            <input type="number" step="0.01" class="form-control" name="amount" 
-                                   value="{{ "%.2f"|format(payment.amount) }}" required>
+                            <input type="number" step="0.01" min="0.01" class="form-control" name="amount"
+                                   inputmode="decimal" required autocomplete="off"
+                                   value="{{ "%.2f"|format(payment.amount) }}"
+                                   data-max-amount="{{ "%.2f"|format(payment.max_allowed) }}" data-limit-label="the amount still owed on this bill (including this payment)">
                         </div>
                         <small class="text-muted">Maximum allowed: ₹{{ "%.2f"|format(payment.max_allowed) }}</small>
                     </div>
@@ -96,6 +98,7 @@
 {% endblock %}
 
 {% block scripts %}
+    <script src="{{ asset('js/payment_amount.js') }}"></script>
     <script src="{{ asset('js/layout.js') }}"></script>
     <script>
         // Show/hide reference field based on payment method
@@ -114,16 +117,5 @@
         paymentMethod.addEventListener('change', toggleReferenceField);
         toggleReferenceField();
 
-        // Validate amount
-        const amountInput = document.querySelector('input[name="amount"]');
-        const maxAllowed = {{ payment.max_allowed }};
-
-        amountInput.addEventListener('input', function() {
-            let value = parseFloat(this.value);
-            if (value > maxAllowed) {
-                this.value = maxAllowed;
-                alert(`Payment amount cannot exceed ₹${maxAllowed.toFixed(2)}`);
-            }
-        });
     </script>
 {% endblock %}
