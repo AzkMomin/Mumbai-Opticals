@@ -92,6 +92,7 @@
                         <i class="fas fa-times me-1"></i>Remove
                     </button>
                 </div>
+                <div class="table-scroll">
                 <table class="product-table">
                     <thead>
                         <tr>
@@ -102,6 +103,7 @@
                     </thead>
                     <tbody id="section_${type}_tbody"></tbody>
                 </table>
+                </div>
                 <button type="button" class="btn btn-sm btn-primary add-row-btn" data-add-row="${type}">
                     <i class="fas fa-plus me-1"></i>Add
                 </button>

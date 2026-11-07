@@ -91,3 +91,12 @@ th {
         border: none;
     }
 }
+
+/* On a phone screen the item table scrolls sideways; printing is unaffected */
+.print-scroll { width: 100%; overflow-x: auto; }
+@media screen and (max-width: 600px) {
+    .print-scroll table { min-width: 520px; }
+    body { padding: 8px !important; }
+}
+@media print { .print-scroll { overflow: visible; } }
+#barcode, svg { max-width: 100%; height: auto; }
